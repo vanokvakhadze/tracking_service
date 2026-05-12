@@ -10,3 +10,4 @@ dist
 .expo
 ios/Pods
 android/.gradle
+!.env.example
