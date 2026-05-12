@@ -33,6 +33,8 @@
       "dist",
       ".turbo",
       ".expo",
+      "supabase/.temp",
+      "supabase/.branches",
       "design_system",
       "**/*.html",
       "**/next-env.d.ts",

@@ -81,7 +81,38 @@ export async function getCurrentUser() {
     .eq('id', authUser.id)
     .single()
 
-  if (error || !profile) return null
+  if (error || !profile) {
+    console.error('[getCurrentUser] failed', {
+      authUserId: authUser.id,
+      authEmail: authUser.email,
+      errorCode: error?.code,
+      errorMessage: error?.message,
+      errorDetails: error?.details,
+      hasProfile: !!profile,
+    })
+    return null
+  }
 
   return profile
+}
+
+/** Debug helper — exposes both auth user id and query error to the layout */
+export async function getCurrentUserDiagnostic() {
+  const supabase = await createClient()
+  const {
+    data: { user: authUser },
+  } = await supabase.auth.getUser()
+
+  if (!authUser) {
+    return { authUserId: null, authEmail: null, error: 'no auth user' }
+  }
+
+  const { error } = await supabase.from('users').select('id').eq('id', authUser.id).maybeSingle()
+
+  return {
+    authUserId: authUser.id,
+    authEmail: authUser.email ?? null,
+    error: error?.message ?? null,
+    errorCode: error?.code ?? null,
+  }
 }

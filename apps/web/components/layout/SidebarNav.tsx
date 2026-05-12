@@ -1,7 +1,16 @@
 'use client'
 
 import { clsx } from 'clsx'
-import { BarChart3, Bell, LayoutDashboard, MapIcon, MapPin, Settings, Users } from 'lucide-react'
+import {
+  BarChart3,
+  Bell,
+  Inbox,
+  LayoutDashboard,
+  MapIcon,
+  MapPin,
+  Settings,
+  Users,
+} from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
@@ -12,23 +21,35 @@ interface NavItem {
   badge?: number
 }
 
-const navItems: NavItem[] = [
-  { href: '/dashboard', label: 'დაშბორდი', icon: LayoutDashboard },
-  { href: '/live-map', label: 'ცოცხალი რუკა', icon: MapIcon },
-  { href: '/locations', label: 'ლოკაციები', icon: MapPin },
-  { href: '/users', label: 'მომხმარებლები', icon: Users },
-  { href: '/reports', label: 'რეპორტები', icon: BarChart3 },
-  { href: '/alerts', label: 'ალერტი', icon: Bell, badge: 3 },
-  { href: '/settings', label: 'პარამეტრები', icon: Settings },
-]
+function getNavItems(pendingLocationsCount: number): NavItem[] {
+  return [
+    { href: '/dashboard', label: 'დაშბორდი', icon: LayoutDashboard },
+    { href: '/live-map', label: 'ცოცხალი რუკა', icon: MapIcon },
+    { href: '/locations', label: 'ლოკაციები', icon: MapPin },
+    { href: '/locations/pending', label: 'მოლოდინში', icon: Inbox, badge: pendingLocationsCount },
+    { href: '/users', label: 'მომხმარებლები', icon: Users },
+    { href: '/reports', label: 'რეპორტები', icon: BarChart3 },
+    { href: '/alerts', label: 'ალერტი', icon: Bell, badge: 3 },
+    { href: '/settings', label: 'პარამეტრები', icon: Settings },
+  ]
+}
 
-export function SidebarNav() {
+interface SidebarNavProps {
+  pendingLocationsCount: number
+}
+
+export function SidebarNav({ pendingLocationsCount }: SidebarNavProps) {
   const pathname = usePathname()
+  const navItems = getNavItems(pendingLocationsCount)
 
   return (
     <nav className="space-y-0.5">
       {navItems.map(({ href, label, icon: Icon, badge }) => {
-        const isActive = pathname === href || pathname.startsWith(`${href}/`)
+        const isActive =
+          href === '/locations'
+            ? pathname === href ||
+              (pathname.startsWith('/locations/') && !pathname.startsWith('/locations/pending'))
+            : pathname === href || pathname.startsWith(`${href}/`)
         return (
           <Link
             key={href}

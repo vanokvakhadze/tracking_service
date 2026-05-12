@@ -1,99 +1,199 @@
-import { Image } from 'expo-image'
-import { Platform, StyleSheet } from 'react-native'
+import { useEffect, useState } from 'react'
+import { ScrollView, StyleSheet, Text, View } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { formatDuration, useCurrentShift } from '@/src/hooks/use-current-shift'
 
-import { HelloWave } from '@/components/hello-wave'
-import ParallaxScrollView from '@/components/parallax-scroll-view'
-import { ThemedText } from '@/components/themed-text'
-import { ThemedView } from '@/components/themed-view'
-import { Link } from 'expo-router'
+const KAYA = {
+  bg: '#FFFFFF',
+  surface: '#F8FAFC',
+  surface2: '#F1F5F9',
+  border: '#E2E8F0',
+  textPrimary: '#0F172A',
+  textSecondary: '#475569',
+  textTertiary: '#94A3B8',
+  accent: '#1565C0',
+  accentFg: '#FFFFFF',
+  accentTint: '#E3F2FD',
+  success: '#16A34A',
+  warningBg: '#FEFCE8',
+  warningText: '#A16207',
+}
 
 export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }
-    >
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+  const { shift, loading } = useCurrentShift()
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <View style={styles.center}>
+          <Text style={styles.subtle}>იტვირთება…</Text>
+        </View>
+      </SafeAreaView>
+    )
+  }
+
+  return (
+    <SafeAreaView style={styles.container} edges={['top']}>
+      <ScrollView contentContainerStyle={styles.scroll}>
+        {shift ? <ActiveShiftView shift={shift} /> : <InactiveView />}
+      </ScrollView>
+    </SafeAreaView>
+  )
+}
+
+function ActiveShiftView({
+  shift,
+}: { shift: NonNullable<ReturnType<typeof useCurrentShift>['shift']> }) {
+  const [elapsed, setElapsed] = useState(() => Date.now() - new Date(shift.started_at).getTime())
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setElapsed(Date.now() - new Date(shift.started_at).getTime())
+    }, 1000)
+    return () => clearInterval(interval)
+  }, [shift.started_at])
+
+  const km = ((shift.total_distance_m ?? 0) / 1000).toFixed(1)
+  const visits = shift.locations_visited ?? 0
+
+  return (
+    <>
+      <View style={styles.hero}>
+        <Text style={styles.heroLabel}>ცვლა მიმდინარეობს</Text>
+        <Text style={styles.heroTimer}>{formatDuration(elapsed)}</Text>
+        <Text style={styles.heroSub}>
+          {new Date(shift.started_at).toLocaleTimeString('ka-GE')} დაიწყო
+        </Text>
+      </View>
+
+      <View style={styles.statsRow}>
+        <StatCard label="მანძილი" value={`${km} კმ`} />
+        <StatCard label="ვიზიტი" value={String(visits)} />
+      </View>
+    </>
+  )
+}
+
+function InactiveView() {
+  return (
+    <>
+      <View style={styles.inactiveHeader}>
+        <Text style={styles.title}>გამარჯობა 👋</Text>
+        <Text style={styles.subtle}>ცვლის გარეთ ხართ</Text>
+      </View>
+
+      <View style={styles.bigCard}>
+        <View style={styles.bigCardDot} />
+        <Text style={styles.bigCardTitle}>ცვლა გათიშულია</Text>
+        <Text style={styles.bigCardText}>
+          ცვლა ავტომატურად დაიწყება როცა სამუშაო ლოკაციაზე მიხვალთ.
+        </Text>
+      </View>
+
+      <View style={styles.noticeCard}>
+        <Text style={styles.noticeTitle}>📋 ჯერ ფონური ტრეკინგი ჩართული არ არის</Text>
+        <Text style={styles.noticeText}>
+          Phase 3 SDK (react-native-background-geolocation) აქ ჩაერთვის. ცვლები ხელით უნდა შეიქმნას
+          ადმინისგან ან Edge Function-დან.
+        </Text>
+      </View>
+    </>
+  )
+}
+
+function StatCard({ label, value }: { label: string; value: string }) {
+  return (
+    <View style={styles.statCard}>
+      <Text style={styles.statLabel}>{label}</Text>
+      <Text style={styles.statValue}>{value}</Text>
+    </View>
   )
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
+  container: { flex: 1, backgroundColor: KAYA.surface },
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  scroll: { padding: 16, gap: 16 },
+
+  hero: {
+    backgroundColor: KAYA.accent,
+    borderRadius: 16,
+    padding: 24,
     alignItems: 'center',
-    gap: 8,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  heroLabel: {
+    color: KAYA.accentTint,
+    fontSize: 11,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  heroTimer: {
+    color: KAYA.accentFg,
+    fontSize: 44,
+    fontWeight: '700',
+    marginTop: 8,
+    fontVariant: ['tabular-nums'],
   },
+  heroSub: { color: KAYA.accentTint, fontSize: 12, marginTop: 4 },
+
+  statsRow: { flexDirection: 'row', gap: 12 },
+  statCard: {
+    flex: 1,
+    backgroundColor: KAYA.bg,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: KAYA.border,
+    padding: 14,
+  },
+  statLabel: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: KAYA.textTertiary,
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
+  },
+  statValue: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: KAYA.textPrimary,
+    marginTop: 4,
+    fontVariant: ['tabular-nums'],
+  },
+
+  inactiveHeader: { paddingHorizontal: 4 },
+  title: { fontSize: 22, fontWeight: '700', color: KAYA.textPrimary },
+  subtle: { fontSize: 13, color: KAYA.textSecondary, marginTop: 2 },
+
+  bigCard: {
+    backgroundColor: KAYA.bg,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: KAYA.border,
+    padding: 24,
+    alignItems: 'center',
+  },
+  bigCardDot: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: KAYA.surface2,
+    marginBottom: 12,
+  },
+  bigCardTitle: { fontSize: 16, fontWeight: '600', color: KAYA.textPrimary },
+  bigCardText: {
+    fontSize: 13,
+    color: KAYA.textSecondary,
+    textAlign: 'center',
+    marginTop: 6,
+    lineHeight: 19,
+  },
+
+  noticeCard: {
+    backgroundColor: KAYA.warningBg,
+    borderRadius: 10,
+    padding: 14,
+  },
+  noticeTitle: { fontSize: 13, fontWeight: '600', color: KAYA.warningText },
+  noticeText: { fontSize: 12, color: KAYA.warningText, marginTop: 4, lineHeight: 17, opacity: 0.8 },
 })
