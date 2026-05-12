@@ -47,7 +47,8 @@ export function SidebarNav({ pendingLocationsCount }: SidebarNavProps) {
       {navItems.map(({ href, label, icon: Icon, badge }) => {
         const isActive =
           href === '/locations'
-            ? pathname === href || (pathname.startsWith('/locations/') && !pathname.startsWith('/locations/pending'))
+            ? pathname === href ||
+              (pathname.startsWith('/locations/') && !pathname.startsWith('/locations/pending'))
             : pathname === href || pathname.startsWith(`${href}/`)
         return (
           <Link

@@ -41,9 +41,7 @@ export default async function WorkZonePage({ params }: WorkZonePageProps) {
   const supabase = await createClient()
   const { data: location } = await supabase
     .from('locations')
-    .select(
-      'id, name, address, latitude, longitude, trigger_radius_m, boundary_radius_m',
-    )
+    .select('id, name, address, latitude, longitude, trigger_radius_m, boundary_radius_m')
     .eq('id', id)
     .eq('tenant_id', tenantId)
     .is('deleted_at', null)

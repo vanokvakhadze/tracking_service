@@ -164,7 +164,9 @@ export function LocationCreateForm({ tenantId }: LocationCreateFormProps) {
         <div className="space-y-1">
           <label className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">
             <span>სამუშაო ზონა (Boundary)</span>
-            <span className="text-[var(--color-warning-text)] tabular-nums">{boundaryRadius} მ</span>
+            <span className="text-[var(--color-warning-text)] tabular-nums">
+              {boundaryRadius} მ
+            </span>
           </label>
           <input
             type="range"

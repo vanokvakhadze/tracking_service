@@ -49,12 +49,15 @@ export function WorkZoneConfig({ location }: WorkZoneConfigProps) {
   }
 
   return (
-    <form action={handleSubmit} className="grid min-h-[calc(100vh-110px)] grid-cols-1 lg:grid-cols-[420px_1fr]">
+    <form
+      action={handleSubmit}
+      className="grid min-h-[calc(100vh-110px)] grid-cols-1 lg:grid-cols-[420px_1fr]"
+    >
       <section className="space-y-5 border-r border-[var(--color-border)] bg-white p-6">
         <div className="rounded-[8px] border border-[var(--color-accent)]/25 bg-[var(--color-accent-tint)] p-4">
           <p className="text-[13px] leading-6 text-[var(--color-accent-hover)]">
-            გეოღობე = სამუშაო ზონის უსაფრთხო საზღვარი. Trigger ცვლის დაწყება/დასრულებას
-            აკონტროლებს, Boundary კი ფართო სამუშაო ზონის alert-ს.
+            გეოღობე = სამუშაო ზონის უსაფრთხო საზღვარი. Trigger ცვლის დაწყება/დასრულებას აკონტროლებს,
+            Boundary კი ფართო სამუშაო ზონის alert-ს.
           </p>
         </div>
         <RadiusControl
@@ -71,7 +74,9 @@ export function WorkZoneConfig({ location }: WorkZoneConfigProps) {
             <ShieldCheck className="h-4 w-4" />
             ცვლა იწყება შესვლისას
           </div>
-          <p className="mt-1 text-[11px] text-[var(--color-accent-hover)]">ENTRY {'->'} SHIFT_START</p>
+          <p className="mt-1 text-[11px] text-[var(--color-accent-hover)]">
+            ENTRY {'->'} SHIFT_START
+          </p>
         </div>
         <div className="rounded-[8px] border border-[var(--color-accent)] bg-[var(--color-accent-tint)] p-3">
           <div className="flex items-center gap-2 text-[13px] font-semibold text-[var(--color-accent-hover)]">
@@ -149,9 +154,19 @@ interface RadiusControlProps {
   onChange: (value: number) => void
 }
 
-function RadiusControl({ label, value, min, max, tone, description, onChange }: RadiusControlProps) {
-  const colorClass = tone === 'accent' ? 'text-[var(--color-accent)]' : 'text-[var(--color-warning-text)]'
-  const accentClass = tone === 'accent' ? 'accent-[var(--color-accent)]' : 'accent-[var(--color-warning)]'
+function RadiusControl({
+  label,
+  value,
+  min,
+  max,
+  tone,
+  description,
+  onChange,
+}: RadiusControlProps) {
+  const colorClass =
+    tone === 'accent' ? 'text-[var(--color-accent)]' : 'text-[var(--color-warning-text)]'
+  const accentClass =
+    tone === 'accent' ? 'accent-[var(--color-accent)]' : 'accent-[var(--color-warning)]'
 
   return (
     <div className="space-y-2">

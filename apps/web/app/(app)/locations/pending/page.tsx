@@ -77,15 +77,14 @@ export default async function PendingLocationsPage() {
 
   const activeLocations = (activeRows ?? []).filter(hasCoordinates)
   const submissions = await Promise.all(
-    (pendingRows ?? []).filter(hasCoordinates).map((row) => toSubmission(row, activeLocations, supabase)),
+    (pendingRows ?? [])
+      .filter(hasCoordinates)
+      .map((row) => toSubmission(row, activeLocations, supabase)),
   )
 
   return (
     <>
-      <SubHeader
-        title="მოლოდინში — ლოკაციები"
-        subtitle={`${submissions.length} ახალი მოთხოვნა`}
-      />
+      <SubHeader title="მოლოდინში — ლოკაციები" subtitle={`${submissions.length} ახალი მოთხოვნა`} />
       <main className="p-6">
         {submissions.length > 0 ? (
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 2xl:grid-cols-3">
@@ -146,7 +145,8 @@ async function getSignedPhotoUrl(
 
 function normalizeEmployee(row: PendingLocationRow['created_by']) {
   const user = Array.isArray(row) ? row[0] : row
-  const name = [user?.first_name, user?.last_name].filter(Boolean).join(' ') || user?.email || 'Employee'
+  const name =
+    [user?.first_name, user?.last_name].filter(Boolean).join(' ') || user?.email || 'Employee'
   const initials = name
     .split(/\s+/)
     .map((part) => part[0]?.toUpperCase())

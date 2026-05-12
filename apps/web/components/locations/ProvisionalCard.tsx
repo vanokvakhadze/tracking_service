@@ -153,11 +153,13 @@ export function ProvisionalCard({ submission }: ProvisionalCardProps) {
               onChange={(event) => setCategory(event.target.value as LocationCategory)}
               className="h-8 w-full rounded-[6px] border border-[var(--color-border)] bg-white px-3 text-[13px] focus:border-[var(--color-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/10"
             >
-              {(Object.entries(categoryLabels) as [LocationCategory, string][]).map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
+              {(Object.entries(categoryLabels) as [LocationCategory, string][]).map(
+                ([value, label]) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ),
+              )}
             </select>
           </div>
           {error && (
@@ -176,7 +178,11 @@ export function ProvisionalCard({ submission }: ProvisionalCardProps) {
         </form>
       </Dialog>
 
-      <RejectDialog open={rejectOpen} locationId={submission.id} onClose={() => setRejectOpen(false)} />
+      <RejectDialog
+        open={rejectOpen}
+        locationId={submission.id}
+        onClose={() => setRejectOpen(false)}
+      />
     </article>
   )
 }

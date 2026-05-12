@@ -4,19 +4,21 @@ import { redirect } from 'next/navigation'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
 
-const CreateLocationSchema = z.object({
-  tenantId: z.string().uuid(),
-  name: z.string().min(2).max(100),
-  category: z.enum(['office', 'client_site', 'warehouse', 'checkpoint', 'other']),
-  address: z.string().max(300).optional().nullable(),
-  latitude: z.coerce.number().min(-90).max(90),
-  longitude: z.coerce.number().min(-180).max(180),
-  triggerRadiusM: z.coerce.number().int().min(50).max(1500),
-  boundaryRadiusM: z.coerce.number().int().min(100).max(5000),
-}).refine((value) => value.triggerRadiusM <= value.boundaryRadiusM, {
-  message: 'Trigger radius must be less than or equal to Boundary radius',
-  path: ['triggerRadiusM'],
-})
+const CreateLocationSchema = z
+  .object({
+    tenantId: z.string().uuid(),
+    name: z.string().min(2).max(100),
+    category: z.enum(['office', 'client_site', 'warehouse', 'checkpoint', 'other']),
+    address: z.string().max(300).optional().nullable(),
+    latitude: z.coerce.number().min(-90).max(90),
+    longitude: z.coerce.number().min(-180).max(180),
+    triggerRadiusM: z.coerce.number().int().min(50).max(1500),
+    boundaryRadiusM: z.coerce.number().int().min(100).max(5000),
+  })
+  .refine((value) => value.triggerRadiusM <= value.boundaryRadiusM, {
+    message: 'Trigger radius must be less than or equal to Boundary radius',
+    path: ['triggerRadiusM'],
+  })
 
 export async function createLocation(formData: FormData) {
   const parsed = CreateLocationSchema.safeParse({

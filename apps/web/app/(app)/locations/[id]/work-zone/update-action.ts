@@ -5,14 +5,16 @@ import { z } from 'zod'
 import { getCurrentUser } from '@/lib/auth/actions'
 import { createClient } from '@/lib/supabase/server'
 
-const UpdateWorkZoneSchema = z.object({
-  locationId: z.string().uuid(),
-  triggerRadiusM: z.coerce.number().int().min(50).max(1500),
-  boundaryRadiusM: z.coerce.number().int().min(100).max(5000),
-}).refine((value) => value.triggerRadiusM <= value.boundaryRadiusM, {
-  message: 'Trigger radius must be less than or equal to Boundary radius',
-  path: ['triggerRadiusM'],
-})
+const UpdateWorkZoneSchema = z
+  .object({
+    locationId: z.string().uuid(),
+    triggerRadiusM: z.coerce.number().int().min(50).max(1500),
+    boundaryRadiusM: z.coerce.number().int().min(100).max(5000),
+  })
+  .refine((value) => value.triggerRadiusM <= value.boundaryRadiusM, {
+    message: 'Trigger radius must be less than or equal to Boundary radius',
+    path: ['triggerRadiusM'],
+  })
 
 export async function updateWorkZone(formData: FormData) {
   const parsed = UpdateWorkZoneSchema.safeParse({
