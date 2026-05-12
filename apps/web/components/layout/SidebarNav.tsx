@@ -1,25 +1,33 @@
 'use client'
 
 import { clsx } from 'clsx'
-import { BarChart3, ClipboardList, LayoutDashboard, MapPin, Settings, Users } from 'lucide-react'
+import { BarChart3, Bell, LayoutDashboard, MapIcon, MapPin, Settings, Users } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
-const navItems = [
+interface NavItem {
+  href: string
+  label: string
+  icon: typeof LayoutDashboard
+  badge?: number
+}
+
+const navItems: NavItem[] = [
   { href: '/dashboard', label: 'დაშბორდი', icon: LayoutDashboard },
-  { href: '/users', label: 'მომხმარებლები', icon: Users },
+  { href: '/live-map', label: 'ცოცხალი რუკა', icon: MapIcon },
   { href: '/locations', label: 'ლოკაციები', icon: MapPin },
-  { href: '/locations/pending', label: 'მოლოდინში', icon: ClipboardList },
+  { href: '/users', label: 'მომხმარებლები', icon: Users },
   { href: '/reports', label: 'რეპორტები', icon: BarChart3 },
+  { href: '/alerts', label: 'ალერტი', icon: Bell, badge: 3 },
   { href: '/settings', label: 'პარამეტრები', icon: Settings },
-] as const
+]
 
 export function SidebarNav() {
   const pathname = usePathname()
 
   return (
     <nav className="space-y-0.5">
-      {navItems.map(({ href, label, icon: Icon }) => {
+      {navItems.map(({ href, label, icon: Icon, badge }) => {
         const isActive = pathname === href || pathname.startsWith(`${href}/`)
         return (
           <Link
@@ -29,11 +37,21 @@ export function SidebarNav() {
               'flex items-center gap-2.5 rounded-[6px] px-2.5 py-1.5 text-[13px] font-medium transition-colors',
               isActive
                 ? 'bg-[var(--color-accent)] text-[var(--color-accent-fg)]'
-                : 'text-[var(--color-text-primary)] hover:bg-[var(--color-surface-2)]',
+                : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-surface)]',
             )}
           >
-            <Icon className="h-4 w-4" />
-            {label}
+            <Icon className={clsx('h-4 w-4', !isActive && 'text-[var(--color-text-tertiary)]')} />
+            <span className="flex-1">{label}</span>
+            {badge !== undefined && (
+              <span
+                className={clsx(
+                  'rounded-full px-1.5 text-[10px] font-semibold tabular-nums',
+                  isActive ? 'bg-white/20 text-white' : 'bg-[var(--color-error)] text-white',
+                )}
+              >
+                {badge}
+              </span>
+            )}
           </Link>
         )
       })}

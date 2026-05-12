@@ -1,6 +1,6 @@
 'use client'
 
-import { Search, UserPlus } from 'lucide-react'
+import { Plus, Search } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { SubHeader } from '@/components/layout/SubHeader'
 import { Button } from '@/components/ui/Button'
@@ -8,7 +8,7 @@ import type { MembershipRow } from './types'
 import { InviteUserDialog } from './InviteUserDialog'
 import { UsersTable } from './UsersTable'
 
-type StatusFilter = 'all' | 'active' | 'suspended'
+type StatusFilter = 'all' | 'active' | 'suspended' | 'pending'
 
 interface UsersPageClientProps {
   initialRows: MembershipRow[]
@@ -20,6 +20,7 @@ export function UsersPageClient({ initialRows }: UsersPageClientProps) {
   const [inviteOpen, setInviteOpen] = useState(false)
 
   const filtered = useMemo(() => {
+    if (statusFilter === 'pending') return [] // pending invites tracked separately, surfaced in v2
     const q = search.trim().toLowerCase()
     return initialRows.filter((row) => {
       const active = row.is_active === true
@@ -40,6 +41,7 @@ export function UsersPageClient({ initialRows }: UsersPageClientProps) {
       all: initialRows.length,
       active: initialRows.filter((r) => r.is_active === true).length,
       suspended: initialRows.filter((r) => r.is_active !== true).length,
+      pending: 0, // hook up to invitations table count in a follow-up
     }),
     [initialRows],
   )
@@ -48,10 +50,10 @@ export function UsersPageClient({ initialRows }: UsersPageClientProps) {
     <>
       <SubHeader
         title="მომხმარებლები"
-        subtitle={`${counts.all} თანამშრომელი`}
+        subtitle={`${counts.active} აქტიური · ${counts.suspended} გათიშული · ${counts.pending} მოლოდინში`}
         actions={
           <Button onClick={() => setInviteOpen(true)} size="md">
-            <UserPlus className="h-4 w-4" />
+            <Plus className="h-4 w-4" />
             მოწვევა
           </Button>
         }
@@ -73,10 +75,16 @@ export function UsersPageClient({ initialRows }: UsersPageClientProps) {
               onClick={() => setStatusFilter('active')}
             />
             <FilterPill
-              label="შეჩერებული"
+              label="გათიშული"
               count={counts.suspended}
               active={statusFilter === 'suspended'}
               onClick={() => setStatusFilter('suspended')}
+            />
+            <FilterPill
+              label="მოლოდინში"
+              count={counts.pending}
+              active={statusFilter === 'pending'}
+              onClick={() => setStatusFilter('pending')}
             />
           </div>
 

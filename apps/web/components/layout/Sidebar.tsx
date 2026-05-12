@@ -19,13 +19,13 @@ export function Sidebar({ footerName, footerRole, footerInitials }: SidebarProps
           <ShieldCheck className="h-3.5 w-3.5 text-[var(--color-accent)]" />
         </span>
         <span className="flex-1 text-left text-[13px] font-semibold text-[var(--color-text-primary)]">
-          Admin Panel
+          Operations
         </span>
         <ChevronDown className="h-3.5 w-3.5 text-[var(--color-text-tertiary)]" />
       </button>
 
-      <p className="px-2.5 pt-2 pb-1 text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-tertiary)]">
-        მართვა
+      <p className="px-2.5 pt-3 pb-1 text-[10px] font-bold uppercase tracking-[0.06em] text-[var(--color-text-tertiary)]">
+        ნავიგაცია
       </p>
       <SidebarNav />
 
