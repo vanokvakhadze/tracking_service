@@ -171,6 +171,9 @@ importers:
       '@tanstack/react-query':
         specifier: ^5.100.10
         version: 5.100.10(react@19.2.4)
+      '@trackpro/database':
+        specifier: workspace:*
+        version: link:../../packages/database
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
