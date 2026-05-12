@@ -38,7 +38,7 @@ export function Button({
       type={type ?? 'button'}
       disabled={disabled || loading}
       className={clsx(
-        'inline-flex items-center justify-center gap-2 rounded-[4px] font-medium transition-colors',
+        'inline-flex items-center justify-center gap-2 rounded-[6px] font-medium transition-colors',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-1',
         'disabled:pointer-events-none disabled:opacity-50',
         variants[variant],

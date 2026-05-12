@@ -1,3 +1,5 @@
+import { ChevronRight } from 'lucide-react'
+import { Avatar } from '@/components/ui/Avatar'
 import { type MembershipRow, roleLabels } from './types'
 
 interface UsersTableProps {
@@ -36,7 +38,7 @@ function formatRelative(iso: string | null) {
 export function UsersTable({ rows }: UsersTableProps) {
   if (rows.length === 0) {
     return (
-      <div className="rounded-lg border border-[var(--color-border)] bg-white p-12 text-center">
+      <div className="rounded-[10px] border border-[var(--color-border)] bg-white p-12 text-center">
         <p className="text-[13px] text-[var(--color-text-secondary)]">
           ჯერ თანამშრომელი არ მოგიწვევია.
         </p>
@@ -45,14 +47,16 @@ export function UsersTable({ rows }: UsersTableProps) {
   }
 
   return (
-    <div className="overflow-hidden rounded-lg border border-[var(--color-border)] bg-white">
+    <div className="overflow-hidden rounded-[10px] border border-[var(--color-border)] bg-white">
       <table className="w-full text-left">
         <thead>
           <tr className="border-b border-[var(--color-border)] bg-[var(--color-surface)]">
             <Th>თანამშრომელი</Th>
+            <Th>ჯგუფი</Th>
             <Th>როლი</Th>
             <Th>სტატუსი</Th>
-            <Th>ბოლო შესვლა</Th>
+            <Th>ბოლო აქტივობა</Th>
+            <Th className="w-12 sr-only">{''}</Th>
           </tr>
         </thead>
         <tbody>
@@ -64,11 +68,12 @@ export function UsersTable({ rows }: UsersTableProps) {
                 key={row.id}
                 className="border-b border-[var(--color-border)] last:border-b-0 hover:bg-[var(--color-surface)]"
               >
-                <td className="px-3.5 py-2.5">
+                <td className="px-4 py-3">
                   <div className="flex items-center gap-2.5">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--color-accent-tint)] text-[12px] font-semibold text-[var(--color-accent)]">
-                      {initialsOf(user.first_name, user.last_name, user.email)}
-                    </span>
+                    <Avatar
+                      initials={initialsOf(user.first_name, user.last_name, user.email)}
+                      seed={user.id}
+                    />
                     <div className="leading-tight">
                       <p className="text-[13px] font-medium text-[var(--color-text-primary)]">
                         {displayName(user.first_name, user.last_name, user.email)}
@@ -77,14 +82,22 @@ export function UsersTable({ rows }: UsersTableProps) {
                     </div>
                   </div>
                 </td>
-                <td className="px-3.5 py-2.5 text-[13px] text-[var(--color-text-primary)]">
+                <td className="px-4 py-3 text-[12px] text-[var(--color-text-tertiary)]">
+                  <span className="inline-flex items-center rounded-full border border-[var(--color-border)] bg-[var(--color-surface-2)] px-2 py-0.5 text-[11px]">
+                    —
+                  </span>
+                </td>
+                <td className="px-4 py-3 text-[13px] text-[var(--color-text-primary)]">
                   {roleLabels[row.role] ?? row.role}
                 </td>
-                <td className="px-3.5 py-2.5">
+                <td className="px-4 py-3">
                   <StatusBadge active={row.is_active === true} />
                 </td>
-                <td className="px-3.5 py-2.5 text-[12px] text-[var(--color-text-secondary)]">
+                <td className="px-4 py-3 text-[12px] text-[var(--color-text-secondary)]">
                   {formatRelative(user.last_login_at)}
+                </td>
+                <td className="px-2 py-3 w-12 text-right">
+                  <ChevronRight className="inline h-4 w-4 text-[var(--color-text-tertiary)]" />
                 </td>
               </tr>
             )
@@ -95,9 +108,14 @@ export function UsersTable({ rows }: UsersTableProps) {
   )
 }
 
-function Th({ children }: { children: React.ReactNode }) {
+function Th({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
-    <th className="px-3.5 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">
+    <th
+      className={
+        'px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-[var(--color-text-secondary)] ' +
+        (className ?? '')
+      }
+    >
       {children}
     </th>
   )
@@ -113,9 +131,9 @@ function StatusBadge({ active }: { active: boolean }) {
     )
   }
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--color-border)] bg-[var(--color-surface-2)] px-2 py-0.5 text-[11px] font-medium text-[var(--color-text-secondary)]">
-      <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-text-tertiary)]" />
-      შეჩერებული
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--color-error-border)] bg-[var(--color-error-bg)] px-2 py-0.5 text-[11px] font-medium text-[var(--color-error-text)]">
+      <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-error)]" />
+      გათიშული
     </span>
   )
 }
