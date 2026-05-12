@@ -1,36 +1,49 @@
+import { Feather } from '@expo/vector-icons'
 import { Tabs } from 'expo-router'
-import React from 'react'
 
-import { HapticTab } from '@/components/haptic-tab'
-import { IconSymbol } from '@/components/ui/icon-symbol'
-import { Colors } from '@/constants/theme'
-import { useColorScheme } from '@/hooks/use-color-scheme'
+const KAYA_ACCENT = '#1565C0'
+const KAYA_TEXT_TERTIARY = '#94A3B8'
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme()
-
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarActiveTintColor: KAYA_ACCENT,
+        tabBarInactiveTintColor: KAYA_TEXT_TERTIARY,
         headerShown: false,
-        tabBarButton: HapticTab,
+        tabBarStyle: { backgroundColor: '#FFFFFF', borderTopColor: '#E2E8F0' },
+        tabBarLabelStyle: { fontSize: 10, fontWeight: '600' },
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          title: 'მთავარი',
+          tabBarIcon: ({ color }) => <Feather name="home" color={color} size={22} />,
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="map"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: 'რუკა',
+          tabBarIcon: ({ color }) => <Feather name="map" color={color} size={22} />,
         }}
       />
+      <Tabs.Screen
+        name="history"
+        options={{
+          title: 'ისტორია',
+          tabBarIcon: ({ color }) => <Feather name="clock" color={color} size={22} />,
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: 'პროფილი',
+          tabBarIcon: ({ color }) => <Feather name="user" color={color} size={22} />,
+        }}
+      />
+      <Tabs.Screen name="explore" options={{ href: null }} />
     </Tabs>
   )
 }
