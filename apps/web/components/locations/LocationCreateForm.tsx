@@ -21,7 +21,8 @@ type Mode = 'map' | 'address'
 export function LocationCreateForm({ tenantId }: LocationCreateFormProps) {
   const [mode, setMode] = useState<Mode>('map')
   const [position, setPosition] = useState(TBILISI)
-  const [radius, setRadius] = useState(100)
+  const [triggerRadius, setTriggerRadius] = useState(100)
+  const [boundaryRadius, setBoundaryRadius] = useState(200)
   const [category, setCategory] = useState<LocationCategory>('office')
   const [address, setAddress] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -30,10 +31,16 @@ export function LocationCreateForm({ tenantId }: LocationCreateFormProps) {
   async function handleSubmit(formData: FormData) {
     setLoading(true)
     setError(null)
+    if (triggerRadius > boundaryRadius) {
+      setError('Trigger რადიუსი Boundary რადიუსზე მეტი ვერ იქნება.')
+      setLoading(false)
+      return
+    }
     formData.set('tenantId', tenantId)
     formData.set('latitude', String(position.lat))
     formData.set('longitude', String(position.lng))
-    formData.set('radiusM', String(radius))
+    formData.set('triggerRadiusM', String(triggerRadius))
+    formData.set('boundaryRadiusM', String(boundaryRadius))
     formData.set('category', category)
     const result = await createLocation(formData)
     if (result?.error) {
@@ -85,7 +92,7 @@ export function LocationCreateForm({ tenantId }: LocationCreateFormProps) {
           zoom={14}
           draggablePin={position}
           onPinDrag={(lat, lng) => setPosition({ lat, lng })}
-          radiusM={radius}
+          radiusM={{ trigger: triggerRadius, boundary: boundaryRadius }}
         />
         <div className="grid grid-cols-2 gap-3 border-t border-[var(--color-border)] px-5 py-3 text-[11px] tabular-nums">
           <div>
@@ -137,20 +144,39 @@ export function LocationCreateForm({ tenantId }: LocationCreateFormProps) {
 
         <div className="space-y-1">
           <label className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">
-            <span>რადიუსი</span>
-            <span className="text-[var(--color-text-primary)] tabular-nums">{radius} მ</span>
+            <span>ცვლის ცენტრი (Trigger)</span>
+            <span className="text-[var(--color-accent)] tabular-nums">{triggerRadius} მ</span>
           </label>
           <input
             type="range"
             min={50}
             max={1500}
             step={10}
-            value={radius}
-            onChange={(e) => setRadius(Number(e.target.value))}
+            value={triggerRadius}
+            onChange={(e) => setTriggerRadius(Number(e.target.value))}
             className="w-full accent-[var(--color-accent)]"
           />
           <p className="text-[10px] text-[var(--color-text-tertiary)]">
-            50მ — 1500მ. სტანდარტი 100მ.
+            Shift auto start/end ზონა. 50მ — 1500მ.
+          </p>
+        </div>
+
+        <div className="space-y-1">
+          <label className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">
+            <span>სამუშაო ზონა (Boundary)</span>
+            <span className="text-[var(--color-warning-text)] tabular-nums">{boundaryRadius} მ</span>
+          </label>
+          <input
+            type="range"
+            min={100}
+            max={5000}
+            step={10}
+            value={boundaryRadius}
+            onChange={(e) => setBoundaryRadius(Number(e.target.value))}
+            className="w-full accent-[var(--color-warning)]"
+          />
+          <p className="text-[10px] text-[var(--color-text-tertiary)]">
+            Alert ზონა სამუშაო ტერიტორიისთვის. 100მ — 5000მ.
           </p>
         </div>
 

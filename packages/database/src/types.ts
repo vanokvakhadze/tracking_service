@@ -516,6 +516,7 @@ export type Database = {
       locations: {
         Row: {
           address: string | null
+          boundary_radius_m: number
           category: Database["public"]["Enums"]["location_category"] | null
           center: unknown
           created_at: string | null
@@ -524,14 +525,18 @@ export type Database = {
           expected_dwell_minutes: number | null
           id: string
           is_active: boolean | null
+          latitude: number | null
+          longitude: number | null
           metadata: Json | null
           name: string
           radius_m: number
           tenant_id: string
+          trigger_radius_m: number
           updated_at: string | null
         }
         Insert: {
           address?: string | null
+          boundary_radius_m: number
           category?: Database["public"]["Enums"]["location_category"] | null
           center: unknown
           created_at?: string | null
@@ -540,14 +545,18 @@ export type Database = {
           expected_dwell_minutes?: number | null
           id?: string
           is_active?: boolean | null
+          latitude?: number | null
+          longitude?: number | null
           metadata?: Json | null
           name: string
           radius_m?: number
           tenant_id: string
+          trigger_radius_m: number
           updated_at?: string | null
         }
         Update: {
           address?: string | null
+          boundary_radius_m?: number
           category?: Database["public"]["Enums"]["location_category"] | null
           center?: unknown
           created_at?: string | null
@@ -556,10 +565,13 @@ export type Database = {
           expected_dwell_minutes?: number | null
           id?: string
           is_active?: boolean | null
+          latitude?: number | null
+          longitude?: number | null
           metadata?: Json | null
           name?: string
           radius_m?: number
           tenant_id?: string
+          trigger_radius_m?: number
           updated_at?: string | null
         }
         Relationships: [
@@ -1054,6 +1066,32 @@ export type Database = {
             }
             Returns: string
           }
+      create_location:
+        | {
+            Args: {
+              p_address: string
+              p_category: Database["public"]["Enums"]["location_category"]
+              p_latitude: number
+              p_longitude: number
+              p_name: string
+              p_radius_m: number
+              p_tenant_id: string
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              p_address: string
+              p_boundary_radius_m: number
+              p_category: Database["public"]["Enums"]["location_category"]
+              p_latitude: number
+              p_longitude: number
+              p_name: string
+              p_tenant_id: string
+              p_trigger_radius_m: number
+            }
+            Returns: string
+          }
       create_tenant_with_admin: {
         Args: {
           p_company_name: string
@@ -1197,6 +1235,7 @@ export type Database = {
       }
       geomfromewkt: { Args: { "": string }; Returns: unknown }
       gettransactionid: { Args: never; Returns: unknown }
+      is_tenant_admin: { Args: { p_tenant_id: string }; Returns: boolean }
       issue_next_number: { Args: { p_scheme_id: string }; Returns: string }
       longtransactionsenabled: { Args: never; Returns: boolean }
       populate_geometry_columns:

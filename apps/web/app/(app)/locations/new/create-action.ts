@@ -11,7 +11,11 @@ const CreateLocationSchema = z.object({
   address: z.string().max(300).optional().nullable(),
   latitude: z.coerce.number().min(-90).max(90),
   longitude: z.coerce.number().min(-180).max(180),
-  radiusM: z.coerce.number().int().min(50).max(5000),
+  triggerRadiusM: z.coerce.number().int().min(50).max(1500),
+  boundaryRadiusM: z.coerce.number().int().min(100).max(5000),
+}).refine((value) => value.triggerRadiusM <= value.boundaryRadiusM, {
+  message: 'Trigger radius must be less than or equal to Boundary radius',
+  path: ['triggerRadiusM'],
 })
 
 export async function createLocation(formData: FormData) {
@@ -22,7 +26,8 @@ export async function createLocation(formData: FormData) {
     address: formData.get('address') || null,
     latitude: formData.get('latitude'),
     longitude: formData.get('longitude'),
-    radiusM: formData.get('radiusM'),
+    triggerRadiusM: formData.get('triggerRadiusM'),
+    boundaryRadiusM: formData.get('boundaryRadiusM'),
   })
 
   if (!parsed.success) {
@@ -30,16 +35,15 @@ export async function createLocation(formData: FormData) {
   }
 
   const supabase = await createClient()
-  // @ts-expect-error — create_location lands in generated types after
-  // migration 07 is applied + db:types is regenerated.
   const { error } = await supabase.rpc('create_location', {
     p_tenant_id: parsed.data.tenantId,
     p_name: parsed.data.name,
     p_category: parsed.data.category,
-    p_address: parsed.data.address ?? null,
+    p_address: parsed.data.address ?? '',
     p_latitude: parsed.data.latitude,
     p_longitude: parsed.data.longitude,
-    p_radius_m: parsed.data.radiusM,
+    p_trigger_radius_m: parsed.data.triggerRadiusM,
+    p_boundary_radius_m: parsed.data.boundaryRadiusM,
   })
 
   if (error) {
