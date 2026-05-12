@@ -1,0 +1,4 @@
+{
+  "extends": "@trackpro/tsconfig/base.json",
+  "include": ["src/**/*"]
+}

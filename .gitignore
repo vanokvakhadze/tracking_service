@@ -11,3 +11,10 @@ dist
 ios/Pods
 android/.gradle
 !.env.example
+
+# Supabase CLI local state
+supabase/.temp/
+supabase/.branches/
+
+# Sentry CLI auth (when set up later)
+.sentryclirc

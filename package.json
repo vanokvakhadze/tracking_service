@@ -12,6 +12,7 @@
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",
     "test": "turbo test",
+    "db:types": "npx supabase gen types typescript --project-id lekogoghgbvmrlqcqmhv > packages/database/src/types.ts",
     "format": "biome format --write .",
     "format:check": "biome format .",
     "clean": "turbo clean && rimraf node_modules"
