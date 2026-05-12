@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import { Button } from '@/components/ui/Button'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { TopBar } from '@/components/layout/TopBar'
-import { getCurrentUser, logout } from '@/lib/auth/actions'
+import { getCurrentUser, getCurrentUserDiagnostic, logout } from '@/lib/auth/actions'
 
 function initialsOf(parts: (string | null | undefined)[], fallback = '?'): string {
   const tokens = parts
@@ -22,15 +22,21 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
   // infinite /dashboard ↔ /login loop with the middleware. Show a sign-out
   // surface so the user can clean state.
   if (!user) {
+    const diag = await getCurrentUserDiagnostic()
     return (
       <div className="min-h-screen flex items-center justify-center bg-[var(--color-surface)] p-6">
-        <div className="max-w-md rounded-[10px] border border-[var(--color-border)] bg-white p-6 text-center">
+        <div className="max-w-lg rounded-[10px] border border-[var(--color-border)] bg-white p-6">
           <h1 className="text-[16px] font-semibold text-[var(--color-text-primary)]">
             პროფილი ვერ მოიძებნა
           </h1>
           <p className="mt-2 text-[13px] text-[var(--color-text-secondary)]">
-            შენი auth სესია ცოცხალია, მაგრამ public.users-ში პროფილი არ არსებობს. ხშირად ეს ხდება
-            ძველი signup-ით (მიგრაციამდე) დარჩენილი ანგარიშისთვის. გასცილდი და სცადე ხელახლა.
+            auth სესია ცოცხალია, მაგრამ public.users-ში პროფილი არ ჩაიტვირთა.
+          </p>
+          <pre className="mt-3 overflow-auto rounded border border-[var(--color-border)] bg-[var(--color-surface)] p-3 text-[11px] leading-snug">
+            {JSON.stringify(diag, null, 2)}
+          </pre>
+          <p className="mt-3 text-[11px] text-[var(--color-text-tertiary)]">
+            ⤴ ეს info გაუგზავნე Claude-ს რომ ვაფიქსიროთ. შემდეგ შეგიძლია გასცილდე.
           </p>
           <form action={logout} className="mt-4">
             <Button type="submit" variant="primary" size="lg">
