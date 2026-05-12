@@ -1,10 +1,16 @@
-export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
 
 export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: '14.5'
+    PostgrestVersion: "14.5"
   }
   public: {
     Tables: {
@@ -47,11 +53,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'audit_logs_actor_user_id_fkey'
-            columns: ['actor_user_id']
+            foreignKeyName: "audit_logs_actor_user_id_fkey"
+            columns: ["actor_user_id"]
             isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
+            referencedRelation: "users"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -148,46 +154,46 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'dwell_records_enter_event_id_fkey'
-            columns: ['enter_event_id']
+            foreignKeyName: "dwell_records_enter_event_id_fkey"
+            columns: ["enter_event_id"]
             isOneToOne: false
-            referencedRelation: 'geofence_events'
-            referencedColumns: ['id']
+            referencedRelation: "geofence_events"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'dwell_records_exit_event_id_fkey'
-            columns: ['exit_event_id']
+            foreignKeyName: "dwell_records_exit_event_id_fkey"
+            columns: ["exit_event_id"]
             isOneToOne: false
-            referencedRelation: 'geofence_events'
-            referencedColumns: ['id']
+            referencedRelation: "geofence_events"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'dwell_records_location_id_fkey'
-            columns: ['location_id']
+            foreignKeyName: "dwell_records_location_id_fkey"
+            columns: ["location_id"]
             isOneToOne: false
-            referencedRelation: 'locations'
-            referencedColumns: ['id']
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'dwell_records_shift_id_fkey'
-            columns: ['shift_id']
+            foreignKeyName: "dwell_records_shift_id_fkey"
+            columns: ["shift_id"]
             isOneToOne: false
-            referencedRelation: 'shifts'
-            referencedColumns: ['id']
+            referencedRelation: "shifts"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'dwell_records_tenant_id_fkey'
-            columns: ['tenant_id']
+            foreignKeyName: "dwell_records_tenant_id_fkey"
+            columns: ["tenant_id"]
             isOneToOne: false
-            referencedRelation: 'tenants'
-            referencedColumns: ['id']
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'dwell_records_user_id_fkey'
-            columns: ['user_id']
+            foreignKeyName: "dwell_records_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
+            referencedRelation: "users"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -196,7 +202,7 @@ export type Database = {
           accuracy_m: number | null
           coords: unknown
           created_at: string | null
-          event_type: Database['public']['Enums']['geofence_event_type']
+          event_type: Database["public"]["Enums"]["geofence_event_type"]
           id: string
           location_id: string
           occurred_at: string
@@ -208,7 +214,7 @@ export type Database = {
           accuracy_m?: number | null
           coords: unknown
           created_at?: string | null
-          event_type: Database['public']['Enums']['geofence_event_type']
+          event_type: Database["public"]["Enums"]["geofence_event_type"]
           id?: string
           location_id: string
           occurred_at: string
@@ -220,7 +226,7 @@ export type Database = {
           accuracy_m?: number | null
           coords?: unknown
           created_at?: string | null
-          event_type?: Database['public']['Enums']['geofence_event_type']
+          event_type?: Database["public"]["Enums"]["geofence_event_type"]
           id?: string
           location_id?: string
           occurred_at?: string
@@ -230,32 +236,32 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'geofence_events_location_id_fkey'
-            columns: ['location_id']
+            foreignKeyName: "geofence_events_location_id_fkey"
+            columns: ["location_id"]
             isOneToOne: false
-            referencedRelation: 'locations'
-            referencedColumns: ['id']
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'geofence_events_shift_id_fkey'
-            columns: ['shift_id']
+            foreignKeyName: "geofence_events_shift_id_fkey"
+            columns: ["shift_id"]
             isOneToOne: false
-            referencedRelation: 'shifts'
-            referencedColumns: ['id']
+            referencedRelation: "shifts"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'geofence_events_tenant_id_fkey'
-            columns: ['tenant_id']
+            foreignKeyName: "geofence_events_tenant_id_fkey"
+            columns: ["tenant_id"]
             isOneToOne: false
-            referencedRelation: 'tenants'
-            referencedColumns: ['id']
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'geofence_events_user_id_fkey'
-            columns: ['user_id']
+            foreignKeyName: "geofence_events_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
+            referencedRelation: "users"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -286,25 +292,25 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'group_memberships_group_id_fkey'
-            columns: ['group_id']
+            foreignKeyName: "group_memberships_group_id_fkey"
+            columns: ["group_id"]
             isOneToOne: false
-            referencedRelation: 'groups'
-            referencedColumns: ['id']
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'group_memberships_tenant_id_fkey'
-            columns: ['tenant_id']
+            foreignKeyName: "group_memberships_tenant_id_fkey"
+            columns: ["tenant_id"]
             isOneToOne: false
-            referencedRelation: 'tenants'
-            referencedColumns: ['id']
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'group_memberships_user_id_fkey'
-            columns: ['user_id']
+            foreignKeyName: "group_memberships_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
+            referencedRelation: "users"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -344,18 +350,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'groups_created_by_user_id_fkey'
-            columns: ['created_by_user_id']
+            foreignKeyName: "groups_created_by_user_id_fkey"
+            columns: ["created_by_user_id"]
             isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
+            referencedRelation: "users"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'groups_tenant_id_fkey'
-            columns: ['tenant_id']
+            foreignKeyName: "groups_tenant_id_fkey"
+            columns: ["tenant_id"]
             isOneToOne: false
-            referencedRelation: 'tenants'
-            referencedColumns: ['id']
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -367,8 +373,8 @@ export type Database = {
           expires_at: string
           id: string
           invited_by_user_id: string | null
-          role: Database['public']['Enums']['user_role']
-          status: Database['public']['Enums']['invitation_status'] | null
+          role: Database["public"]["Enums"]["user_role"]
+          status: Database["public"]["Enums"]["invitation_status"] | null
           tenant_id: string
           token: string
         }
@@ -379,8 +385,8 @@ export type Database = {
           expires_at: string
           id?: string
           invited_by_user_id?: string | null
-          role?: Database['public']['Enums']['user_role']
-          status?: Database['public']['Enums']['invitation_status'] | null
+          role?: Database["public"]["Enums"]["user_role"]
+          status?: Database["public"]["Enums"]["invitation_status"] | null
           tenant_id: string
           token: string
         }
@@ -391,25 +397,25 @@ export type Database = {
           expires_at?: string
           id?: string
           invited_by_user_id?: string | null
-          role?: Database['public']['Enums']['user_role']
-          status?: Database['public']['Enums']['invitation_status'] | null
+          role?: Database["public"]["Enums"]["user_role"]
+          status?: Database["public"]["Enums"]["invitation_status"] | null
           tenant_id?: string
           token?: string
         }
         Relationships: [
           {
-            foreignKeyName: 'invitations_invited_by_user_id_fkey'
-            columns: ['invited_by_user_id']
+            foreignKeyName: "invitations_invited_by_user_id_fkey"
+            columns: ["invited_by_user_id"]
             isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
+            referencedRelation: "users"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'invitations_tenant_id_fkey'
-            columns: ['tenant_id']
+            foreignKeyName: "invitations_tenant_id_fkey"
+            columns: ["tenant_id"]
             isOneToOne: false
-            referencedRelation: 'tenants'
-            referencedColumns: ['id']
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -434,25 +440,25 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'location_groups_group_id_fkey'
-            columns: ['group_id']
+            foreignKeyName: "location_groups_group_id_fkey"
+            columns: ["group_id"]
             isOneToOne: false
-            referencedRelation: 'groups'
-            referencedColumns: ['id']
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'location_groups_location_id_fkey'
-            columns: ['location_id']
+            foreignKeyName: "location_groups_location_id_fkey"
+            columns: ["location_id"]
             isOneToOne: false
-            referencedRelation: 'locations'
-            referencedColumns: ['id']
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'location_groups_tenant_id_fkey'
-            columns: ['tenant_id']
+            foreignKeyName: "location_groups_tenant_id_fkey"
+            columns: ["tenant_id"]
             isOneToOne: false
-            referencedRelation: 'tenants'
-            referencedColumns: ['id']
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -510,7 +516,7 @@ export type Database = {
       locations: {
         Row: {
           address: string | null
-          category: Database['public']['Enums']['location_category'] | null
+          category: Database["public"]["Enums"]["location_category"] | null
           center: unknown
           created_at: string | null
           created_by_user_id: string | null
@@ -526,7 +532,7 @@ export type Database = {
         }
         Insert: {
           address?: string | null
-          category?: Database['public']['Enums']['location_category'] | null
+          category?: Database["public"]["Enums"]["location_category"] | null
           center: unknown
           created_at?: string | null
           created_by_user_id?: string | null
@@ -542,7 +548,7 @@ export type Database = {
         }
         Update: {
           address?: string | null
-          category?: Database['public']['Enums']['location_category'] | null
+          category?: Database["public"]["Enums"]["location_category"] | null
           center?: unknown
           created_at?: string | null
           created_by_user_id?: string | null
@@ -558,18 +564,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'locations_created_by_user_id_fkey'
-            columns: ['created_by_user_id']
+            foreignKeyName: "locations_created_by_user_id_fkey"
+            columns: ["created_by_user_id"]
             isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
+            referencedRelation: "users"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'locations_tenant_id_fkey'
-            columns: ['tenant_id']
+            foreignKeyName: "locations_tenant_id_fkey"
+            columns: ["tenant_id"]
             isOneToOne: false
-            referencedRelation: 'tenants'
-            referencedColumns: ['id']
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -583,7 +589,7 @@ export type Database = {
           notes: string | null
           start_location: unknown
           started_at: string
-          status: Database['public']['Enums']['shift_status']
+          status: Database["public"]["Enums"]["shift_status"]
           tenant_id: string
           total_distance_m: number | null
           total_dwell_minutes: number | null
@@ -599,7 +605,7 @@ export type Database = {
           notes?: string | null
           start_location?: unknown
           started_at?: string
-          status?: Database['public']['Enums']['shift_status']
+          status?: Database["public"]["Enums"]["shift_status"]
           tenant_id: string
           total_distance_m?: number | null
           total_dwell_minutes?: number | null
@@ -615,7 +621,7 @@ export type Database = {
           notes?: string | null
           start_location?: unknown
           started_at?: string
-          status?: Database['public']['Enums']['shift_status']
+          status?: Database["public"]["Enums"]["shift_status"]
           tenant_id?: string
           total_distance_m?: number | null
           total_dwell_minutes?: number | null
@@ -624,18 +630,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'shifts_tenant_id_fkey'
-            columns: ['tenant_id']
+            foreignKeyName: "shifts_tenant_id_fkey"
+            columns: ["tenant_id"]
             isOneToOne: false
-            referencedRelation: 'tenants'
-            referencedColumns: ['id']
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'shifts_user_id_fkey'
-            columns: ['user_id']
+            foreignKeyName: "shifts_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
+            referencedRelation: "users"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -709,7 +715,7 @@ export type Database = {
           hire_date: string | null
           id: string
           is_active: boolean | null
-          role: Database['public']['Enums']['user_role']
+          role: Database["public"]["Enums"]["user_role"]
           tenant_id: string
           updated_at: string | null
           user_id: string
@@ -720,7 +726,7 @@ export type Database = {
           hire_date?: string | null
           id?: string
           is_active?: boolean | null
-          role?: Database['public']['Enums']['user_role']
+          role?: Database["public"]["Enums"]["user_role"]
           tenant_id: string
           updated_at?: string | null
           user_id: string
@@ -731,25 +737,25 @@ export type Database = {
           hire_date?: string | null
           id?: string
           is_active?: boolean | null
-          role?: Database['public']['Enums']['user_role']
+          role?: Database["public"]["Enums"]["user_role"]
           tenant_id?: string
           updated_at?: string | null
           user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: 'tenant_memberships_tenant_id_fkey'
-            columns: ['tenant_id']
+            foreignKeyName: "tenant_memberships_tenant_id_fkey"
+            columns: ["tenant_id"]
             isOneToOne: false
-            referencedRelation: 'tenants'
-            referencedColumns: ['id']
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'tenant_memberships_user_id_fkey'
-            columns: ['user_id']
+            foreignKeyName: "tenant_memberships_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
+            referencedRelation: "users"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -764,7 +770,7 @@ export type Database = {
           name: string
           plan_id: string | null
           settings: Json | null
-          status: Database['public']['Enums']['tenant_status']
+          status: Database["public"]["Enums"]["tenant_status"]
           stripe_customer_id: string | null
           subdomain: string
           subscription_ends_at: string | null
@@ -782,7 +788,7 @@ export type Database = {
           name: string
           plan_id?: string | null
           settings?: Json | null
-          status?: Database['public']['Enums']['tenant_status']
+          status?: Database["public"]["Enums"]["tenant_status"]
           stripe_customer_id?: string | null
           subdomain: string
           subscription_ends_at?: string | null
@@ -800,7 +806,7 @@ export type Database = {
           name?: string
           plan_id?: string | null
           settings?: Json | null
-          status?: Database['public']['Enums']['tenant_status']
+          status?: Database["public"]["Enums"]["tenant_status"]
           stripe_customer_id?: string | null
           subdomain?: string
           subscription_ends_at?: string | null
@@ -810,11 +816,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'tenants_plan_id_fkey'
-            columns: ['plan_id']
+            foreignKeyName: "tenants_plan_id_fkey"
+            columns: ["plan_id"]
             isOneToOne: false
-            referencedRelation: 'subscription_plans'
-            referencedColumns: ['id']
+            referencedRelation: "subscription_plans"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -927,7 +933,7 @@ export type Database = {
         Returns: number
       }
       _postgis_stats: {
-        Args: { ''?: string; att_name: string; tbl: unknown }
+        Args: { ""?: string; att_name: string; tbl: unknown }
         Returns: string
       }
       _st_3dintersects: {
@@ -1001,7 +1007,16 @@ export type Database = {
         Returns: unknown
       }
       _st_within: { Args: { geom1: unknown; geom2: unknown }; Returns: boolean }
-      addauth: { Args: { '': string }; Returns: boolean }
+      accept_invitation: {
+        Args: {
+          p_first_name: string
+          p_last_name: string
+          p_token: string
+          p_user_id: string
+        }
+        Returns: string
+      }
+      addauth: { Args: { "": string }; Returns: boolean }
       addgeometrycolumn:
         | {
             Args: {
@@ -1039,6 +1054,17 @@ export type Database = {
             }
             Returns: string
           }
+      create_tenant_with_admin: {
+        Args: {
+          p_company_name: string
+          p_email: string
+          p_first_name: string
+          p_last_name: string
+          p_subdomain: string
+          p_user_id: string
+        }
+        Returns: string
+      }
       disablelongtransactions: { Args: never; Returns: string }
       dropgeometrycolumn:
         | {
@@ -1072,7 +1098,7 @@ export type Database = {
         | { Args: { table_name: string }; Returns: string }
       enablelongtransactions: { Args: never; Returns: string }
       equals: { Args: { geom1: unknown; geom2: unknown }; Returns: boolean }
-      geometry: { Args: { '': string }; Returns: unknown }
+      geometry: { Args: { "": string }; Returns: unknown }
       geometry_above: {
         Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
@@ -1169,7 +1195,7 @@ export type Database = {
         Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
       }
-      geomfromewkt: { Args: { '': string }; Returns: unknown }
+      geomfromewkt: { Args: { "": string }; Returns: unknown }
       gettransactionid: { Args: never; Returns: unknown }
       issue_next_number: { Args: { p_scheme_id: string }; Returns: string }
       longtransactionsenabled: { Args: never; Returns: boolean }
@@ -1267,12 +1293,12 @@ export type Database = {
           }
       st_area:
         | { Args: { geog: unknown; use_spheroid?: boolean }; Returns: number }
-        | { Args: { '': string }; Returns: number }
+        | { Args: { "": string }; Returns: number }
       st_asencodedpolyline: {
         Args: { geom: unknown; nprecision?: number }
         Returns: string
       }
-      st_asewkt: { Args: { '': string }; Returns: string }
+      st_asewkt: { Args: { "": string }; Returns: string }
       st_asgeojson:
         | {
             Args: { geog: unknown; maxdecimaldigits?: number; options?: number }
@@ -1291,7 +1317,7 @@ export type Database = {
             }
             Returns: string
           }
-        | { Args: { '': string }; Returns: string }
+        | { Args: { "": string }; Returns: string }
       st_asgml:
         | {
             Args: {
@@ -1307,7 +1333,7 @@ export type Database = {
             Args: { geom: unknown; maxdecimaldigits?: number; options?: number }
             Returns: string
           }
-        | { Args: { '': string }; Returns: string }
+        | { Args: { "": string }; Returns: string }
         | {
             Args: {
               geog: unknown
@@ -1339,7 +1365,7 @@ export type Database = {
             Args: { geom: unknown; maxdecimaldigits?: number; nprefix?: string }
             Returns: string
           }
-        | { Args: { '': string }; Returns: string }
+        | { Args: { "": string }; Returns: string }
       st_aslatlontext: {
         Args: { geom: unknown; tmpl?: string }
         Returns: string
@@ -1364,8 +1390,8 @@ export type Database = {
             Args: { geom: unknown; maxdecimaldigits?: number; rel?: number }
             Returns: string
           }
-        | { Args: { '': string }; Returns: string }
-      st_astext: { Args: { '': string }; Returns: string }
+        | { Args: { "": string }; Returns: string }
+      st_astext: { Args: { "": string }; Returns: string }
       st_astwkb:
         | {
             Args: {
@@ -1410,7 +1436,7 @@ export type Database = {
             Args: { geom: unknown; quadsegs: number; radius: number }
             Returns: unknown
           }
-      st_centroid: { Args: { '': string }; Returns: unknown }
+      st_centroid: { Args: { "": string }; Returns: unknown }
       st_clipbybox2d: {
         Args: { box: unknown; geom: unknown }
         Returns: unknown
@@ -1521,12 +1547,12 @@ export type Database = {
             Args: { area: unknown; npoints: number; seed: number }
             Returns: unknown
           }
-      st_geogfromtext: { Args: { '': string }; Returns: unknown }
-      st_geographyfromtext: { Args: { '': string }; Returns: unknown }
+      st_geogfromtext: { Args: { "": string }; Returns: unknown }
+      st_geographyfromtext: { Args: { "": string }; Returns: unknown }
       st_geohash:
         | { Args: { geog: unknown; maxchars?: number }; Returns: string }
         | { Args: { geom: unknown; maxchars?: number }; Returns: string }
-      st_geomcollfromtext: { Args: { '': string }; Returns: unknown }
+      st_geomcollfromtext: { Args: { "": string }; Returns: unknown }
       st_geometricmedian: {
         Args: {
           fail_if_not_converged?: boolean
@@ -1536,17 +1562,17 @@ export type Database = {
         }
         Returns: unknown
       }
-      st_geometryfromtext: { Args: { '': string }; Returns: unknown }
-      st_geomfromewkt: { Args: { '': string }; Returns: unknown }
+      st_geometryfromtext: { Args: { "": string }; Returns: unknown }
+      st_geomfromewkt: { Args: { "": string }; Returns: unknown }
       st_geomfromgeojson:
-        | { Args: { '': Json }; Returns: unknown }
-        | { Args: { '': Json }; Returns: unknown }
-        | { Args: { '': string }; Returns: unknown }
-      st_geomfromgml: { Args: { '': string }; Returns: unknown }
-      st_geomfromkml: { Args: { '': string }; Returns: unknown }
+        | { Args: { "": Json }; Returns: unknown }
+        | { Args: { "": Json }; Returns: unknown }
+        | { Args: { "": string }; Returns: unknown }
+      st_geomfromgml: { Args: { "": string }; Returns: unknown }
+      st_geomfromkml: { Args: { "": string }; Returns: unknown }
       st_geomfrommarc21: { Args: { marc21xml: string }; Returns: unknown }
-      st_geomfromtext: { Args: { '': string }; Returns: unknown }
-      st_gmltosql: { Args: { '': string }; Returns: unknown }
+      st_geomfromtext: { Args: { "": string }; Returns: unknown }
+      st_gmltosql: { Args: { "": string }; Returns: unknown }
       st_hasarc: { Args: { geometry: unknown }; Returns: boolean }
       st_hausdorffdistance: {
         Args: { geom1: unknown; geom2: unknown }
@@ -1573,17 +1599,17 @@ export type Database = {
         | { Args: { geom1: unknown; geom2: unknown }; Returns: boolean }
       st_isvaliddetail: {
         Args: { flags?: number; geom: unknown }
-        Returns: Database['public']['CompositeTypes']['valid_detail']
+        Returns: Database["public"]["CompositeTypes"]["valid_detail"]
         SetofOptions: {
-          from: '*'
-          to: 'valid_detail'
+          from: "*"
+          to: "valid_detail"
           isOneToOne: true
           isSetofReturn: false
         }
       }
       st_length:
         | { Args: { geog: unknown; use_spheroid?: boolean }; Returns: number }
-        | { Args: { '': string }; Returns: number }
+        | { Args: { "": string }; Returns: number }
       st_letters: { Args: { font?: Json; letters: string }; Returns: unknown }
       st_linecrossingdirection: {
         Args: { line1: unknown; line2: unknown }
@@ -1593,7 +1619,7 @@ export type Database = {
         Args: { nprecision?: number; txtin: string }
         Returns: unknown
       }
-      st_linefromtext: { Args: { '': string }; Returns: unknown }
+      st_linefromtext: { Args: { "": string }; Returns: unknown }
       st_linelocatepoint: {
         Args: { geom1: unknown; geom2: unknown }
         Returns: number
@@ -1640,12 +1666,12 @@ export type Database = {
         Args: { inputgeom: unknown; segs_per_quarter?: number }
         Returns: unknown
       }
-      st_mlinefromtext: { Args: { '': string }; Returns: unknown }
-      st_mpointfromtext: { Args: { '': string }; Returns: unknown }
-      st_mpolyfromtext: { Args: { '': string }; Returns: unknown }
-      st_multilinestringfromtext: { Args: { '': string }; Returns: unknown }
-      st_multipointfromtext: { Args: { '': string }; Returns: unknown }
-      st_multipolygonfromtext: { Args: { '': string }; Returns: unknown }
+      st_mlinefromtext: { Args: { "": string }; Returns: unknown }
+      st_mpointfromtext: { Args: { "": string }; Returns: unknown }
+      st_mpolyfromtext: { Args: { "": string }; Returns: unknown }
+      st_multilinestringfromtext: { Args: { "": string }; Returns: unknown }
+      st_multipointfromtext: { Args: { "": string }; Returns: unknown }
+      st_multipolygonfromtext: { Args: { "": string }; Returns: unknown }
       st_node: { Args: { g: unknown }; Returns: unknown }
       st_normalize: { Args: { geom: unknown }; Returns: unknown }
       st_offsetcurve: {
@@ -1664,7 +1690,7 @@ export type Database = {
         Args: { geog: unknown; use_spheroid?: boolean }
         Returns: number
       }
-      st_pointfromtext: { Args: { '': string }; Returns: unknown }
+      st_pointfromtext: { Args: { "": string }; Returns: unknown }
       st_pointm: {
         Args: {
           mcoordinate: number
@@ -1693,8 +1719,8 @@ export type Database = {
         }
         Returns: unknown
       }
-      st_polyfromtext: { Args: { '': string }; Returns: unknown }
-      st_polygonfromtext: { Args: { '': string }; Returns: unknown }
+      st_polyfromtext: { Args: { "": string }; Returns: unknown }
+      st_polygonfromtext: { Args: { "": string }; Returns: unknown }
       st_project: {
         Args: { azimuth: number; distance: number; geog: unknown }
         Returns: unknown
@@ -1803,12 +1829,12 @@ export type Database = {
       }
       st_within: { Args: { geom1: unknown; geom2: unknown }; Returns: boolean }
       st_wkbtosql: { Args: { wkb: string }; Returns: unknown }
-      st_wkttosql: { Args: { '': string }; Returns: unknown }
+      st_wkttosql: { Args: { "": string }; Returns: unknown }
       st_wrapx: {
         Args: { geom: unknown; move: number; wrap: number }
         Returns: unknown
       }
-      unlockrows: { Args: { '': string }; Returns: number }
+      unlockrows: { Args: { "": string }; Returns: number }
       updategeometrysrid: {
         Args: {
           catalogn_name: string
@@ -1821,12 +1847,17 @@ export type Database = {
       }
     }
     Enums: {
-      geofence_event_type: 'enter' | 'exit'
-      invitation_status: 'pending' | 'accepted' | 'expired' | 'revoked'
-      location_category: 'office' | 'client_site' | 'warehouse' | 'checkpoint' | 'other'
-      shift_status: 'active' | 'completed' | 'auto_closed' | 'invalid'
-      tenant_status: 'trial' | 'active' | 'past_due' | 'suspended' | 'cancelled'
-      user_role: 'super_admin' | 'tenant_admin' | 'manager' | 'user'
+      geofence_event_type: "enter" | "exit"
+      invitation_status: "pending" | "accepted" | "expired" | "revoked"
+      location_category:
+        | "office"
+        | "client_site"
+        | "warehouse"
+        | "checkpoint"
+        | "other"
+      shift_status: "active" | "completed" | "auto_closed" | "invalid"
+      tenant_status: "trial" | "active" | "past_due" | "suspended" | "cancelled"
+      user_role: "super_admin" | "tenant_admin" | "manager" | "user"
     }
     CompositeTypes: {
       geometry_dump: {
@@ -1842,31 +1873,33 @@ export type Database = {
   }
 }
 
-type DatabaseWithoutInternals = Omit<Database, '__InternalSupabase'>
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
 
-type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, 'public'>]
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
-    | keyof (DefaultSchema['Tables'] & DefaultSchema['Views'])
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
-        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Views'])
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
-      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Views'])[TableName] extends {
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
     ? R
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema['Tables'] & DefaultSchema['Views'])
-    ? (DefaultSchema['Tables'] & DefaultSchema['Views'])[DefaultSchemaTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
         Row: infer R
       }
       ? R
@@ -1875,23 +1908,23 @@ export type Tables<
 
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema['Tables']
+    | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables']
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I
     }
     ? I
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
-    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
         Insert: infer I
       }
       ? I
@@ -1900,23 +1933,23 @@ export type TablesInsert<
 
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema['Tables']
+    | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables']
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U
     }
     ? U
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
-    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
         Update: infer U
       }
       ? U
@@ -1925,47 +1958,53 @@ export type TablesUpdate<
 
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
-    | keyof DefaultSchema['Enums']
+    | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
   EnumName extends DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions['schema']]['Enums']
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions['schema']]['Enums'][EnumName]
-  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema['Enums']
-    ? DefaultSchema['Enums'][DefaultSchemaEnumNameOrOptions]
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
     : never
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
-    | keyof DefaultSchema['CompositeTypes']
+    | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes']
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
     : never = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes'][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema['CompositeTypes']
-    ? DefaultSchema['CompositeTypes'][PublicCompositeTypeNameOrOptions]
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
 
 export const Constants = {
   public: {
     Enums: {
-      geofence_event_type: ['enter', 'exit'],
-      invitation_status: ['pending', 'accepted', 'expired', 'revoked'],
-      location_category: ['office', 'client_site', 'warehouse', 'checkpoint', 'other'],
-      shift_status: ['active', 'completed', 'auto_closed', 'invalid'],
-      tenant_status: ['trial', 'active', 'past_due', 'suspended', 'cancelled'],
-      user_role: ['super_admin', 'tenant_admin', 'manager', 'user'],
+      geofence_event_type: ["enter", "exit"],
+      invitation_status: ["pending", "accepted", "expired", "revoked"],
+      location_category: [
+        "office",
+        "client_site",
+        "warehouse",
+        "checkpoint",
+        "other",
+      ],
+      shift_status: ["active", "completed", "auto_closed", "invalid"],
+      tenant_status: ["trial", "active", "past_due", "suspended", "cancelled"],
+      user_role: ["super_admin", "tenant_admin", "manager", "user"],
     },
   },
 } as const

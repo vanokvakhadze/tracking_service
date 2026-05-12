@@ -2,6 +2,9 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import type { Database } from '@trackpro/database'
 
+const PROTECTED_PREFIXES = ['/dashboard', '/locations', '/users', '/reports', '/settings']
+const AUTH_PREFIXES = ['/login', '/signup']
+
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
 
@@ -24,7 +27,19 @@ export async function updateSession(request: NextRequest) {
     },
   )
 
-  // Touch the session so the cookie refresh happens before the response is sent
-  await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  const { pathname } = request.nextUrl
+
+  if (!user && PROTECTED_PREFIXES.some((p) => pathname.startsWith(p))) {
+    return NextResponse.redirect(new URL('/login', request.url))
+  }
+
+  if (user && AUTH_PREFIXES.some((p) => pathname.startsWith(p))) {
+    return NextResponse.redirect(new URL('/dashboard', request.url))
+  }
+
   return supabaseResponse
 }
