@@ -2,44 +2,44 @@
 
 :root {
   /* Surfaces */
-  --color-bg: #FFFFFF;
-  --color-surface: #F8FAFC;
-  --color-surface-2: #F1F5F9;
-  --color-border: #E2E8F0;
-  --color-border-2: #EDF2F7;
+  --color-bg: #ffffff;
+  --color-surface: #f8fafc;
+  --color-surface-2: #f1f5f9;
+  --color-border: #e2e8f0;
+  --color-border-2: #edf2f7;
 
   /* Text */
-  --color-text-primary: #0F172A;
+  --color-text-primary: #0f172a;
   --color-text-secondary: #475569;
-  --color-text-tertiary: #94A3B8;
+  --color-text-tertiary: #94a3b8;
 
   /* Primary â€” KAYA blue (only accent) */
-  --color-accent: #1565C0;
-  --color-accent-hover: #0D47A1;
-  --color-accent-soft: #1E88E5;
-  --color-accent-tint: #E3F2FD;
-  --color-accent-fg: #FFFFFF;
+  --color-accent: #1565c0;
+  --color-accent-hover: #0d47a1;
+  --color-accent-soft: #1e88e5;
+  --color-accent-tint: #e3f2fd;
+  --color-accent-fg: #ffffff;
 
   /* Semantic â€” signal only, never UI accent */
-  --color-success: #16A34A;
-  --color-success-bg: #F0FDF4;
-  --color-success-text: #15803D;
-  --color-success-border: #BBF7D0;
+  --color-success: #16a34a;
+  --color-success-bg: #f0fdf4;
+  --color-success-text: #15803d;
+  --color-success-border: #bbf7d0;
 
-  --color-warning: #CA8A04;
-  --color-warning-bg: #FEFCE8;
-  --color-warning-text: #A16207;
-  --color-warning-border: #FEF08A;
+  --color-warning: #ca8a04;
+  --color-warning-bg: #fefce8;
+  --color-warning-text: #a16207;
+  --color-warning-border: #fef08a;
 
-  --color-error: #DC2626;
-  --color-error-bg: #FEF2F2;
-  --color-error-text: #B91C1C;
-  --color-error-border: #FECACA;
+  --color-error: #dc2626;
+  --color-error-bg: #fef2f2;
+  --color-error-text: #b91c1c;
+  --color-error-border: #fecaca;
 
-  --color-info: #2563EB;
-  --color-info-bg: #EFF6FF;
-  --color-info-text: #1D4ED8;
-  --color-info-border: #BFDBFE;
+  --color-info: #2563eb;
+  --color-info-bg: #eff6ff;
+  --color-info-text: #1d4ed8;
+  --color-info-border: #bfdbfe;
 
   /* Sizing */
   --radius: 6px;
@@ -59,7 +59,8 @@
   --motion-modal: 200ms;
 }
 
-html, body {
+html,
+body {
   background: var(--color-bg);
   color: var(--color-text-primary);
   font-family: var(--font-sans);
@@ -68,4 +69,6 @@ html, body {
 }
 
 /* Tabular numerics for timers, prices, IDs, percentages */
-.tnum { font-variant-numeric: tabular-nums; }
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
