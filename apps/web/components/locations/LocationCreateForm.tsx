@@ -1,10 +1,13 @@
 'use client'
 
+import { clsx } from 'clsx'
+import { Map as MapIcon, Search } from 'lucide-react'
 import { useState } from 'react'
 import { createLocation } from '@/app/(app)/locations/new/create-action'
 import { MapboxMap } from '@/components/map/MapboxMap'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
+import { AddressSearchBox } from './AddressSearchBox'
 import { type LocationCategory, categoryLabels } from './types'
 
 interface LocationCreateFormProps {
@@ -13,10 +16,14 @@ interface LocationCreateFormProps {
 
 const TBILISI = { lat: 41.7167, lng: 44.7833 }
 
+type Mode = 'map' | 'address'
+
 export function LocationCreateForm({ tenantId }: LocationCreateFormProps) {
+  const [mode, setMode] = useState<Mode>('map')
   const [position, setPosition] = useState(TBILISI)
   const [radius, setRadius] = useState(100)
   const [category, setCategory] = useState<LocationCategory>('office')
+  const [address, setAddress] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
@@ -39,13 +46,41 @@ export function LocationCreateForm({ tenantId }: LocationCreateFormProps) {
     <form action={handleSubmit} className="grid grid-cols-1 gap-4 lg:grid-cols-[1.4fr_1fr]">
       <div className="overflow-hidden rounded-[10px] border border-[var(--color-border)] bg-white">
         <div className="border-b border-[var(--color-border)] bg-[var(--color-surface)] px-5 py-3">
-          <h2 className="text-[14px] font-bold text-[var(--color-text-primary)]">რუკაზე მონიშნე</h2>
-          <p className="text-[11px] text-[var(--color-text-tertiary)]">
-            დააჭირე რუკას სასურველ წერტილზე ან გადათარე pin-ი
+          <div className="inline-flex rounded-[8px] bg-[var(--color-surface-2)] p-1">
+            <ModeTab
+              active={mode === 'map'}
+              onClick={() => setMode('map')}
+              icon={<MapIcon className="h-3.5 w-3.5" />}
+              label="რუკაზე"
+            />
+            <ModeTab
+              active={mode === 'address'}
+              onClick={() => setMode('address')}
+              icon={<Search className="h-3.5 w-3.5" />}
+              label="მისამართით"
+            />
+          </div>
+          <p className="mt-2 text-[11px] text-[var(--color-text-tertiary)]">
+            {mode === 'map'
+              ? 'დააჭირე რუკას სასურველ წერტილზე ან გადათარე pin-ი'
+              : 'შეიყვანე მისამართი — შერჩევაზე pin გადახტება'}
           </p>
         </div>
+
+        {mode === 'address' && (
+          <div className="border-b border-[var(--color-border)] px-5 py-3">
+            <AddressSearchBox
+              proximity={position}
+              onSelect={({ lat, lng, placeName }) => {
+                setPosition({ lat, lng })
+                setAddress(placeName)
+              }}
+            />
+          </div>
+        )}
+
         <MapboxMap
-          className="h-[480px] w-full"
+          className="h-[440px] w-full"
           center={position}
           zoom={14}
           draggablePin={position}
@@ -94,7 +129,9 @@ export function LocationCreateForm({ tenantId }: LocationCreateFormProps) {
         <Input
           id="address"
           name="address"
-          label="მისამართი (სურვილისამებრ)"
+          label="მისამართი"
+          value={address}
+          onChange={(e) => setAddress(e.target.value)}
           placeholder="ვაჟა-ფშაველას 76"
         />
 
@@ -133,5 +170,30 @@ export function LocationCreateForm({ tenantId }: LocationCreateFormProps) {
         </div>
       </div>
     </form>
+  )
+}
+
+interface ModeTabProps {
+  active: boolean
+  onClick: () => void
+  icon: React.ReactNode
+  label: string
+}
+
+function ModeTab({ active, onClick, icon, label }: ModeTabProps) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={clsx(
+        'inline-flex items-center gap-1.5 rounded-[6px] px-3 py-1 text-[12px] font-semibold transition-colors',
+        active
+          ? 'bg-white text-[var(--color-text-primary)] shadow-sm'
+          : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]',
+      )}
+    >
+      {icon}
+      {label}
+    </button>
   )
 }
