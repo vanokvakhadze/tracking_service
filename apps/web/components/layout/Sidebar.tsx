@@ -5,9 +5,15 @@ interface SidebarProps {
   footerName: string
   footerRole: string
   footerInitials: string
+  pendingLocationsCount: number
 }
 
-export function Sidebar({ footerName, footerRole, footerInitials }: SidebarProps) {
+export function Sidebar({
+  footerName,
+  footerRole,
+  footerInitials,
+  pendingLocationsCount,
+}: SidebarProps) {
   return (
     <aside className="flex h-full w-[220px] flex-col border-r border-[var(--color-border)] bg-[var(--color-bg)] py-3 px-2">
       {/* Mode pill (admin only for now) */}
@@ -27,7 +33,7 @@ export function Sidebar({ footerName, footerRole, footerInitials }: SidebarProps
       <p className="px-2.5 pt-3 pb-1 text-[10px] font-bold uppercase tracking-[0.06em] text-[var(--color-text-tertiary)]">
         ნავიგაცია
       </p>
-      <SidebarNav />
+      <SidebarNav pendingLocationsCount={pendingLocationsCount} />
 
       <div className="mt-auto flex items-center gap-2 border-t border-[var(--color-border)] pt-3">
         <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--color-accent-tint)] text-[12px] font-semibold text-[var(--color-accent)]">

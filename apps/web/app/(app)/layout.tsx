@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/Button'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { TopBar } from '@/components/layout/TopBar'
 import { getCurrentUser, getCurrentUserDiagnostic, logout } from '@/lib/auth/actions'
+import { createClient } from '@/lib/supabase/server'
 
 function initialsOf(parts: (string | null | undefined)[], fallback = '?'): string {
   const tokens = parts
@@ -55,6 +56,17 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
     [user.first_name, user.last_name].filter(Boolean).join(' ') || user.email || 'User'
   const userInitials = initialsOf([user.first_name, user.last_name], user.email?.[0] ?? '?')
   const workspaceInitial = (tenant?.name?.[0] ?? 'T').toUpperCase()
+  let pendingLocationsCount = 0
+  if (tenant?.id) {
+    const supabase = await createClient()
+    const { count } = await supabase
+      .from('locations')
+      .select('id', { count: 'exact', head: true })
+      .eq('tenant_id', tenant.id)
+      .eq('status', 'pending_approval')
+      .is('deleted_at', null)
+    pendingLocationsCount = count ?? 0
+  }
 
   return (
     <div className="grid h-screen grid-cols-[220px_1fr] grid-rows-[48px_1fr] bg-[var(--color-bg)]">
@@ -73,6 +85,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
         footerName={userDisplayName}
         footerRole={activeMembership?.role ?? '—'}
         footerInitials={userInitials}
+        pendingLocationsCount={pendingLocationsCount}
       />
 
       <main className="overflow-auto bg-[var(--color-surface)]">{children}</main>

@@ -528,8 +528,14 @@ export type Database = {
           latitude: number | null
           longitude: number | null
           metadata: Json | null
-          name: string
+          name: string | null
+          photo_url: string | null
           radius_m: number
+          rejection_note: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["location_status"]
+          submitted_at: string | null
           tenant_id: string
           trigger_radius_m: number
           updated_at: string | null
@@ -548,8 +554,14 @@ export type Database = {
           latitude?: number | null
           longitude?: number | null
           metadata?: Json | null
-          name: string
+          name?: string | null
+          photo_url?: string | null
           radius_m?: number
+          rejection_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["location_status"]
+          submitted_at?: string | null
           tenant_id: string
           trigger_radius_m: number
           updated_at?: string | null
@@ -568,8 +580,14 @@ export type Database = {
           latitude?: number | null
           longitude?: number | null
           metadata?: Json | null
-          name?: string
+          name?: string | null
+          photo_url?: string | null
           radius_m?: number
+          rejection_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["location_status"]
+          submitted_at?: string | null
           tenant_id?: string
           trigger_radius_m?: number
           updated_at?: string | null
@@ -578,6 +596,13 @@ export type Database = {
           {
             foreignKeyName: "locations_created_by_user_id_fkey"
             columns: ["created_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "locations_reviewed_by_fkey"
+            columns: ["reviewed_by"]
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
@@ -1066,6 +1091,10 @@ export type Database = {
             }
             Returns: string
           }
+      approve_location: {
+        Args: { p_id: string; p_name: string }
+        Returns: undefined
+      }
       create_location:
         | {
             Args: {
@@ -1278,6 +1307,10 @@ export type Database = {
       }
       postgis_version: { Args: never; Returns: string }
       postgis_wagyu_version: { Args: never; Returns: string }
+      reject_location: {
+        Args: { p_id: string; p_reason: string }
+        Returns: undefined
+      }
       render_numbering:
         | {
             Args: { p_number: number; p_padding: number; p_template: string }
@@ -1894,6 +1927,7 @@ export type Database = {
         | "warehouse"
         | "checkpoint"
         | "other"
+      location_status: "active" | "pending_approval" | "rejected" | "archived"
       shift_status: "active" | "completed" | "auto_closed" | "invalid"
       tenant_status: "trial" | "active" | "past_due" | "suspended" | "cancelled"
       user_role: "super_admin" | "tenant_admin" | "manager" | "user"
@@ -2041,6 +2075,7 @@ export const Constants = {
         "checkpoint",
         "other",
       ],
+      location_status: ["active", "pending_approval", "rejected", "archived"],
       shift_status: ["active", "completed", "auto_closed", "invalid"],
       tenant_status: ["trial", "active", "past_due", "suspended", "cancelled"],
       user_role: ["super_admin", "tenant_admin", "manager", "user"],

@@ -26,8 +26,9 @@ export default async function LocationsPage() {
   // don't know they exist — fall back to a typed view via `.returns<>()`.
   const { data: rows } = await supabase
     .from('locations')
-    .select('id, name, category, address, latitude, longitude, radius_m, is_active, created_at')
+    .select('id, name, category, address, latitude, longitude, radius_m, is_active, status, created_at')
     .eq('tenant_id', tenantId)
+    .eq('status', 'active')
     .is('deleted_at', null)
     .order('created_at', { ascending: false })
     .overrideTypes<LocationRow[], { merge: false }>()
