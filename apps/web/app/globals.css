@@ -1,26 +1,71 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Surfaces */
+  --color-bg: #FFFFFF;
+  --color-surface: #F8FAFC;
+  --color-surface-2: #F1F5F9;
+  --color-border: #E2E8F0;
+  --color-border-2: #EDF2F7;
+
+  /* Text */
+  --color-text-primary: #0F172A;
+  --color-text-secondary: #475569;
+  --color-text-tertiary: #94A3B8;
+
+  /* Primary â€” KAYA blue (only accent) */
+  --color-accent: #1565C0;
+  --color-accent-hover: #0D47A1;
+  --color-accent-soft: #1E88E5;
+  --color-accent-tint: #E3F2FD;
+  --color-accent-fg: #FFFFFF;
+
+  /* Semantic â€” signal only, never UI accent */
+  --color-success: #16A34A;
+  --color-success-bg: #F0FDF4;
+  --color-success-text: #15803D;
+  --color-success-border: #BBF7D0;
+
+  --color-warning: #CA8A04;
+  --color-warning-bg: #FEFCE8;
+  --color-warning-text: #A16207;
+  --color-warning-border: #FEF08A;
+
+  --color-error: #DC2626;
+  --color-error-bg: #FEF2F2;
+  --color-error-text: #B91C1C;
+  --color-error-border: #FECACA;
+
+  --color-info: #2563EB;
+  --color-info-bg: #EFF6FF;
+  --color-info-text: #1D4ED8;
+  --color-info-border: #BFDBFE;
+
+  /* Sizing */
+  --radius: 6px;
+  --radius-lg: 8px;
+  --radius-full: 9999px;
+  --app-bar-h: 48px;
+  --sidebar-w-collapsed: 56px;
+  --sidebar-w-expanded: 220px;
+
+  /* Typography */
+  --font-sans: "Noto Sans Georgian", "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+
+  /* Motion */
+  --motion-fast: 120ms;
+  --motion-base: 150ms;
+  --motion-modal: 200ms;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+html, body {
+  background: var(--color-bg);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.45;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}
+/* Tabular numerics for timers, prices, IDs, percentages */
+.tnum { font-variant-numeric: tabular-nums; }
