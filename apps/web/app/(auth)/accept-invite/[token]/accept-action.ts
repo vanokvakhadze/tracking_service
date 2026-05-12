@@ -45,8 +45,6 @@ export async function acceptInviteAction(formData: FormData) {
   }
 
   // 2) Run the RPC that creates the profile + membership + marks accepted
-  // @ts-expect-error — accept_invitation lands in generated types after the
-  // migration in supabase/migrations/20260512000002 is applied + db:types regen
   const { error: rpcError } = await supabase.rpc('accept_invitation', {
     p_token: parsed.data.token,
     p_user_id: authData.user.id,

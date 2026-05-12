@@ -51,8 +51,6 @@ export async function signupCompany(formData: FormData) {
 
   // 2. Create tenant + user profile + tenant_admin membership
   const { first, last } = splitName(parsed.data.fullName)
-  // @ts-expect-error — create_tenant_with_admin lands in generated types after `pnpm db:types`
-  // is re-run once the migration in supabase/migrations/20260512000001 has been applied.
   const { error: rpcError } = await supabase.rpc('create_tenant_with_admin', {
     p_user_id: authData.user.id,
     p_email: parsed.data.email,
