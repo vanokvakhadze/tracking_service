@@ -240,6 +240,15 @@ importers:
         specifier: ^5.5.0
         version: 5.9.3
 
+  packages/i18n:
+    devDependencies:
+      '@trackpro/tsconfig':
+        specifier: workspace:*
+        version: link:../tsconfig
+      typescript:
+        specifier: ^5.5.0
+        version: 5.9.3
+
   packages/tsconfig: {}
 
   packages/ui:
