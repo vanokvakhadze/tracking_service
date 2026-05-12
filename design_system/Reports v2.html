@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+<meta charset="utf-8">
+<title>TrackPro · რეპორტი</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-app: #FFFFFF;
+  --bg-card: #FFFFFF;
+  --bg-subtle: #F8FAFC;
+  --bg-muted: #F1F5F9;
+  --bg-deep: #0F172A;
+
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-tertiary: #94A3B8;
+  --text-on-primary: #FFFFFF;
+
+  --border-default: #E2E8F0;
+  --border-strong: #CBD5E1;
+
+  --primary: #1565C0;
+  --primary-hover: #0D47A1;
+  --primary-soft: #1E88E5;
+  --primary-light: #E3F2FD;
+  --primary-text: #0D47A1;
+
+  --success: #16A34A;
+  --success-light: #F0FDF4;
+  --success-text: #15803D;
+  --success-border: #BBF7D0;
+
+  --warning: #CA8A04;
+  --warning-light: #FEFCE8;
+  --warning-text: #A16207;
+  --warning-border: #FEF08A;
+
+  --danger: #DC2626;
+  --danger-light: #FEF2F2;
+  --danger-text: #B91C1C;
+  --danger-border: #FECACA;
+
+  --info: #2563EB;
+  --info-light: #EFF6FF;
+  --info-text: #1D4ED8;
+  --info-border: #BFDBFE;
+
+  --violet: #7C3AED;
+  --violet-light: #F5F3FF;
+
+  --radius: 6px;
+  --radius-lg: 10px;
+  --radius-xl: 14px;
+  --radius-full: 9999px;
+  --shadow-card: 0 1px 2px rgba(15,23,42,0.04);
+  --shadow-pop: 0 8px 24px -8px rgba(15,23,42,0.12), 0 2px 6px rgba(15,23,42,0.04);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: 'Noto Sans Georgian', 'Inter', system-ui, sans-serif;
+  color: var(--text-primary); font-size: 13px; line-height: 1.45;
+  -webkit-font-smoothing: antialiased; background: #F4F4F5;
+}
+button { font-family: inherit; cursor: pointer; border: none; background: transparent; color: inherit; }
+
+.web {
+  width: 1280px;
+  min-height: 800px;
+  background: var(--bg-app);
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  grid-template-rows: 48px 1fr;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+/* ─── Topbar ─── */
+.topbar {
+  grid-column: 1 / -1;
+  height: 48px;
+  display: flex; align-items: center;
+  padding: 0 12px; gap: 12px;
+  border-bottom: 1px solid var(--border-default);
+  background: var(--bg-card);
+}
+.workspace-brand { display: flex; align-items: center; gap: 8px; width: 200px; padding-left: 4px; }
+.workspace-mark { width: 28px; height: 28px; border-radius: 6px; background: var(--primary); color: white; display: grid; place-items: center; font-size: 11px; font-weight: 700; }
+.workspace-name { font-size: 12px; font-weight: 600; line-height: 1.2; }
+.workspace-sub { font-size: 10px; color: var(--text-tertiary); line-height: 1.2; margin-top: 1px; }
+.topbar-spacer { flex: 1; }
+.topbar-utils { display: flex; align-items: center; gap: 4px; }
+.util-btn { width: 32px; height: 32px; border-radius: 6px; display: grid; place-items: center; color: var(--text-secondary); position: relative; }
+.util-btn:hover { background: var(--bg-muted); }
+.util-divider { width: 1px; height: 20px; background: var(--border-default); margin: 0 4px; }
+.user-pill { display: flex; align-items: center; gap: 8px; padding: 4px 10px 4px 4px; border-radius: 18px; }
+.user-pill:hover { background: var(--bg-subtle); }
+.avatar { width: 24px; height: 24px; border-radius: 50%; background: var(--primary-light); color: var(--primary-text); display: grid; place-items: center; font-weight: 600; font-size: 10px; }
+.avatar.lg { width: 32px; height: 32px; font-size: 12px; }
+.dot-pulse { position: absolute; top: 6px; right: 6px; width: 8px; height: 8px; background: var(--danger); border-radius: 50%; border: 1.5px solid var(--bg-card); }
+.dot-pulse::after { content: ''; position: absolute; inset: -2px; border-radius: 50%; background: var(--danger); opacity: 0.5; animation: pulseRing 1.6s ease-out infinite; }
+@keyframes pulseRing { 0% { transform: scale(0.7); opacity: 0.6; } 100% { transform: scale(2.4); opacity: 0; } }
+
+/* ─── Sidebar ─── */
+.sidebar {
+  background: var(--bg-card);
+  border-right: 1px solid var(--border-default);
+  padding: 12px 8px;
+  display: flex; flex-direction: column;
+}
+.mode-pill {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 10px; margin-bottom: 14px;
+  border: 1px solid var(--border-default); border-radius: 6px;
+}
+.mode-icon { width: 20px; height: 20px; border-radius: 4px; background: var(--primary-light); color: var(--primary); display: grid; place-items: center; }
+.mode-label { flex: 1; font-size: 13px; font-weight: 600; }
+.sidebar-section-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-tertiary); padding: 12px 10px 4px; font-weight: 700; }
+.nav-item { display: flex; align-items: center; gap: 9px; padding: 7px 10px; border-radius: 6px; color: var(--text-secondary); font-size: 13px; font-weight: 500; cursor: pointer; }
+.nav-item:hover { background: var(--bg-subtle); }
+.nav-item svg { width: 16px; height: 16px; color: var(--text-tertiary); flex-shrink: 0; }
+.nav-item.active { background: var(--primary); color: white; }
+.nav-item.active svg { color: white; }
+.nav-badge { margin-left: auto; padding: 1px 6px; background: var(--danger); color: white; border-radius: 999px; font-size: 10px; font-weight: 600; }
+.sidebar-footer { margin-top: auto; padding: 10px; border-top: 1px solid var(--border-default); display: flex; align-items: center; gap: 8px; }
+
+/* ─── Main ─── */
+.main { display: flex; flex-direction: column; overflow: auto; background: var(--bg-app); max-height: calc(100vh - 48px); }
+
+.sub-header {
+  padding: 14px 24px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--border-default);
+  background: var(--bg-card);
+  flex-shrink: 0;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.page-title-wrap { display: flex; align-items: baseline; gap: 12px; }
+.page-title { font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
+.live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); position: relative; }
+.live-dot::after { content: ''; position: absolute; inset: 0; border-radius: 50%; background: var(--success); animation: pulseRing 1.8s ease-out infinite; }
+.live-label { font-size: 11px; color: var(--success-text); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
+.live-flag { display: flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: var(--success-light); border: 1px solid var(--success-border); }
+
+.header-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+.seg { display: inline-flex; background: var(--bg-muted); border-radius: 8px; padding: 3px; }
+.seg button { padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+.seg button.on { background: var(--bg-card); color: var(--text-primary); box-shadow: var(--shadow-card); }
+
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 999px; background: var(--bg-card); border: 1px solid var(--border-default); font-size: 12px; font-weight: 500; color: var(--text-secondary); cursor: pointer; }
+.chip:hover { background: var(--bg-subtle); }
+.chip.on { background: var(--primary-light); color: var(--primary-text); border-color: var(--primary-light); }
+.chip .swatch { width: 8px; height: 8px; border-radius: 2px; background: currentColor; }
+
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 0 12px; height: 32px; border: 1px solid var(--border-default); background: var(--bg-card); border-radius: 6px; font-size: 13px; font-weight: 500; color: var(--text-primary); }
+.btn:hover { background: var(--bg-subtle); }
+.btn.primary { background: var(--primary); color: white; border-color: var(--primary); }
+.btn.primary:hover { background: var(--primary-hover); }
+.btn.sm { height: 28px; font-size: 12px; padding: 0 10px; }
+.btn svg { width: 14px; height: 14px; }
+
+.content { padding: 20px 24px 28px; display: flex; flex-direction: column; gap: 16px; }
+
+/* ─── Metric cards ─── */
+.metric-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.metric {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+  position: relative; overflow: hidden;
+  transition: transform .2s, box-shadow .2s;
+}
+.metric:hover { transform: translateY(-1px); box-shadow: var(--shadow-pop); }
+.metric-label { font-size: 11px; color: var(--text-tertiary); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; justify-content: space-between; }
+.metric-icon { width: 22px; height: 22px; border-radius: 5px; display: grid; place-items: center; color: var(--primary); background: var(--primary-light); }
+.metric-icon.success { color: var(--success); background: var(--success-light); }
+.metric-icon.warning { color: var(--warning); background: var(--warning-light); }
+.metric-icon.violet { color: var(--violet); background: var(--violet-light); }
+.metric-value { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; margin-top: 8px; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.metric-unit { font-size: 14px; color: var(--text-tertiary); font-weight: 500; margin-left: 2px; }
+.metric-delta { font-size: 11px; margin-top: 6px; display: flex; align-items: center; gap: 4px; font-weight: 600; }
+.metric-delta.up { color: var(--success); }
+.metric-delta.down { color: var(--danger); }
+.metric-spark { margin-top: 10px; height: 32px; }
+
+/* ─── Card chrome ─── */
+.card { background: var(--bg-card); border: 1px solid var(--border-default); border-radius: var(--radius-lg); }
+.card-head { padding: 14px 18px 8px; display: flex; align-items: center; justify-content: space-between; }
+.card-title { font-size: 14px; font-weight: 700; letter-spacing: -0.005em; }
+.card-sub { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+.card-body { padding: 8px 18px 18px; }
+.card-body.flush { padding: 0 18px 18px; }
+
+/* Two-col layout */
+.grid-2 { display: grid; grid-template-columns: 1.55fr 1fr; gap: 16px; }
+.grid-2-eq { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+/* ─── Hero chart ─── */
+.hero-chart-wrap { position: relative; }
+.hero-svg { width: 100%; height: 280px; display: block; overflow: visible; }
+.chart-legend { display: flex; gap: 14px; margin-top: 8px; padding: 0 18px 14px; flex-wrap: wrap; }
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-secondary); cursor: pointer; user-select: none; }
+.legend-item .swatch { width: 10px; height: 10px; border-radius: 3px; }
+.legend-item.off { opacity: 0.35; }
+
+.tooltip {
+  position: absolute; pointer-events: none;
+  background: var(--bg-deep); color: white;
+  padding: 8px 10px; border-radius: 8px; font-size: 11px;
+  min-width: 140px; box-shadow: var(--shadow-pop);
+  opacity: 0; transition: opacity .12s;
+  transform: translate(-50%, -100%);
+  z-index: 5;
+}
+.tooltip.show { opacity: 1; }
+.tooltip-title { font-weight: 600; margin-bottom: 4px; font-size: 11px; }
+.tooltip-row { display: flex; justify-content: space-between; gap: 12px; font-variant-numeric: tabular-nums; }
+.tooltip-row .lbl { display: flex; align-items: center; gap: 4px; opacity: 0.7; }
+.tooltip-row .lbl .sq { width: 6px; height: 6px; border-radius: 1px; }
+
+/* ─── Live feed ─── */
+.live-feed { display: flex; flex-direction: column; gap: 10px; max-height: 320px; overflow: hidden; padding: 0 18px 14px; position: relative; }
+.feed-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 8px 10px; border-radius: 8px;
+  background: var(--bg-subtle);
+  animation: feedIn .4s ease-out;
+  position: relative;
+}
+@keyframes feedIn { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: none; } }
+.feed-item .feed-avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--primary-light); color: var(--primary-text); display: grid; place-items: center; font-size: 10px; font-weight: 700; flex-shrink: 0; }
+.feed-item .feed-avatar.s2 { background: #FEF3C7; color: #B45309; }
+.feed-item .feed-avatar.s3 { background: #FCE7F3; color: #9D174D; }
+.feed-item .feed-avatar.s4 { background: #DCFCE7; color: #166534; }
+.feed-item .feed-avatar.s5 { background: #DBEAFE; color: #1E40AF; }
+.feed-name { font-size: 12px; font-weight: 600; }
+.feed-action { font-size: 12px; color: var(--text-secondary); }
+.feed-loc { color: var(--primary-text); font-weight: 500; }
+.feed-time { font-size: 10px; color: var(--text-tertiary); margin-top: 2px; }
+.feed-evt { width: 8px; height: 8px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
+.feed-evt.in { background: var(--success); }
+.feed-evt.out { background: var(--text-tertiary); }
+.feed-evt.alert { background: var(--warning); }
+.feed-fade { position: absolute; left: 0; right: 0; bottom: 0; height: 28px; background: linear-gradient(to bottom, transparent, var(--bg-card)); pointer-events: none; }
+
+/* ─── Heatmap ─── */
+.heatmap-grid { display: grid; grid-template-columns: 36px repeat(24, 1fr); gap: 2px; }
+.hm-corner, .hm-hour { font-size: 9px; color: var(--text-tertiary); text-align: center; padding: 2px 0; }
+.hm-day { font-size: 10px; color: var(--text-secondary); display: flex; align-items: center; font-weight: 500; }
+.hm-cell { aspect-ratio: 1; border-radius: 2px; background: var(--bg-muted); transition: transform .1s; cursor: pointer; }
+.hm-cell:hover { transform: scale(1.5); z-index: 2; outline: 1.5px solid var(--text-primary); }
+.heatmap-legend { display: flex; align-items: center; gap: 6px; margin-top: 12px; font-size: 11px; color: var(--text-tertiary); }
+.heatmap-legend .scale { display: flex; gap: 2px; }
+.heatmap-legend .scale .sq { width: 12px; height: 12px; border-radius: 2px; }
+
+/* ─── Team leaderboard ─── */
+.team-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border-default); }
+.team-row:last-child { border-bottom: none; }
+.team-rank { width: 22px; font-size: 12px; font-weight: 700; color: var(--text-tertiary); text-align: center; }
+.team-rank.gold { color: #CA8A04; }
+.team-name { font-size: 13px; font-weight: 600; min-width: 80px; }
+.team-bar-wrap { flex: 1; height: 8px; background: var(--bg-muted); border-radius: 999px; overflow: hidden; position: relative; }
+.team-bar { height: 100%; background: var(--primary); border-radius: 999px; width: 0; transition: width 1.2s cubic-bezier(.2,.7,.2,1); }
+.team-bar.violet { background: var(--violet); }
+.team-bar.success { background: var(--success); }
+.team-bar.warning { background: var(--warning); }
+.team-bar.danger { background: var(--danger); }
+.team-meta { font-size: 12px; font-weight: 700; color: var(--text-primary); min-width: 56px; text-align: right; font-variant-numeric: tabular-nums; }
+.team-delta { font-size: 10px; min-width: 40px; text-align: right; font-weight: 600; }
+
+/* ─── Top locations ─── */
+.loc-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border-default); }
+.loc-row:last-child { border-bottom: none; }
+.loc-icon { width: 34px; height: 34px; border-radius: 8px; background: var(--primary-light); color: var(--primary); display: grid; place-items: center; flex-shrink: 0; }
+.loc-icon.warn { background: var(--warning-light); color: var(--warning); }
+.loc-icon.success { background: var(--success-light); color: var(--success); }
+.loc-info { flex: 1; min-width: 0; }
+.loc-name { font-size: 13px; font-weight: 600; }
+.loc-meta { font-size: 11px; color: var(--text-secondary); margin-top: 1px; }
+.loc-bar-wrap { width: 110px; height: 6px; background: var(--bg-muted); border-radius: 999px; overflow: hidden; }
+.loc-bar { height: 100%; border-radius: 999px; width: 0; transition: width 1.4s cubic-bezier(.2,.7,.2,1); background: var(--primary); }
+.loc-count { font-size: 16px; font-weight: 700; min-width: 36px; text-align: right; font-variant-numeric: tabular-nums; }
+
+/* ─── Insights ─── */
+.insight {
+  display: flex; gap: 12px; padding: 12px;
+  border-radius: 10px; border: 1px solid var(--border-default);
+  background: var(--bg-subtle);
+  transition: transform .15s;
+}
+.insight:hover { transform: translateX(2px); }
+.insight + .insight { margin-top: 8px; }
+.insight.alert { background: linear-gradient(180deg, #FEF2F2 0%, #FFFFFF 100%); border-color: var(--danger-border); }
+.insight.warn { background: linear-gradient(180deg, #FEFCE8 0%, #FFFFFF 100%); border-color: var(--warning-border); }
+.insight.info { background: linear-gradient(180deg, #EFF6FF 0%, #FFFFFF 100%); border-color: var(--info-border); }
+.insight-icon { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; flex-shrink: 0; }
+.insight.alert .insight-icon { background: var(--danger-light); color: var(--danger); }
+.insight.warn .insight-icon { background: var(--warning-light); color: var(--warning); }
+.insight.info .insight-icon { background: var(--info-light); color: var(--info); }
+.insight-body { flex: 1; }
+.insight-title { font-size: 12px; font-weight: 700; }
+.insight-text { font-size: 12px; color: var(--text-secondary); margin-top: 3px; line-height: 1.5; }
+.insight-actions { display: flex; gap: 6px; margin-top: 8px; }
+
+/* ─── Mini map (abstract) ─── */
+.mini-map {
+  position: relative;
+  height: 180px;
+  border-radius: 10px;
+  background:
+    radial-gradient(circle at 30% 40%, rgba(21,101,192,0.04), transparent 50%),
+    radial-gradient(circle at 70% 60%, rgba(124,58,237,0.04), transparent 50%),
+    repeating-linear-gradient(0deg, var(--border-default) 0 1px, transparent 1px 30px),
+    repeating-linear-gradient(90deg, var(--border-default) 0 1px, transparent 1px 30px),
+    var(--bg-subtle);
+  overflow: hidden;
+  border: 1px solid var(--border-default);
+}
+.map-dot { position: absolute; width: 12px; height: 12px; border-radius: 50%; transform: translate(-50%, -50%); cursor: pointer; }
+.map-dot::before {
+  content: ''; position: absolute; inset: 0; border-radius: 50%;
+  background: currentColor; animation: dotPulse 2.4s ease-out infinite;
+}
+.map-dot::after {
+  content: ''; position: absolute; inset: 3px; background: currentColor; border-radius: 50%; border: 1.5px solid white;
+}
+.map-dot.active { color: var(--success); }
+.map-dot.idle { color: var(--warning); }
+.map-dot.off { color: var(--text-tertiary); }
+@keyframes dotPulse { 0% { transform: scale(1); opacity: 0.5; } 100% { transform: scale(2.6); opacity: 0; } }
+.map-route { stroke: var(--primary); stroke-width: 2; fill: none; stroke-dasharray: 4 3; opacity: 0.5; animation: dashMove 1.5s linear infinite; }
+@keyframes dashMove { to { stroke-dashoffset: -14; } }
+.map-overlay { position: absolute; left: 10px; top: 10px; display: flex; gap: 6px; }
+.map-legend { position: absolute; right: 10px; bottom: 10px; background: rgba(255,255,255,0.92); backdrop-filter: blur(6px); border-radius: 6px; padding: 6px 8px; font-size: 10px; display: flex; flex-direction: column; gap: 3px; border: 1px solid var(--border-default); }
+.map-legend-row { display: flex; align-items: center; gap: 5px; }
+.map-legend-row .d { width: 7px; height: 7px; border-radius: 50%; }
+
+/* ─── Funnel / progress ─── */
+.kpi-rail { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; padding: 4px 18px 14px; }
+.kpi-box { padding: 10px; background: var(--bg-subtle); border-radius: 8px; }
+.kpi-box .lbl { font-size: 10px; color: var(--text-tertiary); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+.kpi-box .val { font-size: 16px; font-weight: 700; margin-top: 4px; font-variant-numeric: tabular-nums; }
+.kpi-box .sub { font-size: 10px; color: var(--text-secondary); margin-top: 2px; }
+
+/* ─── Pulse number animation ─── */
+.num-flash { animation: numFlash .6s ease-out; }
+@keyframes numFlash {
+  0% { color: var(--primary); transform: translateY(-2px); }
+  100% { color: inherit; transform: none; }
+}
+
+/* ─── Tweaks panel ─── */
+.tweaks {
+  position: fixed; right: 16px; bottom: 16px;
+  background: var(--bg-card); border: 1px solid var(--border-default);
+  border-radius: 12px; padding: 12px; width: 240px;
+  box-shadow: var(--shadow-pop); z-index: 100;
+  display: none;
+}
+.tweaks.on { display: block; }
+.tweaks h4 { margin: 0 0 8px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-secondary); }
+.tweaks-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.tweaks label { font-size: 12px; color: var(--text-secondary); }
+.tweaks input[type=range] { width: 110px; }
+.simu-btn { position: fixed; right: 16px; bottom: 16px; z-index: 99; padding: 10px 14px; border-radius: 999px; background: var(--bg-deep); color: white; box-shadow: var(--shadow-pop); font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.simu-btn .led { width: 8px; height: 8px; border-radius: 50%; background: var(--success); position: relative; }
+.simu-btn .led::after { content: ''; position: absolute; inset: 0; border-radius: 50%; background: var(--success); animation: pulseRing 1.6s ease-out infinite; }
+
+/* ─── Skeleton + reveal ─── */
+.reveal { opacity: 0; transform: translateY(8px); animation: reveal .5s ease-out forwards; }
+@keyframes reveal { to { opacity: 1; transform: none; } }
+.reveal.d1 { animation-delay: .05s; }
+.reveal.d2 { animation-delay: .12s; }
+.reveal.d3 { animation-delay: .2s; }
+.reveal.d4 { animation-delay: .28s; }
+.reveal.d5 { animation-delay: .36s; }
+.reveal.d6 { animation-delay: .44s; }
+
+/* Donut */
+.donut-wrap { display: flex; align-items: center; gap: 16px; padding: 4px 18px 14px; }
+.donut { width: 130px; height: 130px; flex-shrink: 0; }
+.donut-legend { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+.donut-leg-row { display: flex; align-items: center; justify-content: space-between; font-size: 12px; }
+.donut-leg-row .left { display: flex; align-items: center; gap: 6px; color: var(--text-secondary); }
+.donut-leg-row .sq { width: 10px; height: 10px; border-radius: 3px; }
+.donut-leg-row .val { font-weight: 700; font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+<div class="web">
+  <!-- ─────── Topbar ─────── -->
+  <div class="topbar">
+    <div class="workspace-brand">
+      <div class="workspace-mark">T</div>
+      <div>
+        <div class="workspace-name">TrackPro HQ</div>
+        <div class="workspace-sub">saqari.trackpro.ge</div>
+      </div>
+    </div>
+    <div class="topbar-spacer"></div>
+    <div class="topbar-utils">
+      <button class="util-btn" title="ახალი"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+      <button class="util-btn" title="ძიება"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></button>
+      <button class="util-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6"/><path d="M9 17v1a3 3 0 0 0 6 0v-1"/></svg><span class="dot-pulse"></span></button>
+      <div class="util-divider"></div>
+      <div class="user-pill">
+        <div class="avatar">ნშ</div>
+        <span style="font-size: 12px; font-weight: 500;">ნიკოლოზი</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────── Sidebar ─────── -->
+  <aside class="sidebar">
+    <div class="mode-pill">
+      <div class="mode-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="6" height="5" rx="2"/><rect x="4" y="13" width="6" height="7" rx="2"/><rect x="14" y="4" width="6" height="7" rx="2"/><rect x="14" y="15" width="6" height="5" rx="2"/></svg></div>
+      <div class="mode-label">Operations</div>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-tertiary)"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+
+    <div class="sidebar-section-label">მთავარი</div>
+    <a class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="6" height="5" rx="2"/><rect x="4" y="13" width="6" height="7" rx="2"/><rect x="14" y="4" width="6" height="7" rx="2"/><rect x="14" y="15" width="6" height="5" rx="2"/></svg><span>დაშბორდი</span></a>
+    <a class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l6 -3l6 3l6 -3v13l-6 3l-6 -3l-6 3z"/><path d="M9 4v13"/><path d="M15 7v13"/></svg><span>ცოცხალი რუკა</span><span class="nav-badge" style="background: var(--success);">12</span></a>
+    <a class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="11" r="3"/><path d="M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z"/></svg><span>ლოკაციები</span></a>
+    <a class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>მომხმარებლები</span></a>
+    <a class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg><span>რეპორტი</span></a>
+
+    <div class="sidebar-section-label">სხვა</div>
+    <a class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21H7a2 2 0 0 1 -2 -2V5a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"/></svg><span>დოკუმენტები</span></a>
+    <a class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06 .06a2 2 0 0 1 0 2.83a2 2 0 0 1 -2.83 0l-.06 -.06a1.65 1.65 0 0 0 -1.82 -.33a1.65 1.65 0 0 0 -1 1.51v.17a2 2 0 0 1 -4 0v-.09a1.65 1.65 0 0 0 -1 -1.51a1.65 1.65 0 0 0 -1.82 .33l-.06 .06a2 2 0 0 1 -2.83 0a2 2 0 0 1 0 -2.83l.06 -.06a1.65 1.65 0 0 0 .33 -1.82a1.65 1.65 0 0 0 -1.51 -1H3a2 2 0 0 1 0 -4h.09a1.65 1.65 0 0 0 1.51 -1a1.65 1.65 0 0 0 -.33 -1.82l-.06 -.06a2 2 0 0 1 0 -2.83a2 2 0 0 1 2.83 0l.06 .06a1.65 1.65 0 0 0 1.82 .33h.01a1.65 1.65 0 0 0 1 -1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51a1.65 1.65 0 0 0 1.82 -.33l.06 -.06a2 2 0 0 1 2.83 0a2 2 0 0 1 0 2.83l-.06 .06a1.65 1.65 0 0 0 -.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0 -1.51 1z"/></svg><span>პარამეტრები</span></a>
+
+    <div class="sidebar-footer">
+      <div class="avatar lg">ნშ</div>
+      <div style="flex: 1; min-width: 0;">
+        <div style="font-size: 12px; font-weight: 600;">ნიკოლოზ შენგელია</div>
+        <div style="font-size: 10px; color: var(--text-tertiary);">admin</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ─────── Main ─────── -->
+  <main class="main">
+    <div class="sub-header">
+      <div class="page-title-wrap">
+        <div>
+          <div class="page-title">რეპორტი</div>
+          <div class="card-sub" style="margin-top: 2px;">ბოლო 7 დღე · 24 აქტიური მომხმარებელი</div>
+        </div>
+        <div class="live-flag" id="liveFlag">
+          <div class="live-dot"></div>
+          <div class="live-label">ცოცხალი</div>
+        </div>
+      </div>
+      <div class="header-controls">
+        <div class="seg" id="rangeSeg">
+          <button data-range="today">დღეს</button>
+          <button data-range="7d" class="on">7 დღე</button>
+          <button data-range="30d">30 დღე</button>
+          <button data-range="90d">90 დღე</button>
+        </div>
+        <div style="display: flex; gap: 6px;">
+          <button class="chip on" data-team="tbilisi" style="color: var(--primary-text);"><span class="swatch"></span>თბილისი</button>
+          <button class="chip on" data-team="batumi" style="color: var(--violet);"><span class="swatch"></span>ბათუმი</button>
+          <button class="chip" data-team="kutaisi" style="color: var(--success);"><span class="swatch"></span>ქუთაისი</button>
+        </div>
+        <button class="btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1 -2 2H5a2 2 0 0 1 -2 -2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Excel</button>
+        <button class="btn primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg> ანგარიში</button>
+      </div>
+    </div>
+
+    <div class="content">
+      <!-- ───── METRIC ROW ───── -->
+      <div class="metric-row">
+        <div class="metric reveal d1">
+          <div class="metric-label">ჯამური საათები
+            <div class="metric-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg></div>
+          </div>
+          <div class="metric-value"><span data-counter="251" data-unit="ს">0</span><span class="metric-unit">ს</span></div>
+          <div class="metric-delta up">▲ +12% წინა კვირასთან</div>
+          <svg class="metric-spark" viewBox="0 0 120 32" preserveAspectRatio="none" data-spark="218,221,232,240,238,247,251" data-color="var(--primary)"></svg>
+        </div>
+        <div class="metric reveal d2">
+          <div class="metric-label">ჯამური მანძილი
+            <div class="metric-icon success"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="11" r="3"/><path d="M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z"/></svg></div>
+          </div>
+          <div class="metric-value"><span data-counter="1847">0</span><span class="metric-unit">კმ</span></div>
+          <div class="metric-delta up">▲ +8% · 137 კმ ↑</div>
+          <svg class="metric-spark" viewBox="0 0 120 32" preserveAspectRatio="none" data-spark="1610,1554,1701,1740,1812,1798,1847" data-color="var(--success)"></svg>
+        </div>
+        <div class="metric reveal d3">
+          <div class="metric-label">საშ. დაყოვნება
+            <div class="metric-icon warning"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 0 0 -.586 -1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414 -4.414A2 2 0 0 0 17 6.172V2"/></svg></div>
+          </div>
+          <div class="metric-value"><span data-counter="42">0</span><span class="metric-unit">წთ</span></div>
+          <div class="metric-delta up">▲ +4 წთ ლოკაციაზე</div>
+          <svg class="metric-spark" viewBox="0 0 120 32" preserveAspectRatio="none" data-spark="36,38,40,39,41,40,42" data-color="var(--warning)"></svg>
+        </div>
+        <div class="metric reveal d4">
+          <div class="metric-label">ვიზიტი / ლოკაცია
+            <div class="metric-icon violet"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3l8 -8"/><path d="M20 12v6a2 2 0 0 1 -2 2H6a2 2 0 0 1 -2 -2V6a2 2 0 0 1 2 -2h9"/></svg></div>
+          </div>
+          <div class="metric-value"><span data-counter="2.8" data-decimals="1">0</span></div>
+          <div class="metric-delta up">≈ სტაბილური</div>
+          <svg class="metric-spark" viewBox="0 0 120 32" preserveAspectRatio="none" data-spark="2.7,2.6,2.9,2.8,2.7,2.8,2.8" data-color="var(--violet)"></svg>
+        </div>
+      </div>
+
+      <!-- ───── HERO CHART + LIVE FEED ───── -->
+      <div class="grid-2 reveal d2">
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title">სამუშაო საათები · ბოლო 7 დღე</div>
+              <div class="card-sub">ყოველდღიური ჯამი გუნდის მიხედვით</div>
+            </div>
+            <div class="seg">
+              <button class="on">საათები</button>
+              <button>მანძილი</button>
+              <button>ვიზიტი</button>
+            </div>
+          </div>
+          <div class="card-body" style="padding: 4px 18px 0;">
+            <div class="hero-chart-wrap">
+              <svg class="hero-svg" id="heroChart" viewBox="0 0 720 280" preserveAspectRatio="none"></svg>
+              <div class="tooltip" id="heroTip"></div>
+            </div>
+            <div class="chart-legend">
+              <div class="legend-item" data-series="tbilisi"><span class="swatch" style="background: var(--primary);"></span>თბილისის გუნდი</div>
+              <div class="legend-item" data-series="batumi"><span class="swatch" style="background: var(--violet);"></span>ბათუმის გუნდი</div>
+              <div class="legend-item off" data-series="kutaisi"><span class="swatch" style="background: var(--success);"></span>ქუთაისის გუნდი</div>
+            </div>
+          </div>
+          <div class="kpi-rail">
+            <div class="kpi-box">
+              <div class="lbl">პიკ დღე</div>
+              <div class="val">პარასკევი</div>
+              <div class="sub">52 საათი · +18% კვირის საშ.</div>
+            </div>
+            <div class="kpi-box">
+              <div class="lbl">ყველაზე დაბალი</div>
+              <div class="val">კვირა</div>
+              <div class="sub">8 საათი · გრაფიკით</div>
+            </div>
+            <div class="kpi-box">
+              <div class="lbl">დღიური საშუალო</div>
+              <div class="val">35.9 საათი</div>
+              <div class="sub">თბილისი 22.4 · ბათუმი 13.5</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title">ცოცხალი აქტივობა</div>
+              <div class="card-sub">checkin · checkout · alert</div>
+            </div>
+            <button class="btn sm" id="pauseBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>პაუზა</button>
+          </div>
+          <div class="live-feed" id="liveFeed"></div>
+          <div class="feed-fade"></div>
+        </div>
+      </div>
+
+      <!-- ───── HEATMAP + LEADERBOARD ───── -->
+      <div class="grid-2 reveal d3">
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title">აქტივობის heatmap</div>
+              <div class="card-sub">საათი × კვირის დღე · ბოლო 4 კვირა</div>
+            </div>
+            <div class="seg">
+              <button class="on">საათები</button>
+              <button>ვიზიტი</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="heatmap-grid" id="heatmap"></div>
+            <div class="heatmap-legend">
+              <span>ნაკლები</span>
+              <div class="scale" id="hmScale"></div>
+              <span>მეტი</span>
+              <div style="margin-left: auto; font-size: 11px;">პიკი: <strong>ხუთ 11:00</strong> · 38ს</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title">გუნდის ლიდერბორდი</div>
+              <div class="card-sub">პროდუქტიულობის ქულა (0–100)</div>
+            </div>
+            <button class="btn sm">სრულად</button>
+          </div>
+          <div class="card-body flush" id="leaderboard"></div>
+        </div>
+      </div>
+
+      <!-- ───── TOP LOCATIONS + INSIGHTS ───── -->
+      <div class="grid-2-eq reveal d4">
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title">ტოპ ლოკაციები</div>
+              <div class="card-sub">ვიზიტი ამ კვირაში</div>
+            </div>
+            <div class="seg">
+              <button class="on">ვიზიტი</button>
+              <button>დრო</button>
+            </div>
+          </div>
+          <div class="card-body flush" id="topLocs"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title">AI შენიშვნები</div>
+              <div class="card-sub">ანომალიები და რეკომენდაციები</div>
+            </div>
+            <span style="font-size: 10px; color: var(--text-tertiary);">განახლდა ახლა</span>
+          </div>
+          <div class="card-body" id="insights"></div>
+        </div>
+      </div>
+
+      <!-- ───── MAP + DONUT ───── -->
+      <div class="grid-2 reveal d5">
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title">გუნდი რუკაზე</div>
+              <div class="card-sub">24 ცოცხალი მოწყობილობა</div>
+            </div>
+            <button class="btn sm">სრულად</button>
+          </div>
+          <div class="card-body">
+            <div class="mini-map" id="miniMap">
+              <svg width="100%" height="100%" viewBox="0 0 600 180" preserveAspectRatio="none" style="position:absolute; inset:0;">
+                <path class="map-route" d="M80,60 Q160,30 220,100 T420,80 T540,130" />
+              </svg>
+              <!-- dots populated by JS -->
+              <div class="map-overlay">
+                <div class="chip" style="background: rgba(255,255,255,0.9);"><span class="swatch" style="background: var(--success);"></span>აქტიური 12</div>
+                <div class="chip" style="background: rgba(255,255,255,0.9);"><span class="swatch" style="background: var(--warning);"></span>დაყოვნება 4</div>
+              </div>
+              <div class="map-legend">
+                <div class="map-legend-row"><span class="d" style="background: var(--success);"></span>აქტიური</div>
+                <div class="map-legend-row"><span class="d" style="background: var(--warning);"></span>დაყოვნება</div>
+                <div class="map-legend-row"><span class="d" style="background: var(--text-tertiary);"></span>გათიშული</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title">დროის გადანაწილება</div>
+              <div class="card-sub">ჯამური სამუშაო დროიდან</div>
+            </div>
+          </div>
+          <div class="donut-wrap">
+            <svg class="donut" viewBox="0 0 36 36" id="donut">
+              <circle cx="18" cy="18" r="14.5" fill="none" stroke="var(--bg-muted)" stroke-width="4"/>
+              <circle cx="18" cy="18" r="14.5" fill="none" stroke="var(--primary)" stroke-width="4" stroke-dasharray="50 91" stroke-dashoffset="0" stroke-linecap="round" transform="rotate(-90 18 18)" class="donut-seg" data-dash="50"/>
+              <circle cx="18" cy="18" r="14.5" fill="none" stroke="var(--violet)" stroke-width="4" stroke-dasharray="0 91" stroke-dashoffset="-50" stroke-linecap="round" transform="rotate(-90 18 18)" class="donut-seg" data-dash="22"/>
+              <circle cx="18" cy="18" r="14.5" fill="none" stroke="var(--success)" stroke-width="4" stroke-dasharray="0 91" stroke-dashoffset="-72" stroke-linecap="round" transform="rotate(-90 18 18)" class="donut-seg" data-dash="14"/>
+              <circle cx="18" cy="18" r="14.5" fill="none" stroke="var(--warning)" stroke-width="4" stroke-dasharray="0 91" stroke-dashoffset="-86" stroke-linecap="round" transform="rotate(-90 18 18)" class="donut-seg" data-dash="5"/>
+              <text x="18" y="17" text-anchor="middle" font-size="6" font-weight="700" fill="var(--text-primary)">251ს</text>
+              <text x="18" y="22" text-anchor="middle" font-size="2.5" fill="var(--text-tertiary)">ჯამური</text>
+            </svg>
+            <div class="donut-legend">
+              <div class="donut-leg-row"><span class="left"><span class="sq" style="background: var(--primary);"></span>ლოკაციაზე</span><span class="val">138ს · 55%</span></div>
+              <div class="donut-leg-row"><span class="left"><span class="sq" style="background: var(--violet);"></span>გადაადგილება</span><span class="val">60ს · 24%</span></div>
+              <div class="donut-leg-row"><span class="left"><span class="sq" style="background: var(--success);"></span>შესვენება</span><span class="val">38ს · 15%</span></div>
+              <div class="donut-leg-row"><span class="left"><span class="sq" style="background: var(--warning);"></span>გადახრები</span><span class="val">15ს · 6%</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ─────── Tweaks ─────── -->
+<button class="simu-btn" id="simuToggle"><span class="led"></span>სიმულაცია · ON</button>
+<div class="tweaks" id="tweaks">
+  <h4>სიმულაცია</h4>
+  <div class="tweaks-row"><label>სიჩქარე</label><input type="range" id="speedRange" min="1" max="10" value="5"></div>
+  <div class="tweaks-row"><label>ცოცხალი ფიდი</label><input type="checkbox" id="feedOn" checked></div>
+  <div class="tweaks-row"><label>რუკის ანიმაცია</label><input type="checkbox" id="mapAnim" checked></div>
+</div>
+
+<script>
+// ════════════════════════════════════════
+//  DATA
+// ════════════════════════════════════════
+const TBILISI = [38, 42, 35, 48, 52, 28, 8];
+const BATUMI  = [22, 26, 24, 31, 33, 18, 4];
+const KUTAISI = [12, 14, 11, 16, 18, 9, 3];
+const DAY_LABELS = ['ორშ', 'სამშ', 'ოთხშ', 'ხუთ', 'პარ', 'შაბ', 'კვ'];
+
+const SERIES = {
+  tbilisi: { data: TBILISI, color: 'var(--primary)', colorHex: '#1565C0', label: 'თბილისი' },
+  batumi:  { data: BATUMI,  color: 'var(--violet)',  colorHex: '#7C3AED', label: 'ბათუმი' },
+  kutaisi: { data: KUTAISI, color: 'var(--success)', colorHex: '#16A34A', label: 'ქუთაისი' },
+};
+const visible = { tbilisi: true, batumi: true, kutaisi: false };
+
+// ════════════════════════════════════════
+//  COUNTERS
+// ════════════════════════════════════════
+function animateCounter(el) {
+  const target = parseFloat(el.dataset.counter);
+  const decimals = parseInt(el.dataset.decimals || '0');
+  const duration = 1200;
+  const start = performance.now();
+  function step(t) {
+    const p = Math.min(1, (t - start) / duration);
+    const eased = 1 - Math.pow(1 - p, 3);
+    const val = target * eased;
+    el.textContent = decimals ? val.toFixed(decimals) : Math.round(val).toLocaleString();
+    if (p < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+document.querySelectorAll('[data-counter]').forEach(animateCounter);
+
+// ════════════════════════════════════════
+//  SPARKLINES
+// ════════════════════════════════════════
+document.querySelectorAll('[data-spark]').forEach(svg => {
+  const values = svg.dataset.spark.split(',').map(Number);
+  const color = svg.dataset.color;
+  const w = 120, h = 32, pad = 2;
+  const min = Math.min(...values), max = Math.max(...values);
+  const range = max - min || 1;
+  const points = values.map((v, i) => {
+    const x = pad + (i / (values.length - 1)) * (w - pad * 2);
+    const y = h - pad - ((v - min) / range) * (h - pad * 2);
+    return [x, y];
+  });
+  const linePath = 'M' + points.map(p => p.join(',')).join(' L');
+  const areaPath = linePath + ` L${w - pad},${h} L${pad},${h} Z`;
+  const gradId = 'g' + Math.random().toString(36).slice(2, 8);
+  svg.innerHTML = `
+    <defs><linearGradient id="${gradId}" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="${color}" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
+    </linearGradient></defs>
+    <path d="${areaPath}" fill="url(#${gradId})"/>
+    <path d="${linePath}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="200" stroke-dashoffset="200">
+      <animate attributeName="stroke-dashoffset" from="200" to="0" dur="1.2s" fill="freeze"/>
+    </path>
+    <circle cx="${points[points.length-1][0]}" cy="${points[points.length-1][1]}" r="2.5" fill="${color}"/>
+  `;
+});
+
+// ════════════════════════════════════════
+//  HERO CHART (multi-line area)
+// ════════════════════════════════════════
+const heroSvg = document.getElementById('heroChart');
+const heroTip = document.getElementById('heroTip');
+const heroW = 720, heroH = 280;
+const padL = 36, padR = 14, padT = 16, padB = 28;
+
+function renderHero() {
+  const days = TBILISI.length;
+  const allVals = Object.entries(SERIES)
+    .filter(([k]) => visible[k])
+    .flatMap(([, s]) => s.data);
+  const maxY = Math.max(...allVals, 10) * 1.15;
+  const xAt = i => padL + (i / (days - 1)) * (heroW - padL - padR);
+  const yAt = v => heroH - padB - (v / maxY) * (heroH - padT - padB);
+
+  let svg = '';
+  // grid lines
+  const gridLines = 4;
+  for (let i = 0; i <= gridLines; i++) {
+    const yVal = (maxY / gridLines) * i;
+    const y = yAt(yVal);
+    svg += `<line x1="${padL}" y1="${y}" x2="${heroW - padR}" y2="${y}" stroke="var(--border-default)" stroke-width="0.5" stroke-dasharray="${i === 0 ? '0' : '2 3'}"/>`;
+    svg += `<text x="${padL - 6}" y="${y + 3}" text-anchor="end" font-size="9" fill="var(--text-tertiary)">${Math.round(yVal)}</text>`;
+  }
+  // x labels
+  DAY_LABELS.forEach((d, i) => {
+    svg += `<text x="${xAt(i)}" y="${heroH - 8}" text-anchor="middle" font-size="10" fill="var(--text-secondary)" font-weight="500">${d}</text>`;
+  });
+  // series
+  Object.entries(SERIES).forEach(([key, s], idx) => {
+    if (!visible[key]) return;
+    const pts = s.data.map((v, i) => [xAt(i), yAt(v)]);
+    const line = 'M' + pts.map(p => p.join(',')).join(' L');
+    const area = line + ` L${xAt(days - 1)},${heroH - padB} L${xAt(0)},${heroH - padB} Z`;
+    const gid = `hg${idx}`;
+    svg += `<defs><linearGradient id="${gid}" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="${s.colorHex}" stop-opacity="0.28"/>
+      <stop offset="100%" stop-color="${s.colorHex}" stop-opacity="0"/>
+    </linearGradient></defs>`;
+    svg += `<path d="${area}" fill="url(#${gid})" opacity="0">
+      <animate attributeName="opacity" from="0" to="1" dur=".7s" fill="freeze" begin="${idx*0.15}s"/>
+    </path>`;
+    const len = 2000;
+    svg += `<path d="${line}" fill="none" stroke="${s.colorHex}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="${len}" stroke-dashoffset="${len}">
+      <animate attributeName="stroke-dashoffset" from="${len}" to="0" dur="1.4s" fill="freeze" begin="${idx*0.15}s"/>
+    </path>`;
+    pts.forEach((p, i) => {
+      svg += `<circle cx="${p[0]}" cy="${p[1]}" r="3.5" fill="white" stroke="${s.colorHex}" stroke-width="2" opacity="0" data-x="${p[0]}" data-y="${p[1]}" data-day="${i}">
+        <animate attributeName="opacity" from="0" to="1" dur=".3s" fill="freeze" begin="${1.0 + idx*0.15 + i*0.04}s"/>
+      </circle>`;
+    });
+  });
+  // hover guide
+  svg += `<line id="heroGuide" x1="0" y1="${padT}" x2="0" y2="${heroH - padB}" stroke="var(--text-tertiary)" stroke-width="1" stroke-dasharray="3 3" opacity="0"/>`;
+  // hover hit rects
+  for (let i = 0; i < days; i++) {
+    const x = xAt(i);
+    const half = (heroW - padL - padR) / (days - 1) / 2;
+    svg += `<rect x="${x - half}" y="${padT}" width="${half * 2}" height="${heroH - padT - padB}" fill="transparent" data-hit="${i}" style="cursor:crosshair"/>`;
+  }
+
+  heroSvg.innerHTML = svg;
+
+  heroSvg.querySelectorAll('[data-hit]').forEach(rect => {
+    rect.addEventListener('mouseenter', e => {
+      const i = +rect.dataset.hit;
+      const x = xAt(i);
+      const guide = heroSvg.querySelector('#heroGuide');
+      guide.setAttribute('x1', x); guide.setAttribute('x2', x); guide.setAttribute('opacity', '1');
+      const seriesRows = Object.entries(SERIES).filter(([k]) => visible[k])
+        .map(([k, s]) => `<div class="tooltip-row"><span class="lbl"><span class="sq" style="background:${s.colorHex}"></span>${s.label}</span><span>${s.data[i]}ს</span></div>`).join('');
+      heroTip.innerHTML = `<div class="tooltip-title">${DAY_LABELS[i]}</div>${seriesRows}`;
+      const r = heroSvg.getBoundingClientRect();
+      const parent = heroSvg.parentElement.getBoundingClientRect();
+      const xRel = (x / heroW) * r.width;
+      heroTip.style.left = (xRel) + 'px';
+      heroTip.style.top = ((heroH * 0.3 / heroH) * r.height) + 'px';
+      heroTip.classList.add('show');
+    });
+    rect.addEventListener('mouseleave', () => {
+      heroTip.classList.remove('show');
+      heroSvg.querySelector('#heroGuide').setAttribute('opacity', '0');
+    });
+  });
+}
+renderHero();
+
+document.querySelectorAll('.legend-item').forEach(el => {
+  el.addEventListener('click', () => {
+    const k = el.dataset.series;
+    visible[k] = !visible[k];
+    el.classList.toggle('off', !visible[k]);
+    renderHero();
+  });
+});
+
+// ════════════════════════════════════════
+//  HEATMAP
+// ════════════════════════════════════════
+const heatmap = document.getElementById('heatmap');
+const HM_HOURS_SHOWN = 24;
+const HM_DAYS = ['ორშ','სამ','ოთხ','ხუთ','პარ','შაბ','კვ'];
+
+// build hour header row
+let hmHTML = `<div class="hm-corner"></div>`;
+for (let h = 0; h < HM_HOURS_SHOWN; h++) {
+  hmHTML += `<div class="hm-hour">${h % 6 === 0 ? h.toString().padStart(2,'0') : ''}</div>`;
+}
+// rows
+function hmValue(d, h) {
+  // workday pattern: low at night, peak 10–13, dip lunch 14, high 15–18
+  let base = 0;
+  if (h >= 9 && h <= 18) base = 12 + Math.sin((h - 9) / 9 * Math.PI) * 26;
+  if (h === 13) base *= 0.4;
+  if (d === 5) base *= 0.35;
+  if (d === 6) base *= 0.1;
+  const noise = (Math.sin(d * 7 + h * 13) + 1) * 4;
+  return Math.max(0, Math.round(base + noise));
+}
+const allHM = [];
+for (let d = 0; d < 7; d++) for (let h = 0; h < HM_HOURS_SHOWN; h++) allHM.push(hmValue(d, h));
+const hmMax = Math.max(...allHM);
+
+for (let d = 0; d < 7; d++) {
+  hmHTML += `<div class="hm-day">${HM_DAYS[d]}</div>`;
+  for (let h = 0; h < HM_HOURS_SHOWN; h++) {
+    const v = hmValue(d, h);
+    const t = v / hmMax;
+    const bg = t < 0.05 ? '#F1F5F9'
+             : `rgba(21, 101, 192, ${0.12 + t * 0.78})`;
+    hmHTML += `<div class="hm-cell" style="background:${bg}; animation: reveal .35s ease-out ${0.005 * (d * HM_HOURS_SHOWN + h)}s both;" title="${HM_DAYS[d]} ${h.toString().padStart(2,'0')}:00 · ${v}ს"></div>`;
+  }
+}
+heatmap.innerHTML = hmHTML;
+
+// heatmap scale
+const hmScale = document.getElementById('hmScale');
+[0.08, 0.25, 0.5, 0.75, 1].forEach(t => {
+  const sq = document.createElement('div');
+  sq.className = 'sq';
+  sq.style.background = `rgba(21, 101, 192, ${0.12 + t * 0.78})`;
+  hmScale.appendChild(sq);
+});
+
+// ════════════════════════════════════════
+//  LEADERBOARD
+// ════════════════════════════════════════
+const TEAMS = [
+  { name: 'გიორგი მ.',   team: 'თბილისი',  score: 94, delta: '+6', color: '' },
+  { name: 'მარიამი კ.',  team: 'თბილისი',  score: 89, delta: '+3', color: '' },
+  { name: 'ლევან ბ.',    team: 'ბათუმი',   score: 82, delta: '+1', color: 'violet' },
+  { name: 'სოფიო ც.',    team: 'ბათუმი',   score: 78, delta: '0', color: 'violet' },
+  { name: 'დავით ხ.',    team: 'თბილისი',  score: 71, delta: '-2', color: '' },
+  { name: 'ანი ჯ.',      team: 'ქუთაისი',  score: 64, delta: '+4', color: 'success' },
+  { name: 'ნუგზარ შ.',   team: 'ქუთაისი',  score: 41, delta: '-9', color: 'danger' },
+];
+const lb = document.getElementById('leaderboard');
+lb.innerHTML = TEAMS.map((t, i) => `
+  <div class="team-row">
+    <div class="team-rank ${i < 3 ? 'gold' : ''}">${i + 1}</div>
+    <div style="display: flex; align-items: center; gap: 8px; min-width: 132px;">
+      <div class="avatar lg" style="font-size: 11px; width: 26px; height: 26px;">${t.name.split(' ').map(p => p[0]).join('')}</div>
+      <div>
+        <div class="team-name" style="font-size: 12px;">${t.name}</div>
+        <div style="font-size: 10px; color: var(--text-tertiary);">${t.team}</div>
+      </div>
+    </div>
+    <div class="team-bar-wrap"><div class="team-bar ${t.color}" data-target="${t.score}"></div></div>
+    <div class="team-meta">${t.score}</div>
+    <div class="team-delta" style="color: ${t.delta.startsWith('-') ? 'var(--danger)' : t.delta === '0' ? 'var(--text-tertiary)' : 'var(--success)'};">${t.delta}</div>
+  </div>
+`).join('');
+// animate
+setTimeout(() => {
+  lb.querySelectorAll('.team-bar').forEach(b => b.style.width = b.dataset.target + '%');
+}, 250);
+
+// ════════════════════════════════════════
+//  TOP LOCATIONS
+// ════════════════════════════════════════
+const LOCS = [
+  { name: 'ცენტრალური ოფისი',   sub: '12 უნიკალური · 48 ვიზიტი', val: 48, max: 48, type: '' },
+  { name: 'ფილიალი #2 — ვაკე',  sub: '8 უნიკალური · 34 ვიზიტი',  val: 34, max: 48, type: '' },
+  { name: 'ფილიალი #1 — საბურთალო', sub: '7 უნიკალური · 29 ვიზიტი', val: 29, max: 48, type: '' },
+  { name: 'საწყობი — დიდუბე',   sub: '5 უნიკალური · 18 ვიზიტი', val: 18, max: 48, type: 'warn' },
+  { name: 'ბათუმის ფილიალი',    sub: '4 უნიკალური · 14 ვიზიტი', val: 14, max: 48, type: 'success' },
+];
+const tl = document.getElementById('topLocs');
+tl.innerHTML = LOCS.map(l => `
+  <div class="loc-row">
+    <div class="loc-icon ${l.type}">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21l18 0"/><path d="M9 8l1 0"/><path d="M9 12l1 0"/><path d="M9 16l1 0"/><path d="M14 8l1 0"/><path d="M14 12l1 0"/><path d="M14 16l1 0"/><path d="M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16"/></svg>
+    </div>
+    <div class="loc-info">
+      <div class="loc-name">${l.name}</div>
+      <div class="loc-meta">${l.sub}</div>
+    </div>
+    <div class="loc-bar-wrap"><div class="loc-bar ${l.type === 'warn' ? '' : ''}" data-pct="${(l.val / l.max * 100).toFixed(0)}" style="background: ${l.type === 'warn' ? 'var(--warning)' : l.type === 'success' ? 'var(--success)' : 'var(--primary)'};"></div></div>
+    <div class="loc-count">${l.val}</div>
+  </div>
+`).join('');
+setTimeout(() => {
+  tl.querySelectorAll('.loc-bar').forEach(b => b.style.width = b.dataset.pct + '%');
+}, 300);
+
+// ════════════════════════════════════════
+//  INSIGHTS
+// ════════════════════════════════════════
+const INS = [
+  { type: 'alert', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M12 17l.01 0"/><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z"/></svg>',
+    title: 'ნუგზარ შენგელია — 32% ვარდნა',
+    text: 'პროდუქტიულობის ქულა ბოლო კვირაში 9 ერთეულით დაეცა. ბოლო 3 დღე: 0 ვიზიტი.',
+    actions: ['შეტყობინება', 'დეტალები'] },
+  { type: 'warn', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>',
+    title: 'საწყობი — დიდუბე გადატვირთულია',
+    text: 'საშ. დაყოვნება 78 წთ — ნორმაზე 36 წთ-ით მეტი. რეკომენდაცია: 2 დამატებითი მუშაკი.',
+    actions: ['გრაფიკი', 'ფერხილი'] },
+  { type: 'info', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="14 7 21 7 21 14"/></svg>',
+    title: 'ბათუმის გუნდი — +18% ზრდა',
+    text: 'ვიზიტი/დღე 4-დან 4.7-მდე გაიზარდა. ბოლო 14 დღე გრძელვადიანი ტრენდი.',
+    actions: ['ანალიზი'] },
+];
+document.getElementById('insights').innerHTML = INS.map(i => `
+  <div class="insight ${i.type}">
+    <div class="insight-icon">${i.icon}</div>
+    <div class="insight-body">
+      <div class="insight-title">${i.title}</div>
+      <div class="insight-text">${i.text}</div>
+      <div class="insight-actions">
+        ${i.actions.map(a => `<button class="btn sm">${a}</button>`).join('')}
+      </div>
+    </div>
+  </div>
+`).join('');
+
+// ════════════════════════════════════════
+//  MAP DOTS
+// ════════════════════════════════════════
+const map = document.getElementById('miniMap');
+const dots = [
+  { x: 14, y: 32, type: 'active' },{ x: 22, y: 48, type: 'active' },{ x: 26, y: 22, type: 'idle' },
+  { x: 35, y: 60, type: 'active' },{ x: 42, y: 35, type: 'active' },{ x: 48, y: 70, type: 'off' },
+  { x: 56, y: 28, type: 'active' },{ x: 62, y: 52, type: 'idle' },{ x: 68, y: 40, type: 'active' },
+  { x: 74, y: 68, type: 'active' },{ x: 80, y: 30, type: 'active' },{ x: 86, y: 56, type: 'idle' },
+  { x: 90, y: 75, type: 'active' },
+];
+dots.forEach((d, i) => {
+  const el = document.createElement('div');
+  el.className = `map-dot ${d.type}`;
+  el.style.left = d.x + '%';
+  el.style.top = d.y + '%';
+  el.style.animationDelay = (i * 0.18) + 's';
+  el.style.opacity = '0';
+  setTimeout(() => { el.style.transition = 'opacity .5s'; el.style.opacity = '1'; }, 200 + i * 50);
+  map.appendChild(el);
+});
+
+// move some active dots over time
+let mapAnimOn = true;
+setInterval(() => {
+  if (!mapAnimOn) return;
+  map.querySelectorAll('.map-dot.active').forEach(d => {
+    const left = parseFloat(d.style.left);
+    const top = parseFloat(d.style.top);
+    d.style.transition = 'left 4s linear, top 4s linear';
+    d.style.left = Math.max(5, Math.min(95, left + (Math.random() - 0.5) * 6)) + '%';
+    d.style.top  = Math.max(10, Math.min(90, top  + (Math.random() - 0.5) * 8)) + '%';
+  });
+}, 4000);
+
+// ════════════════════════════════════════
+//  LIVE FEED SIMULATION
+// ════════════════════════════════════════
+const NAMES = [
+  ['გიორგი მ.', 's1'], ['მარიამი კ.', 's2'], ['ლევან ბ.', 's3'],
+  ['სოფიო ც.', 's4'], ['დავით ხ.', 's5'], ['ანი ჯ.', 's1'],
+  ['ნუგზარ შ.', 's2'], ['თამარი წ.', 's3'], ['გელა ფ.', 's4'],
+];
+const LOC_NAMES = ['ცენტრალური ოფისი', 'ფილიალი #2', 'საწყობი', 'ფილიალი #1', 'ბათუმის ფილიალი'];
+const ACTIONS = [
+  { kind: 'in',  txt: 'შემოვიდა ლოკაციაზე', evt: 'in' },
+  { kind: 'out', txt: 'დატოვა ლოკაცია',     evt: 'out' },
+  { kind: 'alert', txt: 'გრძელი დაყოვნება', evt: 'alert' },
+];
+function fmtAgo(s) {
+  if (s < 60) return 'ახლა · ' + s + 'წმ';
+  return Math.floor(s / 60) + ' წთ წინ';
+}
+
+const feed = document.getElementById('liveFeed');
+let feedStarted = Date.now();
+let feedOn = true;
+let feedTimer = null;
+let speed = 5; // 1..10
+
+function pushFeedItem() {
+  const [n, av] = NAMES[Math.floor(Math.random() * NAMES.length)];
+  const loc = LOC_NAMES[Math.floor(Math.random() * LOC_NAMES.length)];
+  const act = ACTIONS[Math.floor(Math.random() * (Math.random() < 0.1 ? 3 : 2))];
+  const initials = n.split(' ').map(p => p[0]).join('');
+  const div = document.createElement('div');
+  div.className = 'feed-item';
+  div.dataset.t = Date.now();
+  div.innerHTML = `
+    <div class="feed-evt ${act.evt}"></div>
+    <div class="feed-avatar ${av}">${initials}</div>
+    <div style="flex:1; min-width:0;">
+      <div><span class="feed-name">${n}</span> <span class="feed-action">${act.txt}</span></div>
+      <div><span class="feed-loc">${loc}</span></div>
+      <div class="feed-time">ახლა</div>
+    </div>
+  `;
+  feed.insertBefore(div, feed.firstChild);
+  while (feed.children.length > 6) feed.removeChild(feed.lastChild);
+
+  // ripple metric increment
+  flashMetric();
+}
+
+function flashMetric() {
+  const targets = document.querySelectorAll('[data-counter]');
+  if (Math.random() < 0.5) {
+    const el = targets[0];
+    const cur = parseInt(el.textContent.replace(/[^\d]/g, ''));
+    el.textContent = (cur + 1).toLocaleString();
+    el.classList.remove('num-flash'); void el.offsetWidth; el.classList.add('num-flash');
+  }
+}
+
+function refreshTimes() {
+  feed.querySelectorAll('.feed-item').forEach(it => {
+    const t = +it.dataset.t;
+    const s = Math.floor((Date.now() - t) / 1000);
+    it.querySelector('.feed-time').textContent = fmtAgo(s);
+  });
+}
+
+function startFeed() {
+  stopFeed();
+  const interval = 5000 / (speed * 0.8); // 6.25s..0.625s
+  feedTimer = setInterval(() => { if (feedOn) pushFeedItem(); }, interval);
+}
+function stopFeed() { if (feedTimer) clearInterval(feedTimer); feedTimer = null; }
+
+// seed
+['in','in','out','in','alert'].forEach((kind, i) => {
+  setTimeout(() => pushFeedItem(), 300 + i * 200);
+});
+setTimeout(startFeed, 1800);
+setInterval(refreshTimes, 1000);
+
+// pause btn
+document.getElementById('pauseBtn').addEventListener('click', function() {
+  feedOn = !feedOn;
+  this.innerHTML = feedOn
+    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>პაუზა'
+    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>გაშვება';
+});
+
+// ════════════════════════════════════════
+//  RANGE / TEAM CHIPS
+// ════════════════════════════════════════
+document.querySelectorAll('#rangeSeg button').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('#rangeSeg button').forEach(x => x.classList.remove('on'));
+    b.classList.add('on');
+    // bump heatmap & metrics subtly
+    document.querySelectorAll('.hm-cell').forEach(c => { c.style.animation = 'none'; void c.offsetWidth; c.style.animation = 'reveal .4s ease-out both'; });
+  });
+});
+document.querySelectorAll('.chip[data-team]').forEach(c => {
+  c.addEventListener('click', () => {
+    c.classList.toggle('on');
+    const team = c.dataset.team;
+    if (team === 'tbilisi' || team === 'batumi' || team === 'kutaisi') {
+      visible[team] = c.classList.contains('on');
+      // sync legend
+      const leg = document.querySelector(`.legend-item[data-series="${team}"]`);
+      if (leg) leg.classList.toggle('off', !visible[team]);
+      renderHero();
+    }
+  });
+});
+
+// ════════════════════════════════════════
+//  Tweaks panel
+// ════════════════════════════════════════
+const simuToggle = document.getElementById('simuToggle');
+const tweaks = document.getElementById('tweaks');
+let tweaksOpen = false;
+simuToggle.addEventListener('click', () => {
+  tweaksOpen = !tweaksOpen;
+  tweaks.classList.toggle('on', tweaksOpen);
+  simuToggle.style.display = tweaksOpen ? 'none' : 'flex';
+});
+document.addEventListener('click', e => {
+  if (tweaksOpen && !tweaks.contains(e.target) && !simuToggle.contains(e.target)) {
+    tweaksOpen = false; tweaks.classList.remove('on'); simuToggle.style.display = 'flex';
+  }
+});
+document.getElementById('speedRange').addEventListener('input', e => {
+  speed = +e.target.value;
+  if (feedOn) startFeed();
+});
+document.getElementById('feedOn').addEventListener('change', e => { feedOn = e.target.checked; });
+document.getElementById('mapAnim').addEventListener('change', e => { mapAnimOn = e.target.checked; });
+</script>
+</body>
+</html>

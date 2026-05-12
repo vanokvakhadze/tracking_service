@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+<meta charset="utf-8">
+<title>TrackPro · ცოცხალი რუკა</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_shared.css">
+<style>
+.web { grid-template-rows: 48px auto 1fr; }
+.map-stage { position: relative; height: 720px; overflow: hidden;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(21,101,192,0.05), transparent 50%),
+    radial-gradient(circle at 70% 70%, rgba(124,58,237,0.05), transparent 50%),
+    repeating-linear-gradient(0deg, rgba(15,23,42,0.04) 0 1px, transparent 1px 32px),
+    repeating-linear-gradient(90deg, rgba(15,23,42,0.04) 0 1px, transparent 1px 32px),
+    var(--bg-subtle);
+}
+.left-panel { width: 320px; background: var(--bg-card); border-right: 1px solid var(--border-default); display: flex; flex-direction: column; overflow: hidden; }
+.right-panel { width: 320px; background: var(--bg-card); border-left: 1px solid var(--border-default); display: flex; flex-direction: column; overflow: hidden; }
+.lp-head { padding: 14px 16px; border-bottom: 1px solid var(--border-default); }
+.lp-search { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--bg-muted); border-radius: 8px; color: var(--text-tertiary); font-size: 12px; }
+.lp-filters { display: flex; gap: 6px; padding: 10px 16px; border-bottom: 1px solid var(--border-default); flex-wrap: wrap; }
+.lp-filter { padding: 4px 10px; border-radius: 999px; background: var(--bg-muted); font-size: 11px; font-weight: 600; cursor: pointer; color: var(--text-secondary); }
+.lp-filter.on { background: var(--primary); color: white; }
+.lp-list { flex: 1; overflow: auto; }
+.tracker { display: flex; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--border-default); cursor: pointer; align-items: center; }
+.tracker:hover { background: var(--bg-subtle); }
+.tracker.sel { background: var(--primary-light); border-left: 3px solid var(--primary); padding-left: 13px; }
+.tracker-av { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; font-weight: 700; flex-shrink: 0; position: relative; }
+.tracker-av .pin { position: absolute; bottom: -2px; right: -2px; width: 11px; height: 11px; border-radius: 50%; border: 2px solid white; }
+.tracker-info { flex: 1; min-width: 0; }
+.tracker-name { font-size: 13px; font-weight: 600; }
+.tracker-meta { font-size: 11px; color: var(--text-secondary); margin-top: 2px; display: flex; gap: 6px; align-items: center; }
+.tracker-time { font-size: 11px; color: var(--text-tertiary); font-variant-numeric: tabular-nums; }
+
+.map-controls { position: absolute; top: 16px; right: 16px; display: flex; flex-direction: column; gap: 6px; z-index: 4; }
+.map-ctrl { width: 36px; height: 36px; border-radius: 8px; background: white; box-shadow: var(--shadow-pop); display: grid; place-items: center; cursor: pointer; color: var(--text-secondary); }
+.map-ctrl:hover { color: var(--primary); }
+.map-attribution { position: absolute; bottom: 8px; right: 12px; font-size: 9px; color: var(--text-tertiary); background: rgba(255,255,255,0.7); padding: 2px 6px; border-radius: 4px; }
+.map-stats { position: absolute; top: 16px; left: 16px; display: flex; gap: 8px; z-index: 4; }
+.stat-pill { background: rgba(255,255,255,0.96); backdrop-filter: blur(8px); border: 1px solid var(--border-default); border-radius: 10px; padding: 8px 12px; display: flex; align-items: center; gap: 8px; box-shadow: var(--shadow-card); }
+.stat-pill .icon { width: 22px; height: 22px; border-radius: 5px; display: grid; place-items: center; }
+.stat-pill .lbl { font-size: 10px; color: var(--text-tertiary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+.stat-pill .val { font-size: 14px; font-weight: 700; }
+
+.geo { position: absolute; border: 2px dashed; border-radius: 50%; opacity: 0.5; pointer-events: none; }
+.geo.p { border-color: var(--primary); background: rgba(21,101,192,0.06); }
+.geo.s { border-color: var(--success); background: rgba(22,163,74,0.06); }
+.geo.w { border-color: var(--warning); background: rgba(202,138,4,0.06); }
+.geo-label { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: white; padding: 1px 7px; border-radius: 999px; font-size: 9px; font-weight: 700; border: 1px solid; }
+.geo.p .geo-label { color: var(--primary-text); border-color: var(--primary-light); }
+.geo.s .geo-label { color: var(--success-text); border-color: var(--success-border); }
+.geo.w .geo-label { color: var(--warning-text); border-color: var(--warning-border); }
+
+.map-dot { position: absolute; width: 16px; height: 16px; border-radius: 50%; transform: translate(-50%, -50%); cursor: pointer; transition: left 4s linear, top 4s linear, transform .2s; z-index: 2; }
+.map-dot::before { content: ''; position: absolute; inset: 0; border-radius: 50%; background: currentColor; animation: dotPulse 2.4s ease-out infinite; }
+.map-dot::after { content: ''; position: absolute; inset: 3px; background: currentColor; border-radius: 50%; border: 1.5px solid white; }
+.map-dot.active { color: var(--success); } .map-dot.idle { color: var(--warning); } .map-dot.off { color: var(--text-tertiary); }
+.map-dot.sel { transform: translate(-50%, -50%) scale(1.4); z-index: 5; }
+.map-dot.sel::after { box-shadow: 0 0 0 3px white, 0 0 0 5px var(--primary); }
+@keyframes dotPulse { 0% { transform: scale(1); opacity: 0.5; } 100% { transform: scale(2.6); opacity: 0; } }
+.map-route { stroke: var(--primary); stroke-width: 2.5; fill: none; stroke-dasharray: 5 4; opacity: 0.6; animation: dashMove 1.5s linear infinite; }
+.map-route.hist { stroke: var(--violet); stroke-dasharray: 0; opacity: 0.35; stroke-width: 2; }
+@keyframes dashMove { to { stroke-dashoffset: -18; } }
+
+.detail-head { padding: 16px 16px 12px; border-bottom: 1px solid var(--border-default); }
+.detail-name { font-size: 16px; font-weight: 700; }
+.detail-role { font-size: 11px; color: var(--text-tertiary); }
+.detail-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 14px 16px; }
+.dstat { background: var(--bg-subtle); border-radius: 8px; padding: 10px; }
+.dstat .lbl { font-size: 10px; color: var(--text-tertiary); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+.dstat .val { font-size: 16px; font-weight: 700; margin-top: 2px; font-variant-numeric: tabular-nums; }
+.dstat .sub { font-size: 10px; color: var(--text-secondary); }
+.timeline-row { padding: 14px 16px; border-top: 1px solid var(--border-default); }
+.tl-title { font-size: 11px; color: var(--text-tertiary); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; }
+.tl-item { display: flex; gap: 10px; padding-bottom: 14px; position: relative; }
+.tl-item::before { content: ''; position: absolute; left: 5px; top: 14px; bottom: -2px; width: 1.5px; background: var(--border-default); }
+.tl-item:last-child::before { display: none; }
+.tl-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--primary); border: 2.5px solid white; box-shadow: 0 0 0 1.5px var(--primary); flex-shrink: 0; margin-top: 2px; z-index: 1; }
+.tl-dot.success { background: var(--success); box-shadow: 0 0 0 1.5px var(--success); }
+.tl-dot.warning { background: var(--warning); box-shadow: 0 0 0 1.5px var(--warning); }
+.tl-dot.muted { background: white; box-shadow: 0 0 0 1.5px var(--border-strong); }
+.tl-body { flex: 1; font-size: 12px; }
+.tl-body strong { font-weight: 600; }
+.tl-time { font-size: 10px; color: var(--text-tertiary); margin-top: 2px; }
+.speedo { padding: 14px 16px; border-top: 1px solid var(--border-default); display: flex; align-items: center; gap: 14px; }
+.speedo-circle { width: 70px; height: 70px; flex-shrink: 0; }
+
+.popover { position: absolute; background: white; padding: 10px 12px; border-radius: 10px; box-shadow: var(--shadow-pop); border: 1px solid var(--border-default); font-size: 12px; min-width: 180px; z-index: 6; pointer-events: none; transform: translate(-50%, calc(-100% - 14px)); }
+.popover::after { content: ''; position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%) rotate(45deg); width: 10px; height: 10px; background: white; border-right: 1px solid var(--border-default); border-bottom: 1px solid var(--border-default); }
+</style>
+</head>
+<body>
+<div class="web">
+  <div class="topbar">
+    <div class="workspace-brand"><div class="workspace-mark">T</div><div><div class="workspace-name">TrackPro HQ</div><div class="workspace-sub">saqari.trackpro.ge</div></div></div>
+    <div class="topbar-search"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>მოძებნე ლოკაცია, თანამშრომელი…<kbd>⌘ K</kbd></div>
+    <div class="topbar-spacer"></div>
+    <div class="topbar-utils">
+      <button class="util-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+      <button class="util-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6"/></svg><span class="dot-pulse"></span></button>
+      <div class="util-divider"></div>
+      <div class="user-pill"><div class="avatar">ნშ</div><span style="font-size: 12px; font-weight: 500;">ნიკოლოზი</span></div>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="mode-pill"><div class="mode-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="6" height="5" rx="2"/><rect x="4" y="13" width="6" height="7" rx="2"/><rect x="14" y="4" width="6" height="7" rx="2"/><rect x="14" y="15" width="6" height="5" rx="2"/></svg></div><div class="mode-label">Operations</div></div>
+    <div class="sidebar-section-label">მთავარი</div>
+    <a class="nav-item" href="Dashboard v2.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="6" height="5" rx="2"/><rect x="4" y="13" width="6" height="7" rx="2"/><rect x="14" y="4" width="6" height="7" rx="2"/><rect x="14" y="15" width="6" height="5" rx="2"/></svg><span>დაშბორდი</span></a>
+    <a class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l6 -3l6 3l6 -3v13l-6 3l-6 -3l-6 3z"/><path d="M9 4v13"/><path d="M15 7v13"/></svg><span>ცოცხალი რუკა</span><span class="nav-badge" style="background: rgba(255,255,255,0.25);">12</span></a>
+    <a class="nav-item" href="Locations v2.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="11" r="3"/><path d="M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z"/></svg><span>ლოკაციები</span></a>
+    <a class="nav-item" href="Users v2.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/></svg><span>მომხმარებლები</span></a>
+    <a class="nav-item" href="Reports v2.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg><span>რეპორტი</span></a>
+    <div class="sidebar-footer"><div class="avatar lg">ნშ</div><div><div style="font-size: 12px; font-weight: 600;">ნიკოლოზ შენგელია</div><div style="font-size: 10px; color: var(--text-tertiary);">admin</div></div></div>
+  </aside>
+
+  <main class="main" style="overflow: hidden; max-height: calc(100vh - 48px);">
+    <div class="sub-header">
+      <div class="page-title-wrap">
+        <div><div class="page-title">ცოცხალი რუკა</div><div class="card-sub">თბილისი · 24 ცოცხალი მოწყობილობა</div></div>
+        <div class="live-flag"><div class="live-dot"></div><div class="live-label">ცოცხალი</div></div>
+      </div>
+      <div class="header-controls">
+        <div class="seg"><button class="on">თბილისი</button><button>ბათუმი</button><button>ქუთაისი</button><button>ყველა</button></div>
+        <button class="btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> შენახული ხედები</button>
+        <button class="btn primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg> ახალი გეოღობე</button>
+      </div>
+    </div>
+
+    <div style="display: flex; flex: 1; overflow: hidden;">
+      <!-- LEFT: trackers -->
+      <aside class="left-panel">
+        <div class="lp-head">
+          <div class="lp-search">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            ძიება თანამშრომელი ან ჯგუფი…
+          </div>
+        </div>
+        <div class="lp-filters">
+          <div class="lp-filter on">ყველა · 24</div>
+          <div class="lp-filter">აქტიური · 12</div>
+          <div class="lp-filter">დაყოვნება · 4</div>
+          <div class="lp-filter">გათიშული · 8</div>
+        </div>
+        <div class="lp-list" id="trackerList"></div>
+      </aside>
+
+      <!-- CENTER: map -->
+      <div class="map-stage" id="mapStage" style="flex: 1;">
+        <div class="map-stats">
+          <div class="stat-pill"><div class="icon" style="background: var(--success-light); color: var(--success);"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="9 12 11 14 15 10"/></svg></div><div><div class="lbl">აქტიური</div><div class="val">12</div></div></div>
+          <div class="stat-pill"><div class="icon" style="background: var(--warning-light); color: var(--warning);"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg></div><div><div class="lbl">დაყოვნება</div><div class="val">4</div></div></div>
+          <div class="stat-pill"><div class="icon" style="background: var(--primary-light); color: var(--primary);"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="11" r="3"/><path d="M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z"/></svg></div><div><div class="lbl">გეოღობე</div><div class="val">42</div></div></div>
+        </div>
+
+        <div class="map-controls">
+          <div class="map-ctrl" title="zoom in"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          <div class="map-ctrl" title="zoom out"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          <div class="map-ctrl" title="locate"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></div>
+          <div class="map-ctrl" title="layers"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg></div>
+        </div>
+
+        <!-- Geofences -->
+        <div class="geo p" style="left: 22%; top: 32%; width: 130px; height: 130px;"><div class="geo-label">ცენტრალური</div></div>
+        <div class="geo s" style="left: 56%; top: 50%; width: 110px; height: 110px;"><div class="geo-label">ფილიალი #2</div></div>
+        <div class="geo w" style="left: 38%; top: 70%; width: 90px; height: 90px;"><div class="geo-label">საწყობი</div></div>
+        <div class="geo p" style="left: 72%; top: 22%; width: 100px; height: 100px;"><div class="geo-label">ფილიალი #1</div></div>
+
+        <svg style="position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none;" viewBox="0 0 1000 720" preserveAspectRatio="none">
+          <path class="map-route hist" d="M120,200 Q220,140 340,260 T560,200 T820,320"/>
+          <path class="map-route" d="M180,560 Q300,500 420,520 T700,440"/>
+          <path class="map-route" d="M450,180 Q540,300 650,260 T880,360"/>
+        </svg>
+
+        <div class="map-attribution">© TrackPro · OSM</div>
+      </div>
+
+      <!-- RIGHT: details -->
+      <aside class="right-panel" id="detailPanel">
+        <div class="detail-head" style="display: flex; align-items: center; gap: 12px;">
+          <div class="tracker-av" id="detAv" style="width: 44px; height: 44px; font-size: 14px; background: #FEF3C7; color: #B45309;">გმ<span class="pin" style="background: var(--success);"></span></div>
+          <div style="flex: 1;">
+            <div class="detail-name" id="detName">გიორგი მაჭარაშვილი</div>
+            <div class="detail-role" id="detRole">თბილისის გუნდი · სამუშაო ცვლა 08:00–17:00</div>
+          </div>
+          <button class="util-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+        </div>
+
+        <div class="detail-stats">
+          <div class="dstat"><div class="lbl">სტატუსი</div><div class="val" style="font-size: 13px; color: var(--success);">● აქტიური</div><div class="sub">ცენტრალური ოფისი</div></div>
+          <div class="dstat"><div class="lbl">დაყოვნება</div><div class="val">2ს 14წთ</div><div class="sub">დილის 10:18-დან</div></div>
+          <div class="dstat"><div class="lbl">გავლილი დღეს</div><div class="val">38.2 კმ</div><div class="sub">3 ვიზიტი</div></div>
+          <div class="dstat"><div class="lbl">სიჩქარე</div><div class="val">0 კმ/ს</div><div class="sub">სტაციონარული</div></div>
+        </div>
+
+        <div class="speedo">
+          <svg class="speedo-circle" viewBox="0 0 36 36">
+            <circle cx="18" cy="18" r="14.5" fill="none" stroke="var(--bg-muted)" stroke-width="3"/>
+            <circle cx="18" cy="18" r="14.5" fill="none" stroke="var(--success)" stroke-width="3" stroke-dasharray="73 91" stroke-linecap="round" transform="rotate(-90 18 18)"/>
+            <text x="18" y="17" text-anchor="middle" font-size="7" font-weight="700" fill="var(--text-primary)">80%</text>
+            <text x="18" y="23" text-anchor="middle" font-size="2.5" fill="var(--text-tertiary)">ბატარეა</text>
+          </svg>
+          <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+            <div style="display: flex; justify-content: space-between; font-size: 11px;"><span style="color: var(--text-tertiary);">სიგნალი</span><span style="font-weight: 600;">GPS · 6 თანამგზავრი</span></div>
+            <div style="display: flex; justify-content: space-between; font-size: 11px;"><span style="color: var(--text-tertiary);">სიზუსტე</span><span style="font-weight: 600;">±4 მ</span></div>
+            <div style="display: flex; justify-content: space-between; font-size: 11px;"><span style="color: var(--text-tertiary);">მოწყობილობა</span><span style="font-weight: 600;">iPhone 15</span></div>
+          </div>
+        </div>
+
+        <div class="timeline-row" style="flex: 1; overflow: auto;">
+          <div class="tl-title">დღევანდელი მოძრაობა</div>
+          <div class="tl-item"><div class="tl-dot success"></div><div class="tl-body"><strong>შემოვიდა ცენტრალურ ოფისში</strong><div class="tl-time">10:18 · 2ს 14წთ წინ</div></div></div>
+          <div class="tl-item"><div class="tl-dot"></div><div class="tl-body"><strong>გადაადგილება</strong> · 6.4 კმ<div class="tl-time">09:42 → 10:18</div></div></div>
+          <div class="tl-item"><div class="tl-dot success"></div><div class="tl-body"><strong>ფილიალი #2 — ვაკე</strong> · 28 წთ<div class="tl-time">09:14 → 09:42</div></div></div>
+          <div class="tl-item"><div class="tl-dot warning"></div><div class="tl-body"><strong>გეოღობეს დარღვევა</strong> · 8 წთ<div class="tl-time">08:34 → 08:42</div></div></div>
+          <div class="tl-item"><div class="tl-dot muted"></div><div class="tl-body"><strong>დაიწყო სამუშაო</strong><div class="tl-time">08:00</div></div></div>
+        </div>
+
+        <div style="padding: 12px 16px; border-top: 1px solid var(--border-default); display: flex; gap: 6px;">
+          <button class="btn sm primary" style="flex: 1;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5a2 2 0 0 1 2 -2h3.28a1 1 0 0 1 .948 .684l1.498 4.493a1 1 0 0 1 -.502 1.21l-2.257 1.13a11 11 0 0 0 5.516 5.516l1.13 -2.257a1 1 0 0 1 1.21 -.502l4.493 1.498a1 1 0 0 1 .684 .949v3.278a2 2 0 0 1 -2 2h-1c-9.389 0 -17 -7.611 -17 -17v-1z"/></svg>დაუკავშირდი</button>
+          <button class="btn sm" style="flex: 1;">ისტორია</button>
+          <button class="btn sm">···</button>
+        </div>
+      </aside>
+    </div>
+  </main>
+</div>
+
+<script>
+// Tracker list data
+const TRACKERS = [
+  { id: 1, name: 'გიორგი მაჭარაშვილი', team: 'თბილისი · ცენტრალური ოფისი', status: 'active', time: '2ს 14წთ', av: 'გმ', avBg: '#FEF3C7', avFg: '#B45309', x: 31, y: 38 },
+  { id: 2, name: 'მარიამი კახიძე', team: 'თბილისი · ფილიალი #2', status: 'active', time: '42 წთ', av: 'მკ', avBg: '#FCE7F3', avFg: '#9D174D', x: 60, y: 54 },
+  { id: 3, name: 'ლევან ბერიძე', team: 'ბათუმი · გადაადგილებაში', status: 'active', time: '3 წთ წინ', av: 'ლბ', avBg: '#DCFCE7', avFg: '#166534', x: 76, y: 28 },
+  { id: 4, name: 'სოფიო ცინცაძე', team: 'ბათუმი · ფილიალი #1', status: 'active', time: '1ს 8წთ', av: 'სც', avBg: '#DBEAFE', avFg: '#1E40AF', x: 28, y: 64 },
+  { id: 5, name: 'დავით ხაჩაპურიძე', team: 'თბილისი · საწყობი', status: 'idle', time: '38 წთ დაყოვნება', av: 'დხ', avBg: '#FEE2E2', avFg: '#991B1B', x: 42, y: 74 },
+  { id: 6, name: 'ანი ჯავახიშვილი', team: 'ქუთაისი · ცენტრალური', status: 'active', time: '22 წთ', av: 'აჯ', avBg: '#E0E7FF', avFg: '#3730A3', x: 52, y: 42 },
+  { id: 7, name: 'თამარი წერეთელი', team: 'თბილისი · ფილიალი #1', status: 'idle', time: '52 წთ დაყოვნება', av: 'თწ', avBg: '#FED7AA', avFg: '#9A3412', x: 78, y: 26 },
+  { id: 8, name: 'გელა ფარცხალაძე', team: 'თბილისი · გადაადგილებაში', status: 'active', time: 'ახლა', av: 'გფ', avBg: '#CFFAFE', avFg: '#155E75', x: 66, y: 50 },
+  { id: 9, name: 'ნუგზარ შენგელია', team: 'თბილისი · საწყობი', status: 'off', time: '2ს გათიშული', av: 'ნშ', avBg: '#F1F5F9', avFg: '#475569', x: 40, y: 72 },
+  { id: 10, name: 'ეკატერინე გელაშვილი', team: 'ბათუმი · ცენტრალური', status: 'active', time: '14 წთ', av: 'ეგ', avBg: '#FDF4FF', avFg: '#86198F', x: 24, y: 38 },
+  { id: 11, name: 'ვახტანგ ჭიჭინაძე', team: 'თბილისი · ფილიალი #2', status: 'idle', time: '24 წთ დაყოვნება', av: 'ვჭ', avBg: '#FFF7ED', avFg: '#9A3412', x: 58, y: 56 },
+  { id: 12, name: 'ნათია ღოღობერიძე', team: 'ქუთაისი · ცენტრალური', status: 'off', time: '1ს 22წთ გათიშული', av: 'ნღ', avBg: '#F1F5F9', avFg: '#475569', x: 86, y: 38 },
+];
+
+const statusColor = { active: 'var(--success)', idle: 'var(--warning)', off: 'var(--text-tertiary)' };
+
+// Render list
+const list = document.getElementById('trackerList');
+list.innerHTML = TRACKERS.map((t, i) => `
+  <div class="tracker ${i === 0 ? 'sel' : ''}" data-id="${t.id}">
+    <div class="tracker-av" style="background: ${t.avBg}; color: ${t.avFg};">${t.av}<span class="pin" style="background: ${statusColor[t.status]};"></span></div>
+    <div class="tracker-info">
+      <div class="tracker-name">${t.name}</div>
+      <div class="tracker-meta">${t.team}</div>
+    </div>
+    <div class="tracker-time">${t.time}</div>
+  </div>
+`).join('');
+
+// Render dots on map
+const stage = document.getElementById('mapStage');
+TRACKERS.forEach(t => {
+  const d = document.createElement('div');
+  d.className = `map-dot ${t.status}${t.id === 1 ? ' sel' : ''}`;
+  d.style.left = t.x + '%';
+  d.style.top = t.y + '%';
+  d.dataset.id = t.id;
+  d.title = t.name;
+  stage.appendChild(d);
+});
+
+// Selection sync
+function select(id) {
+  const t = TRACKERS.find(x => x.id === id);
+  if (!t) return;
+  document.querySelectorAll('.tracker').forEach(el => el.classList.toggle('sel', +el.dataset.id === id));
+  document.querySelectorAll('.map-dot').forEach(el => el.classList.toggle('sel', +el.dataset.id === id));
+  document.getElementById('detName').textContent = t.name;
+  document.getElementById('detRole').textContent = t.team;
+  const av = document.getElementById('detAv');
+  av.style.background = t.avBg; av.style.color = t.avFg;
+  av.firstChild.textContent = t.av;
+  av.querySelector('.pin').style.background = statusColor[t.status];
+}
+list.addEventListener('click', e => {
+  const r = e.target.closest('.tracker'); if (r) select(+r.dataset.id);
+});
+stage.addEventListener('click', e => {
+  const d = e.target.closest('.map-dot'); if (d) select(+d.dataset.id);
+});
+
+// Animate active dots subtly
+setInterval(() => {
+  document.querySelectorAll('.map-dot.active:not(.sel)').forEach(d => {
+    const l = parseFloat(d.style.left), t = parseFloat(d.style.top);
+    d.style.left = Math.max(5, Math.min(95, l + (Math.random() - 0.5) * 3)) + '%';
+    d.style.top  = Math.max(10, Math.min(90, t + (Math.random() - 0.5) * 4)) + '%';
+  });
+}, 4000);
+
+// Filter chips
+document.querySelectorAll('.lp-filter').forEach(f => {
+  f.addEventListener('click', () => {
+    document.querySelectorAll('.lp-filter').forEach(x => x.classList.remove('on'));
+    f.classList.add('on');
+  });
+});
+</script>
+</body>
+</html>

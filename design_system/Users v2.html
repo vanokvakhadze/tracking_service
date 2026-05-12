@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+<meta charset="utf-8">
+<title>TrackPro · მომხმარებლები</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_shared.css">
+<style>
+.stats-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.strip-card { background: var(--bg-card); border: 1px solid var(--border-default); border-radius: 10px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; transition: transform .15s; }
+.strip-card:hover { transform: translateY(-1px); box-shadow: var(--shadow-pop); }
+.strip-icon { width: 36px; height: 36px; border-radius: 8px; display: grid; place-items: center; flex-shrink: 0; }
+.strip-info .lbl { font-size: 10px; color: var(--text-tertiary); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+.strip-info .val { font-size: 22px; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.strip-info .sub { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+
+.filter-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.search-input { min-width: 260px; height: 36px; padding: 0 14px; background: var(--bg-card); border: 1px solid var(--border-default); border-radius: 8px; display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-tertiary); }
+.f-chip { padding: 6px 12px; border-radius: 999px; background: var(--bg-card); border: 1px solid var(--border-default); font-size: 12px; font-weight: 500; color: var(--text-secondary); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.f-chip.on { background: var(--primary); color: white; border-color: var(--primary); }
+.f-chip .ct { padding: 0 6px; background: rgba(255,255,255,0.22); border-radius: 999px; font-size: 10px; font-weight: 700; }
+.f-chip:not(.on) .ct { background: var(--bg-muted); color: var(--text-secondary); }
+
+.user-table-wrap { background: var(--bg-card); border: 1px solid var(--border-default); border-radius: 10px; overflow: hidden; }
+
+.usr-av { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; font-weight: 700; position: relative; flex-shrink: 0; }
+.usr-av .pin { position: absolute; bottom: -2px; right: -2px; width: 11px; height: 11px; border-radius: 50%; border: 2px solid white; }
+.usr-cell { display: flex; align-items: center; gap: 12px; }
+.usr-name { font-size: 13px; font-weight: 600; }
+.usr-email { font-size: 11px; color: var(--text-tertiary); margin-top: 1px; }
+.role-chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 999px; font-size: 11px; font-weight: 600; border: 1px solid; }
+.role-chip.admin { background: var(--violet-light); color: var(--violet); border-color: rgba(124,58,237,0.2); }
+.role-chip.mgr { background: var(--primary-light); color: var(--primary-text); border-color: var(--primary-light); }
+.role-chip.field { background: var(--success-light); color: var(--success-text); border-color: var(--success-border); }
+
+.spark-cell { width: 90px; height: 28px; display: block; }
+.score-bar { width: 100%; height: 6px; background: var(--bg-muted); border-radius: 999px; overflow: hidden; }
+.score-fill { height: 100%; border-radius: 999px; background: var(--primary); transition: width 1.4s cubic-bezier(.2,.7,.2,1); }
+.score-fill.danger { background: var(--danger); }
+.score-fill.warning { background: var(--warning); }
+.score-fill.success { background: var(--success); }
+.score-fill.violet { background: var(--violet); }
+
+.row-actions { display: flex; gap: 4px; opacity: 0; transition: opacity .15s; justify-content: flex-end; }
+tr:hover .row-actions { opacity: 1; }
+.action-btn { width: 28px; height: 28px; border-radius: 6px; display: grid; place-items: center; color: var(--text-secondary); border: 1px solid var(--border-default); background: white; cursor: pointer; }
+.action-btn:hover { background: var(--bg-subtle); }
+.action-btn.danger:hover { background: var(--danger-light); color: var(--danger); border-color: var(--danger-border); }
+
+.invite-card {
+  border-radius: 14px; padding: 18px 22px;
+  background:
+    radial-gradient(circle at 90% 30%, rgba(255,255,255,0.18), transparent 50%),
+    linear-gradient(135deg, #1E40AF 0%, #1565C0 60%, #1E88E5 100%);
+  color: white; display: flex; align-items: center; justify-content: space-between; gap: 18px;
+  position: relative; overflow: hidden;
+}
+.invite-card::before {
+  content: ''; position: absolute; inset: 0;
+  background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.04) 0 1px, transparent 1px 16px);
+}
+.invite-card h3 { margin: 0; font-size: 18px; font-weight: 700; }
+.invite-card p { margin: 4px 0 0; font-size: 12px; opacity: 0.85; }
+.invite-card .btn { background: white; color: var(--primary-text); border-color: white; }
+.invite-card .btn:hover { background: rgba(255,255,255,0.92); }
+
+.pending-row { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--border-default); }
+.pending-row:last-child { border-bottom: none; }
+
+th.sortable { cursor: pointer; position: relative; padding-right: 28px; }
+th.sortable::after { content: '↕'; position: absolute; right: 12px; opacity: 0.4; }
+th.sortable.asc::after { content: '↑'; opacity: 1; color: var(--primary); }
+th.sortable.desc::after { content: '↓'; opacity: 1; color: var(--primary); }
+
+.bulk-bar { display: none; align-items: center; gap: 12px; padding: 10px 18px; background: var(--primary-light); border-bottom: 1px solid var(--primary-light); color: var(--primary-text); font-size: 13px; }
+.bulk-bar.on { display: flex; }
+.checkbox { width: 16px; height: 16px; border: 1.5px solid var(--border-strong); border-radius: 4px; cursor: pointer; display: grid; place-items: center; flex-shrink: 0; }
+.checkbox.on { background: var(--primary); border-color: var(--primary); }
+.checkbox.on svg { color: white; }
+</style>
+</head>
+<body>
+<div class="web">
+  <div class="topbar">
+    <div class="workspace-brand"><div class="workspace-mark">T</div><div><div class="workspace-name">TrackPro HQ</div><div class="workspace-sub">saqari.trackpro.ge</div></div></div>
+    <div class="topbar-search"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>მოძებნე ლოკაცია, თანამშრომელი…<kbd>⌘ K</kbd></div>
+    <div class="topbar-spacer"></div>
+    <div class="topbar-utils">
+      <button class="util-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+      <button class="util-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6"/></svg><span class="dot-pulse"></span></button>
+      <div class="util-divider"></div>
+      <div class="user-pill"><div class="avatar">ნშ</div><span style="font-size: 12px; font-weight: 500;">ნიკოლოზი</span></div>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="mode-pill"><div class="mode-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="6" height="5" rx="2"/><rect x="4" y="13" width="6" height="7" rx="2"/><rect x="14" y="4" width="6" height="7" rx="2"/><rect x="14" y="15" width="6" height="5" rx="2"/></svg></div><div class="mode-label">Operations</div></div>
+    <div class="sidebar-section-label">მთავარი</div>
+    <a class="nav-item" href="Dashboard v2.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="6" height="5" rx="2"/><rect x="4" y="13" width="6" height="7" rx="2"/><rect x="14" y="4" width="6" height="7" rx="2"/><rect x="14" y="15" width="6" height="5" rx="2"/></svg><span>დაშბორდი</span></a>
+    <a class="nav-item" href="Live Map v2.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l6 -3l6 3l6 -3v13l-6 3l-6 -3l-6 3z"/><path d="M9 4v13"/><path d="M15 7v13"/></svg><span>ცოცხალი რუკა</span></a>
+    <a class="nav-item" href="Locations v2.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="11" r="3"/><path d="M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z"/></svg><span>ლოკაციები</span></a>
+    <a class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/></svg><span>მომხმარებლები</span></a>
+    <a class="nav-item" href="Reports v2.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg><span>რეპორტი</span></a>
+    <div class="sidebar-footer"><div class="avatar lg">ნშ</div><div><div style="font-size: 12px; font-weight: 600;">ნიკოლოზ შენგელია</div><div style="font-size: 10px; color: var(--text-tertiary);">admin</div></div></div>
+  </aside>
+
+  <main class="main">
+    <div class="sub-header">
+      <div class="page-title-wrap">
+        <div><div class="page-title">მომხმარებლები</div><div class="card-sub">14 ჯამური · 8 აქტიური · 2 გათიშული · 1 მოწვევა</div></div>
+      </div>
+      <div class="header-controls">
+        <button class="btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1 -2 2H5a2 2 0 0 1 -2 -2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> ექსპორტი</button>
+        <button class="btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1 -2 2H5a2 2 0 0 1 -2 -2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> CSV იმპორტი</button>
+        <button class="btn primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg> მოწვევა</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- Stats -->
+      <div class="stats-strip reveal d1">
+        <div class="strip-card">
+          <div class="strip-icon" style="background: var(--primary-light); color: var(--primary);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/></svg></div>
+          <div class="strip-info"><div class="lbl">ჯამური</div><div class="val">14</div><div class="sub">3 გუნდი · 5 ლოკაცია</div></div>
+        </div>
+        <div class="strip-card">
+          <div class="strip-icon" style="background: var(--success-light); color: var(--success);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1 -2 2H5a2 2 0 0 1 -2 -2V5a2 2 0 0 1 2 -2h11"/></svg></div>
+          <div class="strip-info"><div class="lbl">აქტიური ახლა</div><div class="val">8</div><div class="sub">+2 დილით</div></div>
+        </div>
+        <div class="strip-card">
+          <div class="strip-icon" style="background: var(--violet-light); color: var(--violet);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="14 7 21 7 21 14"/></svg></div>
+          <div class="strip-info"><div class="lbl">საშ. პროდუქტიულობა</div><div class="val">78%</div><div class="sub">+4 ერთეული კვირისთან</div></div>
+        </div>
+        <div class="strip-card">
+          <div class="strip-icon" style="background: var(--warning-light); color: var(--warning);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0 -4 -4H6a4 4 0 0 0 -4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 11h-6m3 -3v6"/></svg></div>
+          <div class="strip-info"><div class="lbl">მოლოდინში</div><div class="val">1</div><div class="sub">გასული 2 დღე</div></div>
+        </div>
+      </div>
+
+      <!-- Invite banner -->
+      <div class="invite-card reveal d2">
+        <div style="z-index: 1;">
+          <h3>გააფართოვე გუნდი — მოიწვიე 5+ თანამშრომელი ერთად</h3>
+          <p>CSV ფაილით ან მისამართების სიით · მათ ავტომატურად მიენიჭებათ როლი და ჯგუფი</p>
+        </div>
+        <div style="display: flex; gap: 8px; z-index: 1;">
+          <button class="btn">გადახედე ნიმუშს</button>
+          <button class="btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>მოწვევა</button>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="filter-row reveal d2">
+        <div class="search-input">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          ძიება სახელით, ემაილით ან ID-ით…
+        </div>
+        <button class="f-chip on">ყველა <span class="ct">14</span></button>
+        <button class="f-chip">აქტიური <span class="ct">8</span></button>
+        <button class="f-chip">გათიშული <span class="ct">2</span></button>
+        <button class="f-chip">მოლოდინში <span class="ct">1</span></button>
+        <div style="margin-left: auto; display: flex; gap: 8px;">
+          <button class="btn sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M6 12h12M10 18h4"/></svg>ფილტრი</button>
+          <button class="btn sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>დაჯგუფება</button>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="user-table-wrap reveal d3">
+        <div class="bulk-bar" id="bulkBar">
+          <div class="checkbox on"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <span><strong id="bulkCount">0</strong> არჩეული</span>
+          <div style="flex: 1;"></div>
+          <button class="btn sm">გადააქციე გუნდს</button>
+          <button class="btn sm">ცვლის მინიჭება</button>
+          <button class="btn sm" style="color: var(--danger);">დეაქტივაცია</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 36px;"><div class="checkbox" id="selAll"></div></th>
+              <th class="sortable asc">თანამშრომელი</th>
+              <th class="sortable">გუნდი</th>
+              <th class="sortable">როლი</th>
+              <th class="sortable">სტატუსი</th>
+              <th class="sortable">ვიზიტი (7დ)</th>
+              <th class="sortable">პროდუქტიულობა</th>
+              <th class="sortable">ბოლო აქტივობა</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="userTable"></tbody>
+        </table>
+      </div>
+
+      <!-- Pending invitations -->
+      <div class="card reveal d4">
+        <div class="card-head">
+          <div><div class="card-title">მოლოდინში მოწვევები</div><div class="card-sub">1 აქტიური · 2 ვადაგასული</div></div>
+          <button class="btn sm">ყველა მოწვევა</button>
+        </div>
+        <div class="card-body flush">
+          <div class="pending-row">
+            <div class="usr-av" style="background: #E0E7FF; color: #3730A3;">აქ</div>
+            <div style="flex: 1;">
+              <div class="usr-name">ალექსანდრე ქარჩავა</div>
+              <div class="usr-email">a.karchava@trackpro.ge · მოწვეული 2 დღის წინ</div>
+            </div>
+            <div class="pill warning">მოლოდინში</div>
+            <button class="btn sm">გადააგზავნე</button>
+            <button class="btn sm" style="color: var(--danger);">გააუქმე</button>
+          </div>
+          <div class="pending-row">
+            <div class="usr-av" style="background: #F1F5F9; color: #475569;">გვ</div>
+            <div style="flex: 1;">
+              <div class="usr-name">გვანცა ვაშაკიძე</div>
+              <div class="usr-email">g.vashakidze@trackpro.ge · ვადაგასული 12 დღის წინ</div>
+            </div>
+            <div class="pill danger">ვადაგასული</div>
+            <button class="btn sm">გადააგზავნე</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script>
+const USERS = [
+  { name: 'გიორგი მაჭარაშვილი', email: 'g.machar@trackpro.ge', team: 'თბილისი', role: 'field', roleLbl: 'საველე', status: 'active', visits: 32, productivity: 94, last: 'ახლა', spark: [4,5,4,6,5,6,5], av: 'გმ', avBg: '#FEF3C7', avFg: '#B45309' },
+  { name: 'მარიამი კახიძე',     email: 'm.kakhidze@trackpro.ge', team: 'თბილისი', role: 'mgr',   roleLbl: 'მენეჯერი', status: 'active', visits: 28, productivity: 89, last: 'ახლა', spark: [4,4,5,5,5,4,5], av: 'მკ', avBg: '#FCE7F3', avFg: '#9D174D' },
+  { name: 'ლევან ბერიძე',       email: 'l.beridze@trackpro.ge',  team: 'ბათუმი',  role: 'field', roleLbl: 'საველე', status: 'active', visits: 24, productivity: 82, last: '3 წთ წინ', spark: [3,4,3,4,5,3,4], av: 'ლბ', avBg: '#DCFCE7', avFg: '#166534' },
+  { name: 'სოფიო ცინცაძე',      email: 's.tsintsadze@trackpro.ge', team: 'ბათუმი', role: 'field', roleLbl: 'საველე', status: 'active', visits: 22, productivity: 78, last: 'ახლა', spark: [3,3,4,3,4,4,4], av: 'სც', avBg: '#DBEAFE', avFg: '#1E40AF' },
+  { name: 'დავით ხაჩაპურიძე',   email: 'd.khach@trackpro.ge',    team: 'თბილისი', role: 'field', roleLbl: 'საველე', status: 'idle',   visits: 19, productivity: 71, last: '38 წთ წინ', spark: [3,3,2,3,3,3,3], av: 'დხ', avBg: '#FEE2E2', avFg: '#991B1B' },
+  { name: 'ანი ჯავახიშვილი',    email: 'a.javakh@trackpro.ge',   team: 'ქუთაისი', role: 'field', roleLbl: 'საველე', status: 'active', visits: 18, productivity: 64, last: '22 წთ წინ', spark: [2,3,3,2,3,3,2], av: 'აჯ', avBg: '#E0E7FF', avFg: '#3730A3' },
+  { name: 'თამარი წერეთელი',    email: 't.tsereteli@trackpro.ge', team: 'თბილისი', role: 'field', roleLbl: 'საველე', status: 'idle',   visits: 16, productivity: 58, last: '52 წთ წინ', spark: [2,2,3,2,2,3,2], av: 'თწ', avBg: '#FED7AA', avFg: '#9A3412' },
+  { name: 'გელა ფარცხალაძე',    email: 'g.partskha@trackpro.ge', team: 'თბილისი', role: 'field', roleLbl: 'საველე', status: 'active', visits: 14, productivity: 52, last: 'ახლა', spark: [2,2,2,3,2,2,2], av: 'გფ', avBg: '#CFFAFE', avFg: '#155E75' },
+  { name: 'ეკატერინე გელაშვილი', email: 'e.gelash@trackpro.ge',   team: 'ბათუმი',  role: 'field', roleLbl: 'საველე', status: 'active', visits: 12, productivity: 48, last: '14 წთ წინ', spark: [1,2,2,2,2,1,2], av: 'ეგ', avBg: '#FDF4FF', avFg: '#86198F' },
+  { name: 'ნუგზარ შენგელია',    email: 'n.shengelia@trackpro.ge', team: 'თბილისი', role: 'field', roleLbl: 'საველე', status: 'off',    visits: 5,  productivity: 41, last: '2 საათი წინ', spark: [2,2,1,1,1,1,0], av: 'ნშ', avBg: '#F1F5F9', avFg: '#475569' },
+  { name: 'ნათია ღოღობერიძე',   email: 'n.ghoghob@trackpro.ge',  team: 'ქუთაისი', role: 'mgr',   roleLbl: 'მენეჯერი', status: 'off',  visits: 8,  productivity: 56, last: '1ს 22წთ წინ', spark: [2,2,2,1,2,2,1], av: 'ნღ', avBg: '#F1F5F9', avFg: '#475569' },
+  { name: 'ვახტანგ ჭიჭინაძე',   email: 'v.chichinad@trackpro.ge', team: 'თბილისი', role: 'field', roleLbl: 'საველე', status: 'idle',   visits: 11, productivity: 49, last: '24 წთ წინ', spark: [2,1,2,2,2,1,2], av: 'ვჭ', avBg: '#FFF7ED', avFg: '#9A3412' },
+  { name: 'ნიკოლოზ შენგელია',   email: 'n.admin@trackpro.ge',    team: '—',       role: 'admin', roleLbl: 'ადმინი',  status: 'active', visits: 0,  productivity: 95, last: 'ახლა', spark: [5,5,4,5,5,4,5], av: 'ნშ', avBg: '#E3F2FD', avFg: '#0D47A1' },
+];
+
+const statusColor = { active: 'var(--success)', idle: 'var(--warning)', off: 'var(--text-tertiary)' };
+const statusLabel = { active: 'აქტიური', idle: 'დაყოვნება', off: 'გათიშული' };
+
+function sparkSVG(values, color) {
+  const w = 90, h = 28, pad = 2;
+  const min = Math.min(...values), max = Math.max(...values);
+  const range = max - min || 1;
+  const pts = values.map((v, i) => [pad + (i / (values.length - 1)) * (w - pad * 2), h - pad - ((v - min) / range) * (h - pad * 2)]);
+  const line = 'M' + pts.map(p => p.join(',')).join(' L');
+  const area = line + ` L${w - pad},${h} L${pad},${h} Z`;
+  const gid = 'sg' + Math.random().toString(36).slice(2, 8);
+  return `<svg class="spark-cell" viewBox="0 0 ${w} ${h}">
+    <defs><linearGradient id="${gid}" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="${color}" stop-opacity="0.25"/><stop offset="100%" stop-color="${color}" stop-opacity="0"/></linearGradient></defs>
+    <path d="${area}" fill="url(#${gid})"/>
+    <path d="${line}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="200" stroke-dashoffset="200"><animate attributeName="stroke-dashoffset" from="200" to="0" dur="1s" fill="freeze"/></path>
+    <circle cx="${pts[pts.length-1][0]}" cy="${pts[pts.length-1][1]}" r="2" fill="${color}"/>
+  </svg>`;
+}
+
+function rowHTML(u, i) {
+  const scoreColor = u.productivity >= 80 ? 'success' : u.productivity >= 60 ? '' : u.productivity >= 50 ? 'warning' : 'danger';
+  const sparkColor = u.productivity >= 80 ? '#16A34A' : u.productivity >= 60 ? '#1565C0' : u.productivity >= 50 ? '#CA8A04' : '#DC2626';
+  return `
+  <tr data-i="${i}">
+    <td><div class="checkbox row-check"></div></td>
+    <td>
+      <div class="usr-cell">
+        <div class="usr-av" style="background: ${u.avBg}; color: ${u.avFg};">${u.av}<span class="pin" style="background: ${statusColor[u.status]};"></span></div>
+        <div><div class="usr-name">${u.name}</div><div class="usr-email">${u.email}</div></div>
+      </div>
+    </td>
+    <td>${u.team}</td>
+    <td><span class="role-chip ${u.role}">${u.roleLbl}</span></td>
+    <td><span class="pill ${u.status === 'active' ? 'success' : u.status === 'idle' ? 'warning' : 'neutral'}">● ${statusLabel[u.status]}</span></td>
+    <td>${sparkSVG(u.spark, sparkColor)}</td>
+    <td>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <div class="score-bar" style="flex: 1; min-width: 70px;"><div class="score-fill ${scoreColor}" data-w="${u.productivity}" style="width: 0;"></div></div>
+        <span style="font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; min-width: 28px;">${u.productivity}</span>
+      </div>
+    </td>
+    <td><span style="font-size: 12px; color: var(--text-secondary);">${u.last}</span></td>
+    <td>
+      <div class="row-actions">
+        <button class="action-btn" title="დაუკავშირდი"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5a2 2 0 0 1 2 -2h3.28a1 1 0 0 1 .948 .684l1.498 4.493a1 1 0 0 1 -.502 1.21l-2.257 1.13a11 11 0 0 0 5.516 5.516l1.13 -2.257a1 1 0 0 1 1.21 -.502l4.493 1.498a1 1 0 0 1 .684 .949v3.278a2 2 0 0 1 -2 2h-1c-9.389 0 -17 -7.611 -17 -17v-1z"/></svg></button>
+        <button class="action-btn" title="რედაქტირება"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20l9-9-7-7-9 9v7h7z"/></svg></button>
+        <button class="action-btn" title="მენიუ"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg></button>
+      </div>
+    </td>
+  </tr>`;
+}
+
+document.getElementById('userTable').innerHTML = USERS.map(rowHTML).join('');
+setTimeout(() => {
+  document.querySelectorAll('.score-fill').forEach(f => f.style.width = (f.dataset.w || 0) + '%');
+}, 300);
+
+// Selection logic
+const selected = new Set();
+function updateBulk() {
+  const bar = document.getElementById('bulkBar');
+  const ct = document.getElementById('bulkCount');
+  ct.textContent = selected.size;
+  bar.classList.toggle('on', selected.size > 0);
+  document.getElementById('selAll').classList.toggle('on', selected.size === USERS.length);
+}
+document.querySelectorAll('.row-check').forEach((cb, i) => {
+  cb.addEventListener('click', e => {
+    e.stopPropagation();
+    cb.classList.toggle('on');
+    if (cb.classList.contains('on')) {
+      cb.innerHTML = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+      selected.add(i);
+    } else {
+      cb.innerHTML = '';
+      selected.delete(i);
+    }
+    updateBulk();
+  });
+});
+document.getElementById('selAll').addEventListener('click', () => {
+  const all = selected.size === USERS.length;
+  document.querySelectorAll('.row-check').forEach((cb, i) => {
+    cb.classList.toggle('on', !all);
+    cb.innerHTML = !all ? '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : '';
+    if (!all) selected.add(i); else selected.delete(i);
+  });
+  updateBulk();
+});
+
+// Sort UI (visual only)
+document.querySelectorAll('th.sortable').forEach(th => {
+  th.addEventListener('click', () => {
+    const wasAsc = th.classList.contains('asc');
+    document.querySelectorAll('th.sortable').forEach(x => x.classList.remove('asc','desc'));
+    th.classList.add(wasAsc ? 'desc' : 'asc');
+  });
+});
+</script>
+</body>
+</html>

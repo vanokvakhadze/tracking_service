@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+<meta charset="utf-8">
+<title>TrackPro · ლოკაციები</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_shared.css">
+<style>
+.loc-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; }
+.loc-card { cursor: pointer; transition: transform .15s, box-shadow .15s; overflow: hidden; }
+.loc-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-pop); border-color: var(--primary-light); }
+.loc-card.sel { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+.loc-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+.loc-hero {
+  height: 84px; position: relative; overflow: hidden;
+  background:
+    radial-gradient(circle at 20% 50%, rgba(255,255,255,0.25), transparent 50%),
+    linear-gradient(135deg, var(--primary) 0%, var(--primary-soft) 100%);
+}
+.loc-hero.violet { background: linear-gradient(135deg, var(--violet) 0%, #A78BFA 100%); }
+.loc-hero.success { background: linear-gradient(135deg, var(--success) 0%, #4ADE80 100%); }
+.loc-hero.warning { background: linear-gradient(135deg, var(--warning) 0%, #FBBF24 100%); }
+.loc-hero.danger { background: linear-gradient(135deg, var(--danger) 0%, #F87171 100%); }
+.loc-hero.muted { background: linear-gradient(135deg, #64748B 0%, #94A3B8 100%); }
+.loc-hero::before {
+  content: ''; position: absolute; inset: 0;
+  background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.05) 0 1px, transparent 1px 14px);
+}
+.loc-hero-mini-map {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  width: 64px; height: 64px; border-radius: 8px;
+  background: rgba(255,255,255,0.16); border: 1px solid rgba(255,255,255,0.25); backdrop-filter: blur(4px);
+  display: grid; place-items: center; color: white;
+}
+.loc-hero-badge { position: absolute; left: 14px; top: 14px; padding: 3px 10px; border-radius: 999px; background: rgba(255,255,255,0.22); border: 1px solid rgba(255,255,255,0.3); color: white; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+
+.loc-body { padding: 14px 16px; }
+.loc-title { font-size: 14px; font-weight: 700; }
+.loc-addr { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+.loc-stats { display: flex; gap: 14px; margin-top: 10px; }
+.loc-stat .lbl { font-size: 10px; color: var(--text-tertiary); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+.loc-stat .val { font-size: 16px; font-weight: 700; margin-top: 2px; font-variant-numeric: tabular-nums; }
+.occupancy { margin-top: 10px; }
+.occ-head { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-secondary); margin-bottom: 4px; }
+.occ-bar { height: 6px; background: var(--bg-muted); border-radius: 999px; overflow: hidden; position: relative; }
+.occ-fill { height: 100%; border-radius: 999px; background: var(--primary); transition: width 1.2s cubic-bezier(.2,.7,.2,1); }
+.occ-fill.danger { background: var(--danger); }
+.occ-fill.warning { background: var(--warning); }
+.occ-fill.success { background: var(--success); }
+
+.loc-avatars { margin-top: 12px; display: flex; align-items: center; }
+.loc-avatars .av { width: 22px; height: 22px; border-radius: 50%; border: 2px solid white; display: grid; place-items: center; font-size: 9px; font-weight: 700; margin-left: -6px; }
+.loc-avatars .av:first-child { margin-left: 0; }
+.loc-avatars .more { font-size: 11px; color: var(--text-tertiary); margin-left: 6px; }
+
+.loc-footer { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; border-top: 1px solid var(--border-default); background: var(--bg-subtle); }
+
+/* Map column */
+.map-mini { position: relative; height: 420px; border-radius: 10px; overflow: hidden;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(21,101,192,0.04), transparent 50%),
+    radial-gradient(circle at 70% 70%, rgba(124,58,237,0.04), transparent 50%),
+    repeating-linear-gradient(0deg, rgba(15,23,42,0.04) 0 1px, transparent 1px 28px),
+    repeating-linear-gradient(90deg, rgba(15,23,42,0.04) 0 1px, transparent 1px 28px),
+    var(--bg-subtle);
+  border: 1px solid var(--border-default);
+}
+.geo { position: absolute; border: 2px dashed; border-radius: 50%; pointer-events: none; }
+.geo.p { border-color: var(--primary); background: rgba(21,101,192,0.07); }
+.geo.s { border-color: var(--success); background: rgba(22,163,74,0.07); }
+.geo.v { border-color: var(--violet); background: rgba(124,58,237,0.07); }
+.geo.w { border-color: var(--warning); background: rgba(202,138,4,0.08); }
+.geo.r { border-color: var(--danger); background: rgba(220,38,38,0.07); }
+.geo-pin { position: absolute; width: 28px; height: 28px; border-radius: 50% 50% 50% 0; transform: translate(-50%, -100%) rotate(-45deg); background: var(--primary); border: 2px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.25); cursor: pointer; }
+.geo-pin span { transform: rotate(45deg); display: block; color: white; text-align: center; font-size: 10px; font-weight: 700; margin-top: 2px; }
+
+.filter-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.search-input { flex: 1; min-width: 280px; height: 36px; padding: 0 14px; background: var(--bg-card); border: 1px solid var(--border-default); border-radius: 8px; display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-tertiary); }
+.cat-chip { padding: 6px 12px; border-radius: 999px; background: var(--bg-card); border: 1px solid var(--border-default); font-size: 12px; font-weight: 500; color: var(--text-secondary); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.cat-chip.on { background: var(--primary); color: white; border-color: var(--primary); }
+.cat-chip .ct { padding: 0 6px; background: rgba(255,255,255,0.25); border-radius: 999px; font-size: 10px; font-weight: 700; }
+.cat-chip:not(.on) .ct { background: var(--bg-muted); color: var(--text-secondary); }
+
+.stats-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.strip-card { background: var(--bg-card); border: 1px solid var(--border-default); border-radius: 10px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; }
+.strip-icon { width: 36px; height: 36px; border-radius: 8px; display: grid; place-items: center; }
+.strip-info .lbl { font-size: 10px; color: var(--text-tertiary); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+.strip-info .val { font-size: 22px; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.strip-info .sub { font-size: 11px; color: var(--text-secondary); }
+</style>
+</head>
+<body>
+<div class="web">
+  <div class="topbar">
+    <div class="workspace-brand"><div class="workspace-mark">T</div><div><div class="workspace-name">TrackPro HQ</div><div class="workspace-sub">saqari.trackpro.ge</div></div></div>
+    <div class="topbar-search"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>მოძებნე ლოკაცია, თანამშრომელი…<kbd>⌘ K</kbd></div>
+    <div class="topbar-spacer"></div>
+    <div class="topbar-utils">
+      <button class="util-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+      <button class="util-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6"/></svg><span class="dot-pulse"></span></button>
+      <div class="util-divider"></div>
+      <div class="user-pill"><div class="avatar">ნშ</div><span style="font-size: 12px; font-weight: 500;">ნიკოლოზი</span></div>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="mode-pill"><div class="mode-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="6" height="5" rx="2"/><rect x="4" y="13" width="6" height="7" rx="2"/><rect x="14" y="4" width="6" height="7" rx="2"/><rect x="14" y="15" width="6" height="5" rx="2"/></svg></div><div class="mode-label">Operations</div></div>
+    <div class="sidebar-section-label">მთავარი</div>
+    <a class="nav-item" href="Dashboard v2.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="6" height="5" rx="2"/><rect x="4" y="13" width="6" height="7" rx="2"/><rect x="14" y="4" width="6" height="7" rx="2"/><rect x="14" y="15" width="6" height="5" rx="2"/></svg><span>დაშბორდი</span></a>
+    <a class="nav-item" href="Live Map v2.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l6 -3l6 3l6 -3v13l-6 3l-6 -3l-6 3z"/><path d="M9 4v13"/><path d="M15 7v13"/></svg><span>ცოცხალი რუკა</span></a>
+    <a class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="11" r="3"/><path d="M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z"/></svg><span>ლოკაციები</span></a>
+    <a class="nav-item" href="Users v2.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/></svg><span>მომხმარებლები</span></a>
+    <a class="nav-item" href="Reports v2.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg><span>რეპორტი</span></a>
+    <div class="sidebar-footer"><div class="avatar lg">ნშ</div><div><div style="font-size: 12px; font-weight: 600;">ნიკოლოზ შენგელია</div><div style="font-size: 10px; color: var(--text-tertiary);">admin</div></div></div>
+  </aside>
+
+  <main class="main">
+    <div class="sub-header">
+      <div class="page-title-wrap">
+        <div><div class="page-title">ლოკაციები</div><div class="card-sub">45 ლოკაცია · 42 აქტიური გეოღობე · 3 გათიშული</div></div>
+      </div>
+      <div class="header-controls">
+        <div class="seg"><button class="on"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></button><button><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button><button><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="11" r="3"/><path d="M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z"/></svg></button></div>
+        <button class="btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1 -2 2H5a2 2 0 0 1 -2 -2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> ექსპორტი</button>
+        <button class="btn primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg> ახალი ლოკაცია</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- Stats strip -->
+      <div class="stats-strip reveal d1">
+        <div class="strip-card">
+          <div class="strip-icon" style="background: var(--primary-light); color: var(--primary);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="11" r="3"/><path d="M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z"/></svg></div>
+          <div class="strip-info"><div class="lbl">ჯამური ლოკაცია</div><div class="val">45</div><div class="sub">42 აქტიური</div></div>
+        </div>
+        <div class="strip-card">
+          <div class="strip-icon" style="background: var(--success-light); color: var(--success);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/></svg></div>
+          <div class="strip-info"><div class="lbl">ვიზიტი დღეს</div><div class="val">86</div><div class="sub">+14% კვირისთან</div></div>
+        </div>
+        <div class="strip-card">
+          <div class="strip-icon" style="background: var(--violet-light); color: var(--violet);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg></div>
+          <div class="strip-info"><div class="lbl">საშ. დაყოვნება</div><div class="val">42 წთ</div><div class="sub">ლოკაციაზე</div></div>
+        </div>
+        <div class="strip-card">
+          <div class="strip-icon" style="background: var(--warning-light); color: var(--warning);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17l.01 0"/><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z"/></svg></div>
+          <div class="strip-info"><div class="lbl">დასადასტურებელი</div><div class="val">4</div><div class="sub">მოწოდებული მუშაკებიდან</div></div>
+        </div>
+      </div>
+
+      <!-- Search + categories -->
+      <div class="reveal d2" style="display: flex; flex-direction: column; gap: 10px;">
+        <div class="filter-row">
+          <div class="search-input">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            ძიება სახელით, მისამართით ან ID-ით…
+          </div>
+          <button class="cat-chip on">ყველა <span class="ct">45</span></button>
+          <button class="cat-chip">ოფისი <span class="ct">8</span></button>
+          <button class="cat-chip">ფილიალი <span class="ct">22</span></button>
+          <button class="cat-chip">საწყობი <span class="ct">6</span></button>
+          <button class="cat-chip">სხვა <span class="ct">9</span></button>
+        </div>
+      </div>
+
+      <!-- Map overview -->
+      <div class="loc-grid reveal d3">
+        <div class="card">
+          <div class="card-head">
+            <div><div class="card-title">რუკაზე ხედი</div><div class="card-sub">45 გეოღობე · 24 ცოცხალი მოწყობილობა</div></div>
+            <button class="btn sm">სრულად <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+          </div>
+          <div class="card-body">
+            <div class="map-mini" id="locMap">
+              <div class="geo p" style="left: 20%; top: 30%; width: 120px; height: 120px;"></div>
+              <div class="geo s" style="left: 52%; top: 22%; width: 88px; height: 88px;"></div>
+              <div class="geo v" style="left: 30%; top: 60%; width: 100px; height: 100px;"></div>
+              <div class="geo w" style="left: 64%; top: 56%; width: 80px; height: 80px;"></div>
+              <div class="geo r" style="left: 78%; top: 28%; width: 70px; height: 70px;"></div>
+              <div class="geo p" style="left: 12%; top: 70%; width: 76px; height: 76px;"></div>
+
+              <div class="geo-pin" style="left: 26%; top: 38%;"><span>1</span></div>
+              <div class="geo-pin" style="left: 56%; top: 28%; background: var(--success);"><span>2</span></div>
+              <div class="geo-pin" style="left: 35%; top: 68%; background: var(--violet);"><span>3</span></div>
+              <div class="geo-pin" style="left: 68%; top: 62%; background: var(--warning);"><span>4</span></div>
+              <div class="geo-pin" style="left: 82%; top: 34%; background: var(--danger);"><span>!</span></div>
+              <div class="geo-pin" style="left: 18%; top: 76%; background: var(--primary);"><span>5</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div><div class="card-title">ლოკაციების ანალიტიკა</div><div class="card-sub">ვიზიტი ბოლო 7 დღე</div></div>
+          </div>
+          <div class="card-body flush" id="topLocList"></div>
+        </div>
+      </div>
+
+      <!-- Location cards row -->
+      <div class="loc-row reveal d4" id="locCards"></div>
+      <div class="loc-row reveal d5" id="locCards2"></div>
+
+    </div>
+  </main>
+</div>
+
+<script>
+const LOCS = [
+  { name: 'ცენტრალური ოფისი', addr: 'რუსთაველის გამზ. 12, თბილისი', cat: 'ოფისი', heroClass: '', badge: 'მთავარი', visits: 48, dwell: '1ს 14წთ', occ: 75, occClass: '', team: ['გმ','მკ','დხ','ნშ','+8'], status: 'success' },
+  { name: 'ფილიალი #2 — ვაკე', addr: 'ჭავჭავაძის გამზ. 64, თბილისი', cat: 'ფილიალი', heroClass: 'violet', badge: 'ფილიალი', visits: 34, dwell: '52 წთ', occ: 62, occClass: '', team: ['თწ','ვჭ','ეგ','+5'], status: 'success' },
+  { name: 'ფილიალი #1 — საბურთალო', addr: 'პეკინის ქ. 28, თბილისი', cat: 'ფილიალი', heroClass: 'success', badge: 'ფილიალი', visits: 29, dwell: '48 წთ', occ: 48, occClass: 'success', team: ['სც','აჯ','გფ'], status: 'success' },
+  { name: 'საწყობი — დიდუბე', addr: 'წერეთლის გამზ. 110, თბილისი', cat: 'საწყობი', heroClass: 'warning', badge: 'საწყობი · გადატვირთული', visits: 18, dwell: '78 წთ', occ: 94, occClass: 'danger', team: ['ნშ','დხ'], status: 'warning' },
+  { name: 'ბათუმის ფილიალი', addr: 'ბაგრატიონის ქ. 5, ბათუმი', cat: 'ფილიალი', heroClass: 'violet', badge: 'ფილიალი · ბათუმი', visits: 14, dwell: '36 წთ', occ: 38, occClass: 'success', team: ['ლბ','სც'], status: 'success' },
+  { name: 'ფილიალი #3 — ვერა', addr: 'ცინცაძის ქ. 22, თბილისი', cat: 'ფილიალი', heroClass: 'muted', badge: 'მოლოდინში · დასტური საჭიროა', visits: 0, dwell: '—', occ: 0, occClass: '', team: [], status: 'pending' },
+];
+const colors = ['#1565C0','#7C3AED','#16A34A','#CA8A04','#DC2626','#0EA5E9','#EC4899','#0891B2','#9333EA'];
+const avBgs = [
+  ['#FEF3C7','#B45309'],['#FCE7F3','#9D174D'],['#DCFCE7','#166534'],['#DBEAFE','#1E40AF'],
+  ['#FEE2E2','#991B1B'],['#E0E7FF','#3730A3'],['#FED7AA','#9A3412'],['#CFFAFE','#155E75']
+];
+
+function renderCard(l, i) {
+  const teamHTML = l.team.length === 0 ? `<div style="font-size: 11px; color: var(--text-tertiary);">გუნდი არ არის მინიჭებული</div>` : `<div class="loc-avatars">${l.team.map((t, j) => {
+    if (t.startsWith('+')) return `<div class="av more">${t}</div>`;
+    const [bg, fg] = avBgs[(i + j) % avBgs.length];
+    return `<div class="av" style="background: ${bg}; color: ${fg};">${t}</div>`;
+  }).join('')}</div>`;
+
+  const occHTML = l.status === 'pending' ? `<div style="margin-top: 12px; padding: 8px 10px; background: var(--warning-light); color: var(--warning-text); border-radius: 6px; font-size: 11px; display: flex; align-items: center; gap: 6px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>დაამატა მარიამი კ. · დასტური საჭიროა</div>` :
+    `<div class="occupancy">
+      <div class="occ-head"><span>დატვირთვა</span><span style="font-weight: 700;">${l.occ}%</span></div>
+      <div class="occ-bar"><div class="occ-fill ${l.occClass}" style="width: 0%" data-w="${l.occ}"></div></div>
+    </div>`;
+
+  return `
+    <div class="card loc-card ${i === 0 ? 'sel' : ''}">
+      <div class="loc-hero ${l.heroClass}">
+        <div class="loc-hero-badge">${l.badge}</div>
+        <div class="loc-hero-mini-map">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="11" r="3"/><path d="M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z"/></svg>
+        </div>
+      </div>
+      <div class="loc-body">
+        <div class="loc-title">${l.name}</div>
+        <div class="loc-addr">${l.addr}</div>
+        <div class="loc-stats">
+          <div class="loc-stat"><div class="lbl">ვიზიტი</div><div class="val">${l.visits}</div></div>
+          <div class="loc-stat"><div class="lbl">საშ. დაყოვნება</div><div class="val">${l.dwell}</div></div>
+        </div>
+        ${occHTML}
+        ${teamHTML}
+      </div>
+      <div class="loc-footer">
+        <div style="display: flex; gap: 6px;">
+          <button class="btn sm">დეტალები</button>
+          <button class="btn sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20l9-9-7-7-9 9v7h7z"/></svg></button>
+        </div>
+        <span style="font-size: 11px; color: var(--text-tertiary);">ID #${1000 + i}</span>
+      </div>
+    </div>
+  `;
+}
+
+document.getElementById('locCards').innerHTML = LOCS.slice(0, 3).map(renderCard).join('');
+document.getElementById('locCards2').innerHTML = LOCS.slice(3, 6).map((l, i) => renderCard(l, i + 3)).join('');
+
+// animate occ bars
+setTimeout(() => {
+  document.querySelectorAll('.occ-fill').forEach(f => f.style.width = (f.dataset.w || 0) + '%');
+}, 300);
+
+// top loc list
+const TOP = [
+  { name: 'ცენტრალური ოფისი', visits: 48, max: 48, color: '#1565C0' },
+  { name: 'ფილიალი #2 — ვაკე', visits: 34, max: 48, color: '#7C3AED' },
+  { name: 'ფილიალი #1 — საბურთალო', visits: 29, max: 48, color: '#16A34A' },
+  { name: 'საწყობი — დიდუბე', visits: 18, max: 48, color: '#CA8A04' },
+  { name: 'ბათუმის ფილიალი', visits: 14, max: 48, color: '#7C3AED' },
+  { name: 'ფილიალი #4 — გლდანი', visits: 11, max: 48, color: '#0EA5E9' },
+  { name: 'საწყობი — ნავთლუღი', visits: 9, max: 48, color: '#EC4899' },
+];
+document.getElementById('topLocList').innerHTML = TOP.map(t => `
+  <div style="padding: 10px 0; border-bottom: 1px solid var(--border-default); display: flex; align-items: center; gap: 12px;">
+    <div style="flex: 1; min-width: 0;">
+      <div style="font-size: 13px; font-weight: 600;">${t.name}</div>
+      <div class="occ-bar" style="margin-top: 5px; width: 100%;"><div class="occ-fill" style="background: ${t.color}; width: 0;" data-w="${(t.visits / t.max * 100).toFixed(0)}"></div></div>
+    </div>
+    <div style="font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums;">${t.visits}</div>
+  </div>
+`).join('');
+setTimeout(() => {
+  document.querySelectorAll('#topLocList .occ-fill').forEach(f => f.style.width = (f.dataset.w || 0) + '%');
+}, 600);
+</script>
+</body>
+</html>

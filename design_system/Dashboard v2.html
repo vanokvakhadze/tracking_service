@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+<meta charset="utf-8">
+<title>TrackPro · დაშბორდი</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-app: #FFFFFF; --bg-card: #FFFFFF; --bg-subtle: #F8FAFC; --bg-muted: #F1F5F9; --bg-deep: #0F172A;
+  --text-primary: #0F172A; --text-secondary: #475569; --text-tertiary: #94A3B8;
+  --border-default: #E2E8F0; --border-strong: #CBD5E1;
+  --primary: #1565C0; --primary-hover: #0D47A1; --primary-soft: #1E88E5; --primary-light: #E3F2FD; --primary-text: #0D47A1;
+  --success: #16A34A; --success-light: #F0FDF4; --success-text: #15803D; --success-border: #BBF7D0;
+  --warning: #CA8A04; --warning-light: #FEFCE8; --warning-text: #A16207; --warning-border: #FEF08A;
+  --danger: #DC2626; --danger-light: #FEF2F2; --danger-text: #B91C1C; --danger-border: #FECACA;
+  --info: #2563EB; --info-light: #EFF6FF; --info-text: #1D4ED8; --info-border: #BFDBFE;
+  --violet: #7C3AED; --violet-light: #F5F3FF;
+  --radius: 6px; --radius-lg: 10px; --radius-full: 9999px;
+  --shadow-card: 0 1px 2px rgba(15,23,42,0.04);
+  --shadow-pop: 0 8px 24px -8px rgba(15,23,42,0.12), 0 2px 6px rgba(15,23,42,0.04);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body { font-family: 'Noto Sans Georgian', 'Inter', system-ui, sans-serif; color: var(--text-primary); font-size: 13px; line-height: 1.45; -webkit-font-smoothing: antialiased; background: #F4F4F5; }
+button { font-family: inherit; cursor: pointer; border: none; background: transparent; color: inherit; }
+a { text-decoration: none; color: inherit; }
+
+.web { width: 1280px; min-height: 800px; background: var(--bg-app); display: grid; grid-template-columns: 220px 1fr; grid-template-rows: 48px 1fr; margin: 0 auto; overflow: hidden; }
+
+/* Topbar */
+.topbar { grid-column: 1 / -1; height: 48px; display: flex; align-items: center; padding: 0 12px; gap: 12px; border-bottom: 1px solid var(--border-default); background: var(--bg-card); }
+.workspace-brand { display: flex; align-items: center; gap: 8px; width: 200px; padding-left: 4px; }
+.workspace-mark { width: 28px; height: 28px; border-radius: 6px; background: var(--primary); color: white; display: grid; place-items: center; font-size: 11px; font-weight: 700; }
+.workspace-name { font-size: 12px; font-weight: 600; line-height: 1.2; }
+.workspace-sub { font-size: 10px; color: var(--text-tertiary); line-height: 1.2; margin-top: 1px; }
+.topbar-spacer { flex: 1; }
+.topbar-search { display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: var(--bg-muted); border-radius: 999px; min-width: 280px; color: var(--text-tertiary); font-size: 12px; }
+.topbar-search kbd { margin-left: auto; padding: 1px 6px; background: var(--bg-card); border: 1px solid var(--border-default); border-radius: 4px; font-size: 10px; font-family: ui-monospace, monospace; }
+.topbar-utils { display: flex; align-items: center; gap: 4px; }
+.util-btn { width: 32px; height: 32px; border-radius: 6px; display: grid; place-items: center; color: var(--text-secondary); position: relative; }
+.util-btn:hover { background: var(--bg-muted); }
+.util-divider { width: 1px; height: 20px; background: var(--border-default); margin: 0 4px; }
+.user-pill { display: flex; align-items: center; gap: 8px; padding: 4px 10px 4px 4px; border-radius: 18px; }
+.user-pill:hover { background: var(--bg-subtle); }
+.avatar { width: 24px; height: 24px; border-radius: 50%; background: var(--primary-light); color: var(--primary-text); display: grid; place-items: center; font-weight: 600; font-size: 10px; }
+.avatar.lg { width: 32px; height: 32px; font-size: 12px; }
+.dot-pulse { position: absolute; top: 6px; right: 6px; width: 8px; height: 8px; background: var(--danger); border-radius: 50%; border: 1.5px solid var(--bg-card); }
+.dot-pulse::after { content: ''; position: absolute; inset: -2px; border-radius: 50%; background: var(--danger); opacity: 0.5; animation: pulseRing 1.6s ease-out infinite; }
+@keyframes pulseRing { 0% { transform: scale(0.7); opacity: 0.6; } 100% { transform: scale(2.4); opacity: 0; } }
+
+/* Sidebar */
+.sidebar { background: var(--bg-card); border-right: 1px solid var(--border-default); padding: 12px 8px; display: flex; flex-direction: column; }
+.mode-pill { display: flex; align-items: center; gap: 8px; padding: 7px 10px; margin-bottom: 14px; border: 1px solid var(--border-default); border-radius: 6px; }
+.mode-icon { width: 20px; height: 20px; border-radius: 4px; background: var(--primary-light); color: var(--primary); display: grid; place-items: center; }
+.mode-label { flex: 1; font-size: 13px; font-weight: 600; }
+.sidebar-section-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-tertiary); padding: 12px 10px 4px; font-weight: 700; }
+.nav-item { display: flex; align-items: center; gap: 9px; padding: 7px 10px; border-radius: 6px; color: var(--text-secondary); font-size: 13px; font-weight: 500; cursor: pointer; }
+.nav-item:hover { background: var(--bg-subtle); }
+.nav-item svg { width: 16px; height: 16px; color: var(--text-tertiary); flex-shrink: 0; }
+.nav-item.active { background: var(--primary); color: white; }
+.nav-item.active svg { color: white; }
+.nav-badge { margin-left: auto; padding: 1px 6px; background: var(--danger); color: white; border-radius: 999px; font-size: 10px; font-weight: 600; }
+.sidebar-footer { margin-top: auto; padding: 10px; border-top: 1px solid var(--border-default); display: flex; align-items: center; gap: 8px; }
+
+/* Main */
+.main { display: flex; flex-direction: column; overflow: auto; background: var(--bg-app); max-height: calc(100vh - 48px); }
+.sub-header { padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-default); background: var(--bg-card); flex-wrap: wrap; gap: 14px; flex-shrink: 0; }
+.page-title-wrap { display: flex; align-items: baseline; gap: 12px; }
+.page-title { font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
+.live-flag { display: flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: var(--success-light); border: 1px solid var(--success-border); }
+.live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); position: relative; }
+.live-dot::after { content: ''; position: absolute; inset: 0; border-radius: 50%; background: var(--success); animation: pulseRing 1.8s ease-out infinite; }
+.live-label { font-size: 11px; color: var(--success-text); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
+.card-sub { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+.header-controls { display: flex; align-items: center; gap: 10px; }
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 0 12px; height: 32px; border: 1px solid var(--border-default); background: var(--bg-card); border-radius: 6px; font-size: 13px; font-weight: 500; color: var(--text-primary); }
+.btn:hover { background: var(--bg-subtle); }
+.btn.primary { background: var(--primary); color: white; border-color: var(--primary); }
+.btn.primary:hover { background: var(--primary-hover); }
+.btn.sm { height: 28px; font-size: 12px; padding: 0 10px; }
+.btn svg { width: 14px; height: 14px; }
+
+.content { padding: 20px 24px 28px; display: flex; flex-direction: column; gap: 16px; }
+
+/* Hero greeting */
+.hero {
+  border-radius: 14px; padding: 22px 26px;
+  background:
+    radial-gradient(circle at 90% 30%, rgba(255,255,255,0.18), transparent 50%),
+    radial-gradient(circle at 10% 90%, rgba(255,255,255,0.12), transparent 40%),
+    linear-gradient(135deg, #0D47A1 0%, #1565C0 60%, #1E88E5 100%);
+  color: white;
+  display: flex; justify-content: space-between; align-items: center;
+  position: relative; overflow: hidden;
+}
+.hero::before {
+  content: ''; position: absolute; inset: 0;
+  background-image:
+    repeating-linear-gradient(45deg, rgba(255,255,255,0.04) 0 1px, transparent 1px 16px);
+  pointer-events: none;
+}
+.hero h1 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.01em; }
+.hero p { margin: 6px 0 0; font-size: 13px; opacity: 0.85; }
+.hero-stats { display: flex; gap: 22px; padding: 0 4px 0 20px; border-left: 1px solid rgba(255,255,255,0.2); }
+.hero-stat .lbl { font-size: 10px; opacity: 0.75; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
+.hero-stat .val { font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.1; margin-top: 4px; }
+.hero-stat .sub { font-size: 11px; opacity: 0.7; }
+
+/* Metric pulse cards */
+.metric-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.metric { background: var(--bg-card); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: 14px 16px; position: relative; overflow: hidden; transition: transform .2s, box-shadow .2s; }
+.metric:hover { transform: translateY(-1px); box-shadow: var(--shadow-pop); }
+.metric-label { font-size: 11px; color: var(--text-tertiary); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; justify-content: space-between; }
+.metric-icon { width: 22px; height: 22px; border-radius: 5px; display: grid; place-items: center; color: var(--primary); background: var(--primary-light); }
+.metric-icon.success { color: var(--success); background: var(--success-light); }
+.metric-icon.warning { color: var(--warning); background: var(--warning-light); }
+.metric-icon.violet { color: var(--violet); background: var(--violet-light); }
+.metric-value { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; margin-top: 8px; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.metric-unit { font-size: 14px; color: var(--text-tertiary); font-weight: 500; margin-left: 2px; }
+.metric-delta { font-size: 11px; margin-top: 6px; display: flex; align-items: center; gap: 4px; font-weight: 600; }
+.metric-delta.up { color: var(--success); }
+.metric-delta.down { color: var(--danger); }
+.metric-spark { margin-top: 10px; height: 32px; }
+
+/* Card */
+.card { background: var(--bg-card); border: 1px solid var(--border-default); border-radius: var(--radius-lg); }
+.card-head { padding: 14px 18px 8px; display: flex; align-items: center; justify-content: space-between; }
+.card-title { font-size: 14px; font-weight: 700; letter-spacing: -0.005em; }
+.card-body { padding: 8px 18px 18px; }
+.card-body.flush { padding: 0 18px 18px; }
+.grid-2 { display: grid; grid-template-columns: 1.55fr 1fr; gap: 16px; }
+.grid-2-eq { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+.seg { display: inline-flex; background: var(--bg-muted); border-radius: 8px; padding: 3px; }
+.seg button { padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+.seg button.on { background: var(--bg-card); color: var(--text-primary); box-shadow: var(--shadow-card); }
+
+/* Live map preview */
+.map-card { padding: 0; overflow: hidden; }
+.mini-map { position: relative; height: 260px; background:
+    radial-gradient(circle at 30% 40%, rgba(21,101,192,0.06), transparent 50%),
+    radial-gradient(circle at 70% 60%, rgba(124,58,237,0.06), transparent 50%),
+    repeating-linear-gradient(0deg, rgba(0,0,0,0.04) 0 1px, transparent 1px 26px),
+    repeating-linear-gradient(90deg, rgba(0,0,0,0.04) 0 1px, transparent 1px 26px),
+    var(--bg-subtle);
+}
+.map-dot { position: absolute; width: 14px; height: 14px; border-radius: 50%; transform: translate(-50%, -50%); cursor: pointer; }
+.map-dot::before { content: ''; position: absolute; inset: 0; border-radius: 50%; background: currentColor; animation: dotPulse 2.4s ease-out infinite; }
+.map-dot::after { content: ''; position: absolute; inset: 3px; background: currentColor; border-radius: 50%; border: 1.5px solid white; }
+.map-dot.active { color: var(--success); }
+.map-dot.idle { color: var(--warning); }
+.map-dot.off { color: var(--text-tertiary); }
+@keyframes dotPulse { 0% { transform: scale(1); opacity: 0.5; } 100% { transform: scale(2.6); opacity: 0; } }
+
+.map-overlay { position: absolute; left: 12px; top: 12px; display: flex; gap: 6px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 999px; background: rgba(255,255,255,0.95); border: 1px solid var(--border-default); font-size: 12px; font-weight: 500; color: var(--text-secondary); backdrop-filter: blur(6px); }
+.chip .swatch { width: 8px; height: 8px; border-radius: 50%; }
+.map-route { stroke: var(--primary); stroke-width: 2; fill: none; stroke-dasharray: 4 3; opacity: 0.55; animation: dashMove 1.5s linear infinite; }
+@keyframes dashMove { to { stroke-dashoffset: -14; } }
+
+/* Geofences */
+.geofence { position: absolute; border: 2px dashed; border-radius: 50%; opacity: 0.4; }
+.geofence.p { border-color: var(--primary); background: rgba(21,101,192,0.06); }
+.geofence.s { border-color: var(--success); background: rgba(22,163,74,0.06); }
+.geofence.w { border-color: var(--warning); background: rgba(202,138,4,0.06); }
+
+/* Tasks */
+.task { display: flex; gap: 10px; padding: 12px 0; border-bottom: 1px solid var(--border-default); align-items: flex-start; }
+.task:last-child { border-bottom: none; }
+.task-check { width: 16px; height: 16px; border: 1.5px solid var(--border-strong); border-radius: 4px; flex-shrink: 0; margin-top: 2px; cursor: pointer; display: grid; place-items: center; }
+.task-check.done { background: var(--primary); border-color: var(--primary); }
+.task-check.done svg { color: white; }
+.task-title { font-size: 13px; font-weight: 500; }
+.task.done .task-title { color: var(--text-tertiary); text-decoration: line-through; }
+.task-meta { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; display: flex; gap: 8px; align-items: center; }
+.pill { display: inline-flex; align-items: center; gap: 4px; padding: 1px 7px; border-radius: 999px; font-size: 10px; font-weight: 600; border: 1px solid; }
+.pill.danger { background: var(--danger-light); color: var(--danger-text); border-color: var(--danger-border); }
+.pill.warning { background: var(--warning-light); color: var(--warning-text); border-color: var(--warning-border); }
+.pill.info { background: var(--info-light); color: var(--info-text); border-color: var(--info-border); }
+.pill.success { background: var(--success-light); color: var(--success-text); border-color: var(--success-border); }
+
+/* Status feed */
+.status-row { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border-default); align-items: center; }
+.status-row:last-child { border-bottom: none; }
+.status-avatar { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; font-weight: 700; flex-shrink: 0; background: var(--primary-light); color: var(--primary-text); position: relative; }
+.status-avatar .pin { position: absolute; bottom: -2px; right: -2px; width: 11px; height: 11px; border-radius: 50%; border: 2px solid white; }
+.status-info { flex: 1; min-width: 0; }
+.status-name { font-size: 13px; font-weight: 600; }
+.status-where { font-size: 11px; color: var(--text-secondary); }
+.status-time { font-size: 11px; color: var(--text-tertiary); font-variant-numeric: tabular-nums; }
+
+/* Reveal */
+.reveal { opacity: 0; transform: translateY(8px); animation: reveal .5s ease-out forwards; }
+@keyframes reveal { to { opacity: 1; transform: none; } }
+.reveal.d1 { animation-delay: .05s; } .reveal.d2 { animation-delay: .12s; } .reveal.d3 { animation-delay: .2s; }
+.reveal.d4 { animation-delay: .28s; } .reveal.d5 { animation-delay: .36s; }
+
+/* Gauges */
+.gauge { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--border-default); }
+.gauge:last-child { border-bottom: none; }
+.gauge svg { flex-shrink: 0; }
+.gauge-info { flex: 1; }
+.gauge-name { font-size: 13px; font-weight: 600; }
+.gauge-sub { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+.gauge-val { font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* Schedule timeline */
+.schedule { position: relative; padding: 8px 0 4px; }
+.schedule-line { display: flex; height: 2px; background: var(--bg-muted); position: relative; margin: 0 8px; border-radius: 2px; }
+.schedule-now { position: absolute; top: -6px; width: 2px; height: 14px; background: var(--danger); border-radius: 1px; }
+.schedule-now::after { content: ''; position: absolute; top: -4px; left: -3px; width: 8px; height: 8px; border-radius: 50%; background: var(--danger); animation: pulseRing 2s ease-out infinite; }
+.schedule-times { display: flex; justify-content: space-between; padding: 4px 8px 0; font-size: 10px; color: var(--text-tertiary); }
+.schedule-event { position: absolute; top: -4px; height: 10px; border-radius: 2px; background: var(--primary); }
+.schedule-event.violet { background: var(--violet); }
+.schedule-event.warn { background: var(--warning); }
+
+/* Activity sparkline group */
+.spark-row { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--border-default); }
+.spark-row:last-child { border-bottom: none; }
+.spark-info { flex: 1; }
+.spark-name { font-size: 12px; font-weight: 600; }
+.spark-meta { font-size: 11px; color: var(--text-tertiary); }
+.spark-svg { width: 90px; height: 26px; }
+.spark-val { font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; min-width: 50px; text-align: right; }
+
+</style>
+</head>
+<body>
+<div class="web">
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="workspace-brand">
+      <div class="workspace-mark">T</div>
+      <div>
+        <div class="workspace-name">TrackPro HQ</div>
+        <div class="workspace-sub">saqari.trackpro.ge</div>
+      </div>
+    </div>
+    <div class="topbar-search">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      მოძებნე ლოკაცია, თანამშრომელი, ანგარიში…
+      <kbd>⌘ K</kbd>
+    </div>
+    <div class="topbar-spacer"></div>
+    <div class="topbar-utils">
+      <button class="util-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+      <button class="util-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6"/><path d="M9 17v1a3 3 0 0 0 6 0v-1"/></svg><span class="dot-pulse"></span></button>
+      <div class="util-divider"></div>
+      <div class="user-pill"><div class="avatar">ნშ</div><span style="font-size: 12px; font-weight: 500;">ნიკოლოზი</span></div>
+    </div>
+  </div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="mode-pill">
+      <div class="mode-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="6" height="5" rx="2"/><rect x="4" y="13" width="6" height="7" rx="2"/><rect x="14" y="4" width="6" height="7" rx="2"/><rect x="14" y="15" width="6" height="5" rx="2"/></svg></div>
+      <div class="mode-label">Operations</div>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-tertiary)"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="sidebar-section-label">მთავარი</div>
+    <a class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="6" height="5" rx="2"/><rect x="4" y="13" width="6" height="7" rx="2"/><rect x="14" y="4" width="6" height="7" rx="2"/><rect x="14" y="15" width="6" height="5" rx="2"/></svg><span>დაშბორდი</span></a>
+    <a class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l6 -3l6 3l6 -3v13l-6 3l-6 -3l-6 3z"/><path d="M9 4v13"/><path d="M15 7v13"/></svg><span>ცოცხალი რუკა</span><span class="nav-badge" style="background: var(--success);">12</span></a>
+    <a class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="11" r="3"/><path d="M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z"/></svg><span>ლოკაციები</span></a>
+    <a class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/></svg><span>მომხმარებლები</span></a>
+    <a class="nav-item" href="Reports v2.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg><span>რეპორტი</span></a>
+    <div class="sidebar-section-label">სხვა</div>
+    <a class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/></svg><span>პარამეტრები</span></a>
+    <div class="sidebar-footer">
+      <div class="avatar lg">ნშ</div>
+      <div style="flex: 1; min-width: 0;">
+        <div style="font-size: 12px; font-weight: 600;">ნიკოლოზ შენგელია</div>
+        <div style="font-size: 10px; color: var(--text-tertiary);">admin</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="sub-header">
+      <div class="page-title-wrap">
+        <div>
+          <div class="page-title">ცოცხალი დაშბორდი</div>
+          <div class="card-sub" id="dateLine">11 მაისი, 2026 · 14:32 — განახლება ცოცხალია</div>
+        </div>
+        <div class="live-flag"><div class="live-dot"></div><div class="live-label">ცოცხალი</div></div>
+      </div>
+      <div class="header-controls">
+        <button class="btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1 -2 2H5a2 2 0 0 1 -2 -2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> ექსპორტი</button>
+        <button class="btn primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg> ახალი ლოკაცია</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- Hero greeting -->
+      <div class="hero reveal d1">
+        <div>
+          <h1>გამარჯობა, ნიკოლოზ 👋</h1>
+          <p>დღეს 18 თანამშრომელი მუშაობს. 3 ალერტი ელოდება შემოწმებას.</p>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <div class="lbl">აქტიური ახლა</div>
+            <div class="val"><span data-counter="18">0</span></div>
+            <div class="sub">24-დან</div>
+          </div>
+          <div class="hero-stat">
+            <div class="lbl">გავლილი დღეს</div>
+            <div class="val"><span data-counter="247">0</span> კმ</div>
+            <div class="sub">+12% გუშინდელთან</div>
+          </div>
+          <div class="hero-stat">
+            <div class="lbl">ვიზიტი</div>
+            <div class="val"><span data-counter="86">0</span></div>
+            <div class="sub">14:32-მდე</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Metric cards -->
+      <div class="metric-row">
+        <div class="metric reveal d1">
+          <div class="metric-label">აქტიური თანამშრომელი
+            <div class="metric-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/></svg></div>
+          </div>
+          <div class="metric-value"><span data-counter="18">0</span><span class="metric-unit">/ 24</span></div>
+          <div class="metric-delta up">▲ +3 დილით</div>
+          <svg class="metric-spark" viewBox="0 0 120 32" preserveAspectRatio="none" data-spark="14,15,16,17,16,18,18" data-color="#1565C0"></svg>
+        </div>
+        <div class="metric reveal d2">
+          <div class="metric-label">ვიზიტი დღეს
+            <div class="metric-icon success"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1 -2 2H5a2 2 0 0 1 -2 -2V5a2 2 0 0 1 2 -2h11"/></svg></div>
+          </div>
+          <div class="metric-value"><span data-counter="86">0</span></div>
+          <div class="metric-delta up">▲ +14% კვირის საშ.</div>
+          <svg class="metric-spark" viewBox="0 0 120 32" preserveAspectRatio="none" data-spark="62,68,72,71,78,82,86" data-color="#16A34A"></svg>
+        </div>
+        <div class="metric reveal d3">
+          <div class="metric-label">აქტიური ალერტი
+            <div class="metric-icon warning"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17l.01 0"/><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z"/></svg></div>
+          </div>
+          <div class="metric-value"><span data-counter="3">0</span></div>
+          <div class="metric-delta down">▲ 1 ახალი წინა საათში</div>
+          <svg class="metric-spark" viewBox="0 0 120 32" preserveAspectRatio="none" data-spark="2,1,2,2,3,2,3" data-color="#CA8A04"></svg>
+        </div>
+        <div class="metric reveal d4">
+          <div class="metric-label">საშ. პროდუქტიულობა
+            <div class="metric-icon violet"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="14 7 21 7 21 14"/></svg></div>
+          </div>
+          <div class="metric-value"><span data-counter="78" data-suffix="%">0</span></div>
+          <div class="metric-delta up">▲ +4 ერთეული</div>
+          <svg class="metric-spark" viewBox="0 0 120 32" preserveAspectRatio="none" data-spark="72,74,73,75,77,76,78" data-color="#7C3AED"></svg>
+        </div>
+      </div>
+
+      <!-- Map + Tasks -->
+      <div class="grid-2 reveal d2">
+        <div class="card map-card">
+          <div class="card-head">
+            <div>
+              <div class="card-title">ცოცხალი რუკა</div>
+              <div class="card-sub">24 ცოცხალი მოწყობილობა · 42 გეოღობე</div>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <div class="seg">
+                <button class="on">თბილისი</button>
+                <button>ბათუმი</button>
+                <button>ქუთაისი</button>
+              </div>
+              <button class="btn sm">სრულად</button>
+            </div>
+          </div>
+          <div class="mini-map" id="dashMap">
+            <!-- Geofences -->
+            <div class="geofence p" style="left: 18%; top: 30%; width: 90px; height: 90px;"></div>
+            <div class="geofence s" style="left: 56%; top: 50%; width: 76px; height: 76px;"></div>
+            <div class="geofence w" style="left: 38%; top: 65%; width: 60px; height: 60px;"></div>
+            <div class="geofence p" style="left: 72%; top: 22%; width: 80px; height: 80px;"></div>
+            <!-- Route -->
+            <svg width="100%" height="100%" viewBox="0 0 600 260" preserveAspectRatio="none" style="position:absolute; inset:0;">
+              <path class="map-route" d="M70,90 Q160,40 220,140 T420,110 T540,180" />
+              <path class="map-route" d="M100,220 Q180,180 280,200 T480,150" />
+            </svg>
+            <div class="map-overlay">
+              <div class="chip"><span class="swatch" style="background: var(--success);"></span>აქტიური 12</div>
+              <div class="chip"><span class="swatch" style="background: var(--warning);"></span>დაყოვნება 4</div>
+              <div class="chip"><span class="swatch" style="background: var(--text-tertiary);"></span>გათიშული 8</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title">დღევანდელი დავალებები</div>
+              <div class="card-sub">5 დარჩა · 3 ვადაგადაცილებული</div>
+            </div>
+            <button class="btn sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>ახალი</button>
+          </div>
+          <div class="card-body flush">
+            <div class="task">
+              <div class="task-check"></div>
+              <div style="flex:1;">
+                <div class="task-title">დაამტკიცე 4 ახალი ლოკაცია</div>
+                <div class="task-meta">ცენტრალური ოფისი · <span class="pill danger">ვადაგადაცილებული</span></div>
+              </div>
+            </div>
+            <div class="task">
+              <div class="task-check"></div>
+              <div style="flex:1;">
+                <div class="task-title">გადახედე 3 ალერტს</div>
+                <div class="task-meta">დღეს 13:14 · <span class="pill warning">პრიორიტეტი</span></div>
+              </div>
+            </div>
+            <div class="task done">
+              <div class="task-check done"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <div style="flex:1;">
+                <div class="task-title">დაამატე გიორგი მ. გუნდს</div>
+                <div class="task-meta">დასრულდა 11:48</div>
+              </div>
+            </div>
+            <div class="task">
+              <div class="task-check"></div>
+              <div style="flex:1;">
+                <div class="task-title">დაამზადე კვირის რეპორტი</div>
+                <div class="task-meta">ვადა: ხუთშაბათი · <span class="pill info">გუნდი</span></div>
+              </div>
+            </div>
+            <div class="task">
+              <div class="task-check"></div>
+              <div style="flex:1;">
+                <div class="task-title">გადახედე ფილიალი #2-ის გრაფიკს</div>
+                <div class="task-meta">ვაკე · <span class="pill success">ღია</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Schedule + Status -->
+      <div class="grid-2 reveal d3">
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title">დღევანდელი გრაფიკი</div>
+              <div class="card-sub">08:00 → 20:00 · 24 ცვლა დაგეგმილია</div>
+            </div>
+            <button class="btn sm">სრულად</button>
+          </div>
+          <div class="card-body">
+            <!-- 4 tracks -->
+            <div style="display:flex; flex-direction:column; gap:14px; padding: 4px 0;">
+              <div>
+                <div style="display:flex; justify-content:space-between; font-size: 12px; font-weight: 600; margin-bottom: 4px;"><span>გიორგი მ.</span><span style="color: var(--text-tertiary); font-weight:400;">თბილისი</span></div>
+                <div class="schedule">
+                  <div class="schedule-line">
+                    <div class="schedule-event" style="left: 0; width: 35%;"></div>
+                    <div class="schedule-event violet" style="left: 40%; width: 25%;"></div>
+                    <div class="schedule-event" style="left: 70%; width: 28%;"></div>
+                    <div class="schedule-now" style="left: 48%;"></div>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <div style="display:flex; justify-content:space-between; font-size: 12px; font-weight: 600; margin-bottom: 4px;"><span>მარიამი კ.</span><span style="color: var(--text-tertiary); font-weight:400;">თბილისი</span></div>
+                <div class="schedule">
+                  <div class="schedule-line">
+                    <div class="schedule-event" style="left: 5%; width: 30%;"></div>
+                    <div class="schedule-event warn" style="left: 38%; width: 12%;"></div>
+                    <div class="schedule-event" style="left: 53%; width: 35%;"></div>
+                    <div class="schedule-now" style="left: 48%;"></div>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <div style="display:flex; justify-content:space-between; font-size: 12px; font-weight: 600; margin-bottom: 4px;"><span>ლევან ბ.</span><span style="color: var(--text-tertiary); font-weight:400;">ბათუმი</span></div>
+                <div class="schedule">
+                  <div class="schedule-line">
+                    <div class="schedule-event violet" style="left: 0; width: 48%;"></div>
+                    <div class="schedule-event violet" style="left: 55%; width: 30%;"></div>
+                    <div class="schedule-now" style="left: 48%;"></div>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <div style="display:flex; justify-content:space-between; font-size: 12px; font-weight: 600; margin-bottom: 4px;"><span>სოფიო ც.</span><span style="color: var(--text-tertiary); font-weight:400;">ბათუმი</span></div>
+                <div class="schedule">
+                  <div class="schedule-line">
+                    <div class="schedule-event" style="left: 8%; width: 26%;"></div>
+                    <div class="schedule-event" style="left: 40%; width: 22%;"></div>
+                    <div class="schedule-event" style="left: 70%; width: 24%;"></div>
+                    <div class="schedule-now" style="left: 48%;"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="schedule-times">
+              <span>08:00</span><span>10:00</span><span>12:00</span><span>14:00</span><span>16:00</span><span>18:00</span><span>20:00</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title">გუნდის სტატუსი</div>
+              <div class="card-sub">ცოცხალი მდგომარეობა</div>
+            </div>
+            <button class="btn sm">ყველა</button>
+          </div>
+          <div class="card-body flush">
+            <div class="status-row">
+              <div class="status-avatar" style="background: #FEF3C7; color: #B45309;">გმ<span class="pin" style="background: var(--success);"></span></div>
+              <div class="status-info">
+                <div class="status-name">გიორგი მაჭარაშვილი</div>
+                <div class="status-where">ცენტრალური ოფისი · 2ს 14წთ</div>
+              </div>
+              <div class="status-time">ახლა</div>
+            </div>
+            <div class="status-row">
+              <div class="status-avatar" style="background: #FCE7F3; color: #9D174D;">მკ<span class="pin" style="background: var(--success);"></span></div>
+              <div class="status-info">
+                <div class="status-name">მარიამი კახიძე</div>
+                <div class="status-where">ფილიალი #2 — ვაკე · 42წთ</div>
+              </div>
+              <div class="status-time">ახლა</div>
+            </div>
+            <div class="status-row">
+              <div class="status-avatar" style="background: #DCFCE7; color: #166534;">ლბ<span class="pin" style="background: var(--warning);"></span></div>
+              <div class="status-info">
+                <div class="status-name">ლევან ბერიძე</div>
+                <div class="status-where">გადაადგილებაში · ბათუმი → დიდუბე</div>
+              </div>
+              <div class="status-time">3წთ წინ</div>
+            </div>
+            <div class="status-row">
+              <div class="status-avatar" style="background: #DBEAFE; color: #1E40AF;">სც<span class="pin" style="background: var(--success);"></span></div>
+              <div class="status-info">
+                <div class="status-name">სოფიო ცინცაძე</div>
+                <div class="status-where">ბათუმის ფილიალი · 1ს 8წთ</div>
+              </div>
+              <div class="status-time">ახლა</div>
+            </div>
+            <div class="status-row">
+              <div class="status-avatar" style="background: var(--bg-muted); color: var(--text-secondary);">ნშ<span class="pin" style="background: var(--text-tertiary);"></span></div>
+              <div class="status-info">
+                <div class="status-name">ნუგზარ შენგელია</div>
+                <div class="status-where">გათიშული · ბოლო კონტაქტი 2ს წინ</div>
+              </div>
+              <div class="status-time">2ს</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Performance + Alerts -->
+      <div class="grid-2-eq reveal d4">
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title">გუნდის პროდუქტიულობა</div>
+              <div class="card-sub">ბოლო 7 დღე</div>
+            </div>
+            <div class="seg"><button class="on">საათები</button><button>ვიზიტი</button></div>
+          </div>
+          <div class="card-body flush">
+            <div class="spark-row">
+              <div class="status-avatar" style="width: 28px; height: 28px; font-size: 10px;">თბ</div>
+              <div class="spark-info"><div class="spark-name">თბილისის გუნდი</div><div class="spark-meta">12 თანამშრომელი</div></div>
+              <svg class="spark-svg" viewBox="0 0 90 26" preserveAspectRatio="none" data-spark="38,42,35,48,52,28,8" data-color="#1565C0"></svg>
+              <div class="spark-val">251ს</div>
+            </div>
+            <div class="spark-row">
+              <div class="status-avatar" style="width: 28px; height: 28px; font-size: 10px; background: var(--violet-light); color: var(--violet);">ბთ</div>
+              <div class="spark-info"><div class="spark-name">ბათუმის გუნდი</div><div class="spark-meta">8 თანამშრომელი</div></div>
+              <svg class="spark-svg" viewBox="0 0 90 26" preserveAspectRatio="none" data-spark="22,26,24,31,33,18,4" data-color="#7C3AED"></svg>
+              <div class="spark-val">158ს</div>
+            </div>
+            <div class="spark-row">
+              <div class="status-avatar" style="width: 28px; height: 28px; font-size: 10px; background: var(--success-light); color: var(--success);">ქთ</div>
+              <div class="spark-info"><div class="spark-name">ქუთაისის გუნდი</div><div class="spark-meta">4 თანამშრომელი</div></div>
+              <svg class="spark-svg" viewBox="0 0 90 26" preserveAspectRatio="none" data-spark="12,14,11,16,18,9,3" data-color="#16A34A"></svg>
+              <div class="spark-val">83ს</div>
+            </div>
+          </div>
+          <div class="card-body" style="padding-top: 0;">
+            <div class="gauge">
+              <svg width="44" height="44" viewBox="0 0 36 36"><circle cx="18" cy="18" r="14.5" fill="none" stroke="var(--bg-muted)" stroke-width="3"/><circle cx="18" cy="18" r="14.5" fill="none" stroke="var(--primary)" stroke-width="3" stroke-dasharray="0 91" stroke-linecap="round" transform="rotate(-90 18 18)" data-gauge="78"/></svg>
+              <div class="gauge-info"><div class="gauge-name">საშუალო პროდუქტიულობა</div><div class="gauge-sub">გუნდის ჯამური</div></div>
+              <div class="gauge-val">78%</div>
+            </div>
+            <div class="gauge">
+              <svg width="44" height="44" viewBox="0 0 36 36"><circle cx="18" cy="18" r="14.5" fill="none" stroke="var(--bg-muted)" stroke-width="3"/><circle cx="18" cy="18" r="14.5" fill="none" stroke="var(--success)" stroke-width="3" stroke-dasharray="0 91" stroke-linecap="round" transform="rotate(-90 18 18)" data-gauge="92"/></svg>
+              <div class="gauge-info"><div class="gauge-name">დღევანდელი დასწრება</div><div class="gauge-sub">22 / 24 თანამშრომელი</div></div>
+              <div class="gauge-val">92%</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title">აქტიური ალერტები</div>
+              <div class="card-sub">3 ღია · 7 დღეს გადაიჭრა</div>
+            </div>
+            <button class="btn sm">ყველა</button>
+          </div>
+          <div class="card-body flush">
+            <div class="task" style="padding: 14px 0;">
+              <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--danger); margin-top: 6px; position: relative;"><span style="position: absolute; inset:0; border-radius: 50%; background: var(--danger); animation: pulseRing 1.6s ease-out infinite;"></span></div>
+              <div style="flex:1;">
+                <div class="task-title">გრძელი დაყოვნება — ნუგზარ შ.</div>
+                <div class="task-meta">საწყობი — დიდუბე · 78 წთ (ნორმაზე +36 წთ) · 14:21</div>
+                <div style="margin-top: 8px; display: flex; gap: 6px;"><button class="btn sm primary">დაუკავშირდი</button><button class="btn sm">დახურე</button></div>
+              </div>
+            </div>
+            <div class="task" style="padding: 14px 0;">
+              <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--warning); margin-top: 6px;"></div>
+              <div style="flex:1;">
+                <div class="task-title">გეოღობეს დარღვევა — გიორგი მ.</div>
+                <div class="task-meta">გასული გეოღობიდან 2.3 კმ · 13:48</div>
+                <div style="margin-top: 8px; display: flex; gap: 6px;"><button class="btn sm">დეტალები</button><button class="btn sm">დახურე</button></div>
+              </div>
+            </div>
+            <div class="task" style="padding: 14px 0; border-bottom: none;">
+              <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--info); margin-top: 6px;"></div>
+              <div style="flex:1;">
+                <div class="task-title">ახალი ლოკაცია დადასტურებას ელოდება</div>
+                <div class="task-meta">ფილიალი #3 · მარიამი კ.-მ მონიშნა · 13:02</div>
+                <div style="margin-top: 8px; display: flex; gap: 6px;"><button class="btn sm primary">დაამტკიცე</button><button class="btn sm">გადახედე</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script>
+// Counters
+document.querySelectorAll('[data-counter]').forEach(el => {
+  const target = parseFloat(el.dataset.counter);
+  const suffix = el.dataset.suffix || '';
+  const start = performance.now();
+  function step(t) {
+    const p = Math.min(1, (t - start) / 1100);
+    const eased = 1 - Math.pow(1 - p, 3);
+    const val = target * eased;
+    el.textContent = (Math.round(val).toLocaleString()) + suffix;
+    if (p < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+});
+
+// Sparklines
+document.querySelectorAll('[data-spark]').forEach(svg => {
+  const values = svg.dataset.spark.split(',').map(Number);
+  const color = svg.dataset.color;
+  const vb = svg.viewBox.baseVal;
+  const w = vb.width, h = vb.height, pad = 2;
+  const min = Math.min(...values), max = Math.max(...values);
+  const range = max - min || 1;
+  const points = values.map((v, i) => [pad + (i / (values.length - 1)) * (w - pad * 2), h - pad - ((v - min) / range) * (h - pad * 2)]);
+  const linePath = 'M' + points.map(p => p.join(',')).join(' L');
+  const areaPath = linePath + ` L${w - pad},${h} L${pad},${h} Z`;
+  const gid = 'g' + Math.random().toString(36).slice(2, 8);
+  svg.innerHTML = `
+    <defs><linearGradient id="${gid}" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="${color}" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
+    </linearGradient></defs>
+    <path d="${areaPath}" fill="url(#${gid})"/>
+    <path d="${linePath}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="200" stroke-dashoffset="200">
+      <animate attributeName="stroke-dashoffset" from="200" to="0" dur="1.2s" fill="freeze"/>
+    </path>
+    <circle cx="${points[points.length-1][0]}" cy="${points[points.length-1][1]}" r="2" fill="${color}"/>
+  `;
+});
+
+// Gauges
+document.querySelectorAll('[data-gauge]').forEach(c => {
+  const pct = +c.dataset.gauge;
+  const len = 91;
+  const target = (pct / 100) * len;
+  setTimeout(() => {
+    c.style.transition = 'stroke-dasharray 1.2s cubic-bezier(.2,.7,.2,1)';
+    c.setAttribute('stroke-dasharray', `${target} ${len}`);
+  }, 200);
+});
+
+// Map dots
+const map = document.getElementById('dashMap');
+const dots = [
+  { x: 16, y: 35, type: 'active' },{ x: 22, y: 50, type: 'active' },{ x: 28, y: 25, type: 'idle' },
+  { x: 38, y: 65, type: 'active' },{ x: 45, y: 38, type: 'active' },{ x: 50, y: 72, type: 'off' },
+  { x: 58, y: 55, type: 'active' },{ x: 62, y: 28, type: 'idle' },{ x: 70, y: 42, type: 'active' },
+  { x: 76, y: 68, type: 'active' },{ x: 82, y: 30, type: 'active' },{ x: 88, y: 58, type: 'idle' },
+];
+dots.forEach((d, i) => {
+  const el = document.createElement('div');
+  el.className = `map-dot ${d.type}`;
+  el.style.left = d.x + '%';
+  el.style.top = d.y + '%';
+  el.style.opacity = '0';
+  map.appendChild(el);
+  setTimeout(() => { el.style.transition = 'opacity .4s'; el.style.opacity = '1'; }, 200 + i * 60);
+});
+setInterval(() => {
+  map.querySelectorAll('.map-dot.active').forEach(d => {
+    const l = parseFloat(d.style.left), t = parseFloat(d.style.top);
+    d.style.transition = 'left 4s linear, top 4s linear';
+    d.style.left = Math.max(5, Math.min(95, l + (Math.random() - 0.5) * 5)) + '%';
+    d.style.top = Math.max(15, Math.min(85, t + (Math.random() - 0.5) * 6)) + '%';
+  });
+}, 4000);
+</script>
+</body>
+</html>
