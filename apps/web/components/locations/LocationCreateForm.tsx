@@ -39,11 +39,9 @@ export function LocationCreateForm({ tenantId }: LocationCreateFormProps) {
     <form action={handleSubmit} className="grid grid-cols-1 gap-4 lg:grid-cols-[1.4fr_1fr]">
       <div className="overflow-hidden rounded-[10px] border border-[var(--color-border)] bg-white">
         <div className="border-b border-[var(--color-border)] bg-[var(--color-surface)] px-5 py-3">
-          <h2 className="text-[14px] font-bold text-[var(--color-text-primary)]">
-            ჩავაგდე pin რუკაზე
-          </h2>
+          <h2 className="text-[14px] font-bold text-[var(--color-text-primary)]">რუკაზე მონიშნე</h2>
           <p className="text-[11px] text-[var(--color-text-tertiary)]">
-            pin გადათარეთ → ლოკაცია მონიშნული
+            დააჭირე რუკას სასურველ წერტილზე ან გადათარე pin-ი
           </p>
         </div>
         <MapboxMap

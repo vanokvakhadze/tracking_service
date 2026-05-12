@@ -115,6 +115,15 @@ export function MapboxMap({
         onPinDrag?.(lat, lng)
       })
       draggableMarkerRef.current = marker
+
+      // Click anywhere on the map → pin jumps to that spot. Far more
+      // discoverable than dragging a tiny marker icon.
+      map.getCanvas().style.cursor = 'crosshair'
+      map.on('click', (event) => {
+        const { lng, lat } = event.lngLat
+        marker.setLngLat([lng, lat])
+        onPinDrag?.(lat, lng)
+      })
     } else {
       draggableMarkerRef.current.setLngLat([draggablePin.lng, draggablePin.lat])
     }

@@ -30,7 +30,7 @@ export default async function NewLocationPage() {
 
   return (
     <>
-      <SubHeader title="ახალი ლოკაცია" subtitle="pin გადათარეთ რუკაზე → შეავსე ფორმა → შენახე" />
+      <SubHeader title="ახალი ლოკაცია" subtitle="დააჭირე რუკას → შეავსე ფორმა → შენახე" />
       <main className="p-6">
         <LocationCreateForm tenantId={tenantId} />
       </main>
