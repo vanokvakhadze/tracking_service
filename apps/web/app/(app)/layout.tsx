@@ -1,8 +1,8 @@
-import { redirect } from 'next/navigation'
 import type { ReactNode } from 'react'
+import { Button } from '@/components/ui/Button'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { TopBar } from '@/components/layout/TopBar'
-import { getCurrentUser } from '@/lib/auth/actions'
+import { getCurrentUser, logout } from '@/lib/auth/actions'
 
 function initialsOf(parts: (string | null | undefined)[], fallback = '?'): string {
   const tokens = parts
@@ -14,7 +14,33 @@ function initialsOf(parts: (string | null | undefined)[], fallback = '?'): strin
 
 export default async function AppLayout({ children }: { children: ReactNode }) {
   const user = await getCurrentUser()
-  if (!user) redirect('/login')
+
+  // The middleware already gates the (app) routes by auth cookie. If we get
+  // here with no resolved user it means the cookie is valid but the profile
+  // row is missing in public.users (most often: a stale auth.users row from a
+  // signup that pre-dates the migrations). Don't redirect — that produces an
+  // infinite /dashboard ↔ /login loop with the middleware. Show a sign-out
+  // surface so the user can clean state.
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[var(--color-surface)] p-6">
+        <div className="max-w-md rounded-[10px] border border-[var(--color-border)] bg-white p-6 text-center">
+          <h1 className="text-[16px] font-semibold text-[var(--color-text-primary)]">
+            პროფილი ვერ მოიძებნა
+          </h1>
+          <p className="mt-2 text-[13px] text-[var(--color-text-secondary)]">
+            შენი auth სესია ცოცხალია, მაგრამ public.users-ში პროფილი არ არსებობს. ხშირად ეს ხდება
+            ძველი signup-ით (მიგრაციამდე) დარჩენილი ანგარიშისთვის. გასცილდი და სცადე ხელახლა.
+          </p>
+          <form action={logout} className="mt-4">
+            <Button type="submit" variant="primary" size="lg">
+              გასვლა
+            </Button>
+          </form>
+        </div>
+      </div>
+    )
+  }
 
   const activeMembership = user.memberships?.find((m) => m.is_active)
   const tenant = activeMembership?.tenant
