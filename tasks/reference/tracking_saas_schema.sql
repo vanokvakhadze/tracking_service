@@ -397,6 +397,18 @@ CREATE POLICY tenant_isolation ON device_status_logs
 CREATE POLICY tenant_isolation ON invitations
     USING (tenant_id::text = current_setting('app.current_tenant', TRUE));
 
+-- ----------------------------------------------------------------------------
+-- 6.1 PUBLIC-READ TABLES (reference data — visible to anon)
+-- ----------------------------------------------------------------------------
+-- Supabase enables RLS by default on every table in `public` schema. Tables
+-- intentionally meant to be readable by everyone (e.g. pricing page) need an
+-- explicit policy or the anon role gets zero rows with no error.
+
+ALTER TABLE subscription_plans ENABLE ROW LEVEL SECURITY;
+CREATE POLICY public_read_subscription_plans ON subscription_plans
+    FOR SELECT TO anon, authenticated
+    USING (true);
+
 -- ============================================================================
 -- 7. SEED DATA — Subscription plans (Georgia / Lari)
 -- ============================================================================
