@@ -1,8 +1,15 @@
+import Constants from 'expo-constants'
 import * as Location from 'expo-location'
-import * as Notifications from 'expo-notifications'
 import { useState } from 'react'
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { useOnboarding } from '@/src/hooks/use-onboarding'
+
+// expo-notifications' top-level code crashes in Expo Go SDK 53+ on Android
+// (push API removed). Importing it statically here breaks PermissionsScreen's
+// default export, which makes /permissions an "Unmatched Route". Load
+// lazily via require() so the module is only evaluated when we actually need
+// it (dev/standalone builds), keeping Expo Go's Permissions screen healthy.
+const isExpoGo = Constants.executionEnvironment === 'storeClient'
 
 const KAYA = {
   bg: '#FFFFFF',
@@ -42,8 +49,17 @@ export default function PermissionsScreen() {
   }
 
   async function requestNotifications() {
+    if (isExpoGo) {
+      Alert.alert(
+        'Expo Go-ში არ მუშაობს',
+        'Push შეტყობინებები მხოლოდ development build-შია ხელმისაწვდომი. ვბილებთ ცარიელად.',
+      )
+      setNotifStatus('granted')
+      return
+    }
     setBusy(true)
     try {
+      const Notifications = require('expo-notifications') as typeof import('expo-notifications')
       const { status } = await Notifications.requestPermissionsAsync()
       setNotifStatus(status === 'granted' ? 'granted' : 'denied')
     } catch {
