@@ -30,6 +30,10 @@ export default function RootLayout() {
             name="admin-create-location"
             options={{ presentation: 'modal', title: 'ლოკაცია' }}
           />
+          <Stack.Screen
+            name="admin-location-form"
+            options={{ presentation: 'modal', title: 'ლოკაცია — დეტალები' }}
+          />
         </Stack.Protected>
         <Stack.Protected guard={authedNeedsOnboarding}>
           <Stack.Screen name="welcome" />
