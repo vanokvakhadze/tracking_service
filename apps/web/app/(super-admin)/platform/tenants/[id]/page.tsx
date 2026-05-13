@@ -1,3 +1,4 @@
+import { ImpersonateButton } from '@/components/platform/ImpersonateButton'
 import { createClient } from '@/lib/supabase/server'
 import { ArrowLeft, Mail } from 'lucide-react'
 import Link from 'next/link'
@@ -158,6 +159,9 @@ export default async function TenantDetailPage({ params }: PageProps) {
                 <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">
                   Joined
                 </th>
+                <th className="w-32 px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">
+                  {''}
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -190,6 +194,15 @@ export default async function TenantDetailPage({ params }: PageProps) {
                     </td>
                     <td className="px-4 py-3 text-[12px] text-[var(--color-text-secondary)]">
                       {formatDate(m.created_at)}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      {user?.id && (
+                        <ImpersonateButton
+                          userId={user.id}
+                          tenantId={id}
+                          displayName={displayName}
+                        />
+                      )}
                     </td>
                   </tr>
                 )
