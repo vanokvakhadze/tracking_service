@@ -799,54 +799,69 @@ export type Database = {
       tenants: {
         Row: {
           created_at: string | null
+          current_period_end: string | null
           default_geofence_radius_m: number | null
           default_language: string | null
           deleted_at: string | null
           id: string
           logo_url: string | null
           name: string
+          plan_code: string | null
           plan_id: string | null
           settings: Json | null
           status: Database["public"]["Enums"]["tenant_status"]
           stripe_customer_id: string | null
+          stripe_subscription_id: string | null
           subdomain: string
           subscription_ends_at: string | null
+          subscription_quantity: number | null
+          subscription_status: string | null
           timezone: string
           trial_ends_at: string | null
           updated_at: string | null
         }
         Insert: {
           created_at?: string | null
+          current_period_end?: string | null
           default_geofence_radius_m?: number | null
           default_language?: string | null
           deleted_at?: string | null
           id?: string
           logo_url?: string | null
           name: string
+          plan_code?: string | null
           plan_id?: string | null
           settings?: Json | null
           status?: Database["public"]["Enums"]["tenant_status"]
           stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
           subdomain: string
           subscription_ends_at?: string | null
+          subscription_quantity?: number | null
+          subscription_status?: string | null
           timezone?: string
           trial_ends_at?: string | null
           updated_at?: string | null
         }
         Update: {
           created_at?: string | null
+          current_period_end?: string | null
           default_geofence_radius_m?: number | null
           default_language?: string | null
           deleted_at?: string | null
           id?: string
           logo_url?: string | null
           name?: string
+          plan_code?: string | null
           plan_id?: string | null
           settings?: Json | null
           status?: Database["public"]["Enums"]["tenant_status"]
           stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
           subdomain?: string
           subscription_ends_at?: string | null
+          subscription_quantity?: number | null
+          subscription_status?: string | null
           timezone?: string
           trial_ends_at?: string | null
           updated_at?: string | null
@@ -857,6 +872,44 @@ export type Database = {
             columns: ["plan_id"]
             isOneToOne: false
             referencedRelation: "subscription_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_devices: {
+        Row: {
+          app_version: string | null
+          created_at: string
+          expo_push_token: string
+          id: string
+          last_seen_at: string
+          platform: string
+          user_id: string
+        }
+        Insert: {
+          app_version?: string | null
+          created_at?: string
+          expo_push_token: string
+          id?: string
+          last_seen_at?: string
+          platform: string
+          user_id: string
+        }
+        Update: {
+          app_version?: string | null
+          created_at?: string
+          expo_push_token?: string
+          id?: string
+          last_seen_at?: string
+          platform?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_devices_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -1165,18 +1218,6 @@ export type Database = {
         | { Args: { table_name: string }; Returns: string }
       enablelongtransactions: { Args: never; Returns: string }
       equals: { Args: { geom1: unknown; geom2: unknown }; Returns: boolean }
-      get_admin_alerts: {
-        Args: { p_since?: string; p_tenant_id: string }
-        Returns: {
-          details: Json | null
-          id: string
-          kind: string
-          occurred_at: string
-          severity: string
-          user_id: string
-          user_name: string
-        }[]
-      }
       geometry: { Args: { "": string }; Returns: unknown }
       geometry_above: {
         Args: { geom1: unknown; geom2: unknown }
@@ -1275,9 +1316,31 @@ export type Database = {
         Returns: boolean
       }
       geomfromewkt: { Args: { "": string }; Returns: unknown }
+      get_admin_alerts: {
+        Args: { p_since?: string; p_tenant_id: string }
+        Returns: {
+          details: Json
+          id: string
+          kind: string
+          occurred_at: string
+          severity: string
+          user_id: string
+          user_name: string
+        }[]
+      }
       gettransactionid: { Args: never; Returns: unknown }
+      is_super_admin: { Args: never; Returns: boolean }
       is_tenant_admin: { Args: { p_tenant_id: string }; Returns: boolean }
       issue_next_number: { Args: { p_scheme_id: string }; Returns: string }
+      log_admin_action: {
+        Args: {
+          p_action: string
+          p_entity_id?: string
+          p_entity_type?: string
+          p_metadata?: Json
+        }
+        Returns: string
+      }
       longtransactionsenabled: { Args: never; Returns: boolean }
       populate_geometry_columns:
         | { Args: { tbl_oid: unknown; use_typmod?: boolean }; Returns: number }

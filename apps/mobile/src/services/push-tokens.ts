@@ -47,12 +47,7 @@ export async function registerPushToken(): Promise<void> {
   } = await supabase.auth.getUser()
   if (!user) return
 
-  // user_devices is added in migration 14; database types regenerate after
-  // running `pnpm db:types`. Until then the call is correct at runtime but
-  // unknown to the typed builder, so we drop down to the loose client.
-  // biome-ignore lint/suspicious/noExplicitAny: see comment above
-  const looseClient = supabase as any
-  await looseClient.from('user_devices').upsert(
+  await supabase.from('user_devices').upsert(
     {
       user_id: user.id,
       expo_push_token: token,
