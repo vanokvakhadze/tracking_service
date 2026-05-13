@@ -1,6 +1,7 @@
 import { ImpersonateButton } from '@/components/platform/ImpersonateButton'
+import { EmptyState } from '@/components/ui/EmptyState'
 import { createClient } from '@/lib/supabase/server'
-import { ArrowLeft, Mail } from 'lucide-react'
+import { ArrowLeft, Mail, Users } from 'lucide-react'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
@@ -210,9 +211,11 @@ export default async function TenantDetailPage({ params }: PageProps) {
             </tbody>
           </table>
         ) : (
-          <p className="p-6 text-[13px] text-[var(--color-text-secondary)]">
-            ჯერ წევრები არ შემოერთებიან.
-          </p>
+          <EmptyState
+            icon={<Users className="h-5 w-5" />}
+            title="ჯერ წევრები არ შემოერთებიან"
+            description="როცა admin ვინმეს invite-ს გაუგზავნის, აქ გამოჩნდება."
+          />
         )}
       </div>
     </div>

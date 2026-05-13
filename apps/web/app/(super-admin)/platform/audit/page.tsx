@@ -1,4 +1,6 @@
+import { EmptyState } from '@/components/ui/EmptyState'
 import { createClient } from '@/lib/supabase/server'
+import { ScrollText } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
@@ -48,10 +50,11 @@ export default async function AuditLogPage() {
 
       <div className="overflow-hidden rounded-[10px] border border-[var(--color-border)] bg-white">
         {rows.length === 0 ? (
-          <div className="p-12 text-center text-[13px] text-[var(--color-text-secondary)]">
-            ჩანაწერი ჯერ არ არის. პლატფორმის მოქმედებები აქ ჩაიწერება, როცა Impersonation, ხელით
-            plan ცვლა, ან tenant suspend მოხდება.
-          </div>
+          <EmptyState
+            icon={<ScrollText className="h-5 w-5" />}
+            title="ჩანაწერი ჯერ არ არის"
+            description="პლატფორმის მოქმედებები აქ ჩაიწერება, როცა Impersonation, ხელით plan ცვლა, ან tenant suspend მოხდება."
+          />
         ) : (
           <table className="w-full text-left text-[13px]">
             <thead>

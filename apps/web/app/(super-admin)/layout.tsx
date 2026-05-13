@@ -84,7 +84,9 @@ export default async function SuperAdminLayout({ children }: { children: ReactNo
         </div>
       </aside>
 
-      <main className="overflow-auto bg-[var(--color-surface)]">{children}</main>
+      <main id="main-content" className="overflow-auto bg-[var(--color-surface)]">
+        {children}
+      </main>
     </div>
   )
 }
