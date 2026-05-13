@@ -1,6 +1,7 @@
 import { SubHeader } from '@/components/layout/SubHeader'
 import { ExportButton } from '@/components/reports/ExportButton'
 import { MetricCard } from '@/components/reports/MetricCard'
+import { ShiftsTable } from '@/components/reports/ShiftsTable'
 import { getCurrentUser } from '@/lib/auth/actions'
 import { AlertTriangle, Clock, MapPin, Route } from 'lucide-react'
 import { redirect } from 'next/navigation'
@@ -44,38 +45,7 @@ export default async function ReportsPage() {
           <MetricCard label="გაფრთხილებები" value="—" icon={AlertTriangle} tone="warning" />
         </div>
 
-        <div className="rounded-lg border border-[var(--color-border)] bg-white">
-          <div className="flex items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-surface)] px-6 py-3">
-            <h2 className="text-[14px] font-semibold text-[var(--color-text-primary)]">
-              საათები თანამშრომელზე
-            </h2>
-            <p className="text-[11px] text-[var(--color-text-tertiary)]">ბოლო 30 დღე</p>
-          </div>
-          <div className="p-12 text-center">
-            <p className="text-[13px] text-[var(--color-text-secondary)]">
-              ჯერ მონაცემები არ არის.
-            </p>
-            <p className="mt-1 text-[12px] text-[var(--color-text-tertiary)]">
-              ჩარტი ჩაერთვის როცა Phase 3-ში mobile app ცვლებს იწყებს.
-            </p>
-          </div>
-        </div>
-
-        <div className="rounded-lg border border-[var(--color-border)] bg-white">
-          <div className="flex items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-surface)] px-6 py-3">
-            <h2 className="text-[14px] font-semibold text-[var(--color-text-primary)]">
-              ყველაზე მონახულებული ლოკაციები
-            </h2>
-          </div>
-          <div className="p-12 text-center">
-            <p className="text-[13px] text-[var(--color-text-secondary)]">
-              ჯერ ვიზიტი არ ფიქსირდება.
-            </p>
-            <p className="mt-1 text-[12px] text-[var(--color-text-tertiary)]">
-              შექმენი ლოკაცია → თანამშრომელმა მოინახულე → აქ გამოჩნდება.
-            </p>
-          </div>
-        </div>
+        <ShiftsTable tenantId={myActive.tenant?.id ?? ''} canAnnotate />
       </main>
     </>
   )

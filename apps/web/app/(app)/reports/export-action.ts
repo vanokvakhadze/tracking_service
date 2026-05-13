@@ -16,6 +16,7 @@ interface ExportRow {
   ended_at: string | null
   total_minutes: number
   status: string
+  notes: string | null
 }
 
 interface ShiftUser {
@@ -29,6 +30,7 @@ interface ShiftRow {
   started_at: string
   ended_at: string | null
   status: string
+  notes: string | null
   user: ShiftUser | ShiftUser[] | null
 }
 
@@ -42,7 +44,7 @@ export async function exportShiftsCsv(input: ExportInput): Promise<string> {
 
   let query = supabase
     .from('shifts')
-    .select('id, started_at, ended_at, status, user:users(first_name, last_name, email)')
+    .select('id, started_at, ended_at, status, notes, user:users(first_name, last_name, email)')
     .eq('tenant_id', tenantId)
     .order('started_at', { ascending: false })
     .limit(5000)
@@ -71,6 +73,7 @@ export async function exportShiftsCsv(input: ExportInput): Promise<string> {
         ended_at: row.ended_at,
         total_minutes: totalMinutes,
         status: row.status,
+        notes: row.notes,
       }
     }) ?? []
 
@@ -86,6 +89,7 @@ function toCsv(rows: ExportRow[]): string {
     'ended_at',
     'total_minutes',
     'status',
+    'notes',
   ]
 
   const escape = (value: string | number | null) => {
@@ -106,6 +110,7 @@ function toCsv(rows: ExportRow[]): string {
         row.ended_at ?? '',
         row.total_minutes,
         row.status,
+        row.notes ?? '',
       ]
         .map(escape)
         .join(','),
