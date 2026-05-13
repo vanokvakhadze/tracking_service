@@ -13,6 +13,7 @@
     "typecheck": "turbo typecheck",
     "test": "turbo test",
     "db:types": "npx supabase gen types typescript --project-id lekogoghgbvmrlqcqmhv > packages/database/src/types.ts",
+    "seed:demo": "node scripts/seed-demo.mjs",
     "format": "biome format --write .",
     "format:check": "biome format .",
     "clean": "turbo clean && rimraf node_modules"
