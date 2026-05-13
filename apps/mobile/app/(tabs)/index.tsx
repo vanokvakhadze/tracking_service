@@ -1,5 +1,7 @@
+import { Feather } from '@expo/vector-icons'
+import { type Href, router } from 'expo-router'
 import { useEffect, useState } from 'react'
-import { ScrollView, StyleSheet, Text, View } from 'react-native'
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { formatDuration, useCurrentShift } from '@/src/hooks/use-current-shift'
 
@@ -37,6 +39,14 @@ export default function HomeScreen() {
       <ScrollView contentContainerStyle={styles.scroll}>
         {shift ? <ActiveShiftView shift={shift} /> : <InactiveView />}
       </ScrollView>
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={() => router.push('/mark' as unknown as Href)}
+        activeOpacity={0.85}
+      >
+        <Feather name="map-pin" size={18} color={KAYA.accentFg} />
+        <Text style={styles.fabText}>ლოკაციის მონიშვნა</Text>
+      </TouchableOpacity>
     </SafeAreaView>
   )
 }
@@ -196,4 +206,23 @@ const styles = StyleSheet.create({
   },
   noticeTitle: { fontSize: 13, fontWeight: '600', color: KAYA.warningText },
   noticeText: { fontSize: 12, color: KAYA.warningText, marginTop: 4, lineHeight: 17, opacity: 0.8 },
+
+  fab: {
+    position: 'absolute',
+    right: 16,
+    bottom: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: KAYA.accent,
+    borderRadius: 999,
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.18,
+    shadowRadius: 10,
+    elevation: 4,
+  },
+  fabText: { color: KAYA.accentFg, fontSize: 13, fontWeight: '600' },
 })

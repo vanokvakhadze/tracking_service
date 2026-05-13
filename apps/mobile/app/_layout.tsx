@@ -25,6 +25,7 @@ export default function RootLayout() {
         <Stack.Protected guard={authedAndOnboarded}>
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+          <Stack.Screen name="mark" options={{ presentation: 'modal', title: 'მონიშვნა' }} />
         </Stack.Protected>
         <Stack.Protected guard={authedNeedsOnboarding}>
           <Stack.Screen name="welcome" />
