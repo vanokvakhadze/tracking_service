@@ -1,20 +1,21 @@
 import Constants from 'expo-constants'
 import type { ComponentType } from 'react'
-
-// react-native-maps requires native code that ships in a dev build but is
-// missing from Expo Go (RNMapsAirModule unavailable → app crash on import).
-// Pick the screen at module-load time so the heavy module is never imported
-// in the Expo Go runtime. Wrap in a function default-export so Expo Router's
-// static analyzer detects the route cleanly.
+import { useMobileRole } from '@/src/hooks/use-mobile-role'
 
 const isExpoGo = Constants.executionEnvironment === 'storeClient'
 
-const ScreenModule = isExpoGo
-  ? require('@/src/screens/employee/MapFallbackScreen')
-  : require('@/src/screens/employee/MapNativeScreen')
-
-const InnerScreen = ScreenModule.default as ComponentType
+const adminNative = () => require('@/src/screens/admin/TeamMapScreen').default
+const adminFallback = () => require('@/src/screens/admin/TeamMapFallbackScreen').default
+const employeeNative = () => require('@/src/screens/employee/MapNativeScreen').default
+const employeeFallback = () => require('@/src/screens/employee/MapFallbackScreen').default
 
 export default function MapTab() {
-  return <InnerScreen />
+  const role = useMobileRole()
+  let Screen: ComponentType
+  if (role === 'admin') {
+    Screen = isExpoGo ? adminFallback() : adminNative()
+  } else {
+    Screen = isExpoGo ? employeeFallback() : employeeNative()
+  }
+  return <Screen />
 }
