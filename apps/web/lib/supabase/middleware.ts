@@ -2,7 +2,14 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import type { Database } from '@trackpro/database'
 
-const PROTECTED_PREFIXES = ['/dashboard', '/locations', '/users', '/reports', '/settings']
+const PROTECTED_PREFIXES = [
+  '/dashboard',
+  '/locations',
+  '/users',
+  '/reports',
+  '/settings',
+  '/billing',
+]
 const AUTH_PREFIXES = ['/login', '/signup']
 
 export async function updateSession(request: NextRequest) {

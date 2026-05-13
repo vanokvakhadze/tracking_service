@@ -4,6 +4,7 @@ import { clsx } from 'clsx'
 import {
   BarChart3,
   Bell,
+  CreditCard,
   Inbox,
   LayoutDashboard,
   MapIcon,
@@ -30,6 +31,7 @@ function getNavItems(pendingLocationsCount: number): NavItem[] {
     { href: '/users', label: 'მომხმარებლები', icon: Users },
     { href: '/reports', label: 'რეპორტები', icon: BarChart3 },
     { href: '/alerts', label: 'ალერტი', icon: Bell, badge: 3 },
+    { href: '/billing', label: 'გადახდები', icon: CreditCard },
     { href: '/settings', label: 'პარამეტრები', icon: Settings },
   ]
 }
