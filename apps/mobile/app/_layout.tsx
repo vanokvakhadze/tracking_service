@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar'
 import 'react-native-reanimated'
 import { useAuth } from '@/src/hooks/use-auth'
 import { useOnboarding } from '@/src/hooks/use-onboarding'
+import { useTrackingBootstrap } from '@/src/hooks/use-tracking-bootstrap'
 
 export const unstable_settings = {
   anchor: '(tabs)',
@@ -18,6 +19,8 @@ export default function RootLayout() {
   const authed = Boolean(session)
   const authedAndOnboarded = authed && onboarded
   const authedNeedsOnboarding = authed && !onboarded
+
+  useTrackingBootstrap(authedAndOnboarded)
 
   return (
     <ThemeProvider value={DefaultTheme}>
