@@ -4,15 +4,17 @@ import type { ComponentType } from 'react'
 // react-native-maps requires native code that ships in a dev build but is
 // missing from Expo Go (RNMapsAirModule unavailable → app crash on import).
 // Pick the screen at module-load time so the heavy module is never imported
-// in the Expo Go runtime.
+// in the Expo Go runtime. Wrap in a function default-export so Expo Router's
+// static analyzer detects the route cleanly.
 
 const isExpoGo = Constants.executionEnvironment === 'storeClient'
 
-let Screen: ComponentType
-if (isExpoGo) {
-  Screen = require('@/src/screens/employee/MapFallbackScreen').default as ComponentType
-} else {
-  Screen = require('@/src/screens/employee/MapNativeScreen').default as ComponentType
-}
+const ScreenModule = isExpoGo
+  ? require('@/src/screens/employee/MapFallbackScreen')
+  : require('@/src/screens/employee/MapNativeScreen')
 
-export default Screen
+const InnerScreen = ScreenModule.default as ComponentType
+
+export default function MapTab() {
+  return <InnerScreen />
+}

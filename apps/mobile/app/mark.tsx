@@ -1,1 +1,3 @@
-export { default } from '@/src/screens/employee/MarkLocationScreen'
+import MarkLocationScreen from '@/src/screens/employee/MarkLocationScreen'
+
+export default MarkLocationScreen

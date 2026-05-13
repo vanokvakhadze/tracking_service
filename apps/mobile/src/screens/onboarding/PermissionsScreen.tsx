@@ -1,6 +1,5 @@
 import * as Location from 'expo-location'
 import * as Notifications from 'expo-notifications'
-import { type Href, router } from 'expo-router'
 import { useState } from 'react'
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { useOnboarding } from '@/src/hooks/use-onboarding'
@@ -62,8 +61,10 @@ export default function PermissionsScreen() {
       )
       return
     }
+    // setOnboarded flips the Stack.Protected guard in _layout.tsx and
+    // expo-router auto-navigates to the tabs group. Explicit router.replace
+    // here used to race the guard change and surfaced 'Unmatched Route'.
     setOnboarded(true)
-    router.replace('/(tabs)' as unknown as Href)
   }
 
   return (
