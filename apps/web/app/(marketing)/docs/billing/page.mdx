@@ -1,0 +1,108 @@
+export const metadata = {
+  title: 'ბილინგი — TrackPro Docs',
+}
+
+# ბილინგი
+
+## Plans
+
+| Plan | ფასი | მაქს. user | Locations | Features |
+|------|-----|----------|----------|---------|
+| Free Trial | 0 GEL | 5 | 3 | სრული 14 დღით |
+| Basic | 15 GEL/user/თვე | 20 | 10 | Core tracking + reports |
+| Pro | 30 GEL/user/თვე | 100 | unlimited | + API + custom branding |
+| Enterprise | custom | unlimited | unlimited | + 24/7 SLA + white-label |
+
+დეტალური ცხრილი — [/pricing](/pricing).
+
+## 14 დღიანი ცდა
+
+რეგისტრაციის შემდეგ ავტომატურად იწყება — ბარათი არ მოითხოვება. ცდის ხანგრძლივობაში:
+
+- სრული ფიჩერების სიის წვდომა
+- 5 თანამშრომელი + 3 ლოკაცია (cap)
+- წარმოდგენილი limit-ი mobile-ში მცირე banner-ით
+
+ცდის ბოლოს — სტარდარული ფლოუ: "გადახდის მეთოდი დაამატე subscription-ის გასაგრძელებლად". თუ არ მიამატე — workspace-ი არ წაიშლება, **read-only** mode-ში გადადის.
+
+## სტარდარული subscription
+
+**ბილინგი** ნავიგაცია → **Plan-ის ცვლა**:
+
+1. აირჩიე plan (Basic / Pro)
+2. შეიყვანე ბარათი (Stripe-ის secure checkout)
+3. Confirm — subscription იწყება მაშინვე
+4. Invoice-ი მოგვიანებით — ყოველი თვის 1-ში
+
+## ფასის გაანგარიშება
+
+**Per active employee** მოდელი:
+
+- მხოლოდ აქტიური (`is_active = true`) თანამშრომელი ფიქსირდება
+- Deactivated არ ფიქსირდება
+- Pro-rated invoice-ი — შუა თვეში დაამატე employee → ცალკე pro-rated charge შემდეგ თვეში
+- Annual prepay → 2 თვის ფასი უფასოდ
+
+## გადახდის მეთოდი
+
+ბილინგი → **ბარათი** → ცვალე ან წაშალე. Stripe-ის secure form-ი. TrackPro **ვერ ხედავს** ბარათის ნომერი — მხოლოდ Stripe-ის token.
+
+## Invoice-ის ისტორია
+
+ბილინგი → **ისტორია** → ყველა გადახდილი invoice + PDF download.
+
+ფინანსის რეპორტისთვის — Invoice-ი შეიცავს:
+
+- TrackPro / Sazeo-ის სრული რეკვიზიტები (TIN, მისამართი)
+- Workspace name
+- Active employee count + per-employee price
+- ჯამური + VAT
+- Stripe-ის receipt number
+
+## Plan-ის გაუმჯობესება
+
+შენ ხარ Basic → Pro:
+
+- ბილინგი → **Upgrade** → Confirm
+- Pro-rated diff ფიქსირდება immediately
+- Pro features (API, custom branding) ხდება available მაშინვე
+
+შენ ხარ Pro → Basic:
+
+- ბილინგი → **Downgrade**
+- ცვლილება იწყება შემდეგი billing cycle-ში
+- API + custom branding-ი მუშავდება ცვლის თარიღამდე
+
+## Subscription-ის გაუქმება
+
+ბილინგი → **Cancel subscription** → confirm. რას ცვლის:
+
+- ცვლა-ცვლა მუშავდება ფიქსირებული თვის ბოლომდე
+- შემდეგი billing cycle-ი არ იწერება
+- Workspace იქცევა read-only-ად
+- 30 დღის შემდეგ მონაცემები წაიშლება (გადახდილი თვის შემდეგ)
+
+## გადახდილ თანხის რეფანდი
+
+Stripe-ის policy-ით — გადახდილი თვის ფული არ ბრუნდება. Exception:
+
+- TrackPro-ის ხარვეზიდან გამოწვეული 24+ საათიანი downtime
+- Enterprise SLA breach
+
+Refund request → [hello@trackpro.ge](mailto:hello@trackpro.ge) → 5 სამუშაო დღეში გადასცემთ.
+
+## სცადე ბუღალტრის ღილაკი
+
+თუ შენი კომპანიის ფინანსისტი თვითონ მართავს გადახდას — შექმენი ცალკე **billing-only** account (role = `billing`, future). მისცემს წვდომას მხოლოდ /billing-ზე, არც კოდი არც ლოკაცია.
+
+> Note: ეს ფიჩერი ჯერ ცოცხალი არ არის — Phase 8-ის roadmap-ში.
+
+## Tax + ინვოისის სამართალი
+
+- VAT 18% ფიქსირდება საქართველოს კომპანიებზე
+- EU customer-ის შემთხვევაში — Reverse Charge (VAT-ის გადასახდელი customer-ის ფარგლებშია)
+- Invoice ფიქსირდება GEL-ში; თუ პრეიერი დოლარშია — Stripe ბრუნავს FX-ი
+
+## შემდეგი ნაბიჯები
+
+- [FAQ](/docs/faq) — გადახდასთან დაკავშირებული ხშირი კითხვები

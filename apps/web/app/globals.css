@@ -72,3 +72,33 @@ body {
 .tnum {
   font-variant-numeric: tabular-nums;
 }
+
+/* a11y: visible focus by default on interactive elements that don't already
+   define a custom focus-visible ring. Browsers strip default outlines on
+   :focus when mouse-clicked; :focus-visible keeps it for keyboard nav. */
+*:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+  border-radius: 4px;
+}
+
+/* Don't double up rings on elements that already set focus-visible:ring-* */
+.focus-visible\:ring-2:focus-visible,
+button:focus-visible:where([class*="focus-visible:ring"]),
+a:focus-visible:where([class*="focus-visible:ring"]),
+input:focus-visible:where([class*="focus-visible:ring"]) {
+  outline: none;
+}
+
+/* Screen-reader only utility (matches Tailwind sr-only) */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}

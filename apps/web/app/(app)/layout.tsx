@@ -1,9 +1,9 @@
-import type { ReactNode } from 'react'
-import { Button } from '@/components/ui/Button'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { TopBar } from '@/components/layout/TopBar'
+import { Button } from '@/components/ui/Button'
 import { getCurrentUser, getCurrentUserDiagnostic, logout } from '@/lib/auth/actions'
 import { createClient } from '@/lib/supabase/server'
+import type { ReactNode } from 'react'
 
 function initialsOf(parts: (string | null | undefined)[], fallback = '?'): string {
   const tokens = parts
@@ -88,7 +88,9 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
         pendingLocationsCount={pendingLocationsCount}
       />
 
-      <main className="overflow-auto bg-[var(--color-surface)]">{children}</main>
+      <main id="main-content" className="overflow-auto bg-[var(--color-surface)]">
+        {children}
+      </main>
     </div>
   )
 }

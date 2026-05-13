@@ -1,0 +1,121 @@
+export const metadata = {
+  title: 'FAQ — TrackPro Docs',
+}
+
+# ხშირი კითხვები
+
+## ცვლის ავტომატური ფიქსაცია
+
+### Q: რატომ არ იწყება ცვლა, როცა მე ვარ ლოკაციაზე?
+
+შემოწმე:
+
+1. **Location: Always** ნებართვა — Settings → TrackPro → Location → "Always"
+2. **Battery optimization** — Android: TrackPro "Unrestricted"; iOS: Low Power Mode-ი გათიშე
+3. **Trigger radius** — admin-მა ცოტა იპატარავა? ცადე ცენტრში გადასვლა, შემდეგ 30 წამი დარჩი
+4. **GPS accuracy** — შენ ხარ შენობის შიგნით? Indoor accuracy ცუდდება, ცადე გარეთ გასვლა 1-2 წუთით
+
+თუ მაინც არ მუშავდება — **manual start** ღილაკი Home screen-ში (override-ი).
+
+### Q: ცვლა მთავრდება შემთხვევით ლანჩზე გასვლის დროს
+
+გაიარე **Trigger zone**-ის ფარგლები + 60 წამი → ფიქსირდება EXIT. ეს ალბათ Trigger radius ძალიან მცირეა.
+
+გადახედე ლოკაცია → **სამუშაო ზონა** → ცადე Trigger-ი 100მ-დან 200მ-მდე გაზრდა.
+
+### Q: რა ხდება Mock GPS-ის შემთხვევაში?
+
+iOS-ის isFromMockProvider + Android-ის isMock დეტექციით:
+
+- **Block** — ცვლა არ ფიქსირდება
+- Admin-ი იღებს push: "Mock GPS attempt — გიორგი ბერიძე"
+- ფიქსირდება audit log-ში
+- 2+ incident-ი კვირაში → automatic suspension flag-ი
+
+## ბატარეის ეკონომია
+
+### Q: TrackPro ბევრს ჭამს?
+
+Motion-based state machine მუშაობს — chairs-ში GPS გათიშულია. ფაქტობრივად ~5-8% ბატარია ერთი 8-საათიანი workday-სთვის.
+
+თუ უფრო მეტი — შემოწმე:
+
+- Foreground service notification-ი ჯანდარია (Android)
+- სხვა app-ი maybe GPS-ი ღიად აქვს
+
+## Permissions
+
+### Q: შემთხვევით ნებართვა "Never" დავადასტურე
+
+Settings → TrackPro → Location → ცვალე "Always". აპლიკაცია გადატვირთე.
+
+### Q: TrackPro-ი location-ი იღებს როცა app დახურულია — privacy violation?
+
+არა, ეს მოლოდინი ფიქსირდება მხოლოდ **registered work zone-ის** ფარგლებში. გარეთ — GPS read-ი ხდება (Phase 3-Lite-ის OS-level geofencing-ისთვის) მაგრამ მონაცემები არ ფიქსირდება ჩვენს სერვერებში.
+
+ფაქტობრივი policy: [/privacy](/privacy).
+
+## Offline mode
+
+### Q: Network-ი არ იყო — ცვლა ფიქსირდა?
+
+Phase 3-Lite-ში MMKV-backed offline queue-ი მუშავდება:
+
+- GPS event-ი fire-ი ხდება, server-ი ვერ მიხდება
+- Event-ი queue-ში დარჩება (max 200 events)
+- App foreground-ში გადასვლისას ან network-ის დაბრუნებისას → drain queue
+
+ცვლა ფიქსირდება დროითა რომელიც **event fire-ი მოხდა**, არა queue-ის drain-ის დროა.
+
+### Q: 4+ საათი offline ვიყავი — ცვლა გადარჩა?
+
+Queue შენახული 200 event-ი ფიქსირდება. ჩვეულებრივ ცვლისთვის (1 ENTER + 1 EXIT + 10 pings) ეს საკმაო ცოცხალია 1-2 დღით.
+
+## Push notifications
+
+### Q: Push-ი არ მოდის
+
+შემოწმე:
+
+1. iOS: Settings → Notifications → TrackPro → Allow
+2. Android: TrackPro app info → Notifications → ON
+3. **Do Not Disturb** გათიშე
+4. Battery optimization — Unrestricted (Android)
+5. Network-ი ცოცხალია? Push-ი თუ App-ი არ ანახლებს — APNs/FCM გადარეგისტრაცია საჭიროა (Settings-ში logout + login)
+
+## ცვლის ფიქსაცია
+
+### Q: რა ხდება Sunday-ში (off-day-ში) მუშავდები?
+
+ცვლა ფიქსირდება — TrackPro არ აქვს scheduling system v1-ში. Admin-ი ხელით ცდის რომელი ცვლა ფიქსირდება payroll-ისთვის.
+
+Phase 8: Custom shift schedules → schedule-ის გარეთ off-day-ი ფიქსირდება ცალკე category-ში.
+
+### Q: ცვლის შესწავი manual edit შესაძლებელია?
+
+Audit trail-ის გადარჩენისთვის — manual edit *არ* შესაძლებელია employee-ის მიერ. Admin-ი შეუძლია **ცვლის annotation** დაამატოს ("12:30-14:00 ვებერდი client visit") მაგრამ ცვლის boundaries ფიქსირდება auto-data-ით.
+
+## Account management
+
+### Q: ანგარიში წავშალო, რა ხდება?
+
+ბილინგი → **Cancel + Delete** → confirmation. რას ცვლის:
+
+- 30 დღიანი grace period — ანგარიში "soft-deleted"
+- 30 დღის შემდეგ — hard delete, GDPR compliance
+- Financial records — 5 წელი ფიქსირდება (კანონის მოთხოვნა)
+- Backup-ი არსად — ეს არ შესაძლებელია reverse
+
+### Q: ცემი მონაცემები ექსპორტი
+
+ბილინგი → **მონაცემთა ექსპორტი** → JSON.zip → ფიქსირდება 24 საათში მზადდება + downloadable. GDPR Right to Portability-ი.
+
+## შემდეგი ნაბიჯები
+
+- [დაიწყე](/docs/getting-started) — pre-launch checklist
+- [მობილური აპლიკაცია](/docs/mobile-app) — permissions deep dive
+- [ბილინგი](/docs/billing) — plans + invoices
+
+---
+
+ვერ ნახე პასუხი? [hello@trackpro.ge](mailto:hello@trackpro.ge) — 1 სამუშაო დღეში გიპასუხებთ.

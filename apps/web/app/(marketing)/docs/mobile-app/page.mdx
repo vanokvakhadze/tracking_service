@@ -1,0 +1,119 @@
+export const metadata = {
+  title: 'მობილური აპლიკაცია — TrackPro Docs',
+}
+
+# მობილური აპლიკაცია
+
+## ჩამოტვირთვა
+
+- **iOS** — App Store-ში → TrackPro
+- **Android** — Google Play → TrackPro
+
+iOS: 14.0+ უნდა გქონდეს. Android: 8.0 (API 26) ან მაღლა.
+
+## პირველი launch (onboarding)
+
+1. **Welcome** — privacy-friendly intro, რა მონაცემები გროვდება + რად
+2. **Login** — შენი ელფოსტა + პაროლი (კომპანიის admin-მა invite გამოგიგზავნა)
+3. **Permissions** — სამი ცალკე dialog:
+
+### Location: When in Use
+
+iOS პირველად მხოლოდ "When in Use" ცდა მოიწვევს — ეს ნიშნავს რომ აპლიკაცია წაიკითხავს თქვენი location-ი მხოლოდ როცა აპლიკაცია ხსნია/ექსპლიციტურად ცდენ მას. Allow.
+
+### Location: Always
+
+შემდეგი dialog Always permission-ისთვის. **მნიშვნელოვანი** — Phase 3-Lite-ის background tracking-ი მხოლოდ Always-ით მუშაობს. შენი ცვლა აპლიკაცია closed-ში არ ფიქსირდება თუ "When in Use" დატოვე.
+
+**"Change to Always Allow"** → Allow.
+
+### Notifications
+
+Push შეტყობინებები ცვლის events-ისთვის:
+
+- "ცვლა დაიწყო" — როცა geofence-ში გადააბიჯე
+- "ცვლა დასრულდა" — როცა გადახვედი
+- "ახლოს ხართ" — როცა Boundary zone-ში მიდიხარ
+- "Mock GPS გამოვლენილია" — anomaly
+
+Allow.
+
+### Camera (optional)
+
+თუ provisional location-ის მონიშვნას იცდი — საჭიროა. ნებას არ აძლევ — შეგიძლია მერე Settings-დან.
+
+## Android battery optimization
+
+Android Battery Optimizer-ი ცდა MERGE-ი თქვენი აპლიკაცია "doze" mode-ში როცა screen გათიშულია — ეს ბლოკავს background location-ი.
+
+**ცვლის წყობა:**
+
+1. iPhone-ის Settings → Apps → TrackPro → Battery
+2. **"Not optimized" / "Unrestricted"** აირჩიე
+3. გათიშე "Background data" restriction-ი
+
+Samsung-ის ან Xiaomi-ის ცალკე battery saver-ი აქვს — გავიდე **Phone Manager** → **Battery** → TrackPro-ის ცალკე unrestricted permission.
+
+## ცვლის flow
+
+### Auto-start
+
+1. დილით გადიხარ სამუშაოზე
+2. ~500მ-ის რადიუსში → push: "ახლოს ხართ — საქარის ფილ. #2"
+3. შემოდიხარ Trigger zone-ში
+4. 30 წამიანი hysteresis-ი
+5. ✅ push: "ცვლა დაიწყო 09:14"
+6. mobile app-ის Home screen-ზე: dwell timer running
+
+### მუშაობის დროს
+
+Home screen აჩვენებს:
+
+- ცოცხალი ცვლის ხანგრძლივობა (00:24:18)
+- მიმდინარე ლოკაცია
+- ცვლის დასაწყისი დრო
+- "ვტოვებ ლოკაციას" ღილაკი (manual override)
+
+### Auto-end
+
+1. გადიხარ Trigger zone-ის ფარგლებიდან
+2. 60 წამიანი hysteresis
+3. ✅ push: "ცვლა დასრულდა — 8ს 37წ"
+4. mobile app-ის ისტორიაში ცვლა ფიქსირდება
+
+### Manual override
+
+თუ რაიმე გავი — შეგიძლია ცვლა მანუალურად დაასრულო:
+
+- Home screen → **ვტოვებ** ღილაკი → დაადასტურე → ცვლა ფიქსირდება ` user_ended_at` ფლაგით
+
+## "მონიშნე ლოკაცია" — provisional submission
+
+თუ მუშაობ ისეთ ადგილზე, რომელიც ჯერ არ არის registered location:
+
+1. Home → **+ მონიშნე ლოკაცია**
+2. კამერა გაიხსნება — გადაიღე photo (selfie ან building)
+3. GPS auto-fill
+4. Optional name + note
+5. **გადააგზავნე** → admin-ი დაამტკიცებს
+
+ჩვეულებრივ admin response 30 წუთიდან 4 საათამდე ჩერდება (working hours-ში).
+
+## შრომის ისტორია
+
+**ისტორია** tab → ცვლების სია:
+
+- დღევანდელი / გასული 7 დღე / გასული თვე / custom range
+- თითო ცვლის დეტალები: starts at, ends at, total minutes, locations visited
+- ექსპორტი — admin-ის წვდომა მთელი კომპანიის CSV-ისთვის
+
+## ცოცხალი რუკა
+
+**რუკა** tab — ჩემი assigned ლოკაციები + ცოცხალი GPS pin.
+
+Admin-ის ცოცხალი რუკა იხილავს მთელი გუნდის ლოკაციებს — ეს ცალკე **გუნდი** tab-ში.
+
+## შემდეგი ნაბიჯები
+
+- [ლოკაცია + გეოფენსი](/docs/locations) — admin-მა როგორ ქმნის
+- [FAQ](/docs/faq) — Battery, push, offline troubleshooting

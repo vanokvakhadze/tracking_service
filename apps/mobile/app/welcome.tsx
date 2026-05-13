@@ -1,1 +1,3 @@
-export { default } from '@/src/screens/onboarding/WelcomeScreen'
+import WelcomeScreen from '@/src/screens/onboarding/WelcomeScreen'
+
+export default WelcomeScreen
