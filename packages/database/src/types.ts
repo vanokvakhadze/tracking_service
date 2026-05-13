@@ -1165,6 +1165,18 @@ export type Database = {
         | { Args: { table_name: string }; Returns: string }
       enablelongtransactions: { Args: never; Returns: string }
       equals: { Args: { geom1: unknown; geom2: unknown }; Returns: boolean }
+      get_admin_alerts: {
+        Args: { p_since?: string; p_tenant_id: string }
+        Returns: {
+          details: Json | null
+          id: string
+          kind: string
+          occurred_at: string
+          severity: string
+          user_id: string
+          user_name: string
+        }[]
+      }
       geometry: { Args: { "": string }; Returns: unknown }
       geometry_above: {
         Args: { geom1: unknown; geom2: unknown }
