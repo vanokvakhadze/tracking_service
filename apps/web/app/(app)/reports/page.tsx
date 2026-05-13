@@ -1,9 +1,9 @@
-import { AlertTriangle, Clock, MapPin, Route } from 'lucide-react'
-import { redirect } from 'next/navigation'
 import { SubHeader } from '@/components/layout/SubHeader'
-import { Button } from '@/components/ui/Button'
+import { ExportButton } from '@/components/reports/ExportButton'
 import { MetricCard } from '@/components/reports/MetricCard'
 import { getCurrentUser } from '@/lib/auth/actions'
+import { AlertTriangle, Clock, MapPin, Route } from 'lucide-react'
+import { redirect } from 'next/navigation'
 
 export const dynamic = 'force-dynamic'
 
@@ -31,7 +31,7 @@ export default async function ReportsPage() {
         actions={
           <>
             <DateRangeStub />
-            <Button variant="secondary">CSV ექსპორტი</Button>
+            <ExportButton />
           </>
         }
       />

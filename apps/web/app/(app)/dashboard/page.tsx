@@ -1,6 +1,7 @@
 import { Activity, MapPin, Route, Users } from 'lucide-react'
-import { SubHeader } from '@/components/layout/SubHeader'
+import { LiveShiftsCard, type LiveShift } from '@/components/dashboard/LiveShiftsCard'
 import { DashboardLiveMap } from '@/components/dashboard/DashboardLiveMap'
+import { SubHeader } from '@/components/layout/SubHeader'
 import type { LocationRow } from '@/components/locations/types'
 import { MetricCard } from '@/components/reports/MetricCard'
 import { getCurrentUser } from '@/lib/auth/actions'
@@ -8,24 +9,64 @@ import { createClient } from '@/lib/supabase/server'
 
 export const dynamic = 'force-dynamic'
 
+interface ShiftUser {
+  first_name: string | null
+  last_name: string | null
+  email: string | null
+}
+
+interface ShiftRow {
+  id: string
+  user_id: string
+  started_at: string
+  user: ShiftUser | ShiftUser[] | null
+}
+
 export default async function DashboardPage() {
   const user = await getCurrentUser()
   const tenant = user?.memberships?.find((m) => m.is_active)?.tenant
 
   const supabase = await createClient()
   let locations: LocationRow[] = []
+  let initialShifts: LiveShift[] = []
+
   if (tenant?.id) {
-    const { data } = await supabase
-      .from('locations')
-      .select('id, name, category, address, latitude, longitude, radius_m, is_active, created_at')
-      .eq('tenant_id', tenant.id)
-      .is('deleted_at', null)
-      .order('created_at', { ascending: false })
-      .overrideTypes<LocationRow[], { merge: false }>()
-    locations = data ?? []
+    const [{ data: locationRows }, { data: shiftRows }] = await Promise.all([
+      supabase
+        .from('locations')
+        .select('id, name, category, address, latitude, longitude, radius_m, is_active, created_at')
+        .eq('tenant_id', tenant.id)
+        .is('deleted_at', null)
+        .order('created_at', { ascending: false })
+        .overrideTypes<LocationRow[], { merge: false }>(),
+      supabase
+        .from('shifts')
+        .select('id, user_id, started_at, user:users(first_name, last_name, email)')
+        .eq('tenant_id', tenant.id)
+        .eq('status', 'active')
+        .order('started_at', { ascending: false }),
+    ])
+
+    locations = locationRows ?? []
+    initialShifts =
+      (shiftRows as ShiftRow[] | null | undefined)?.map((row) => {
+        const userRow = Array.isArray(row.user) ? row.user[0] : row.user
+        const userName =
+          [userRow?.first_name, userRow?.last_name].filter(Boolean).join(' ') ||
+          userRow?.email ||
+          '—'
+
+        return {
+          id: row.id,
+          user_id: row.user_id,
+          user_name: userName,
+          started_at: row.started_at,
+          location_name: null,
+        }
+      }) ?? []
   }
 
-  const activeLocations = locations.filter((l) => l.is_active).length
+  const activeLocations = locations.filter((location) => location.is_active).length
 
   const now = new Date()
   const formatter = new Intl.DateTimeFormat('ka-GE', {
@@ -56,7 +97,7 @@ export default async function DashboardPage() {
         </div>
 
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.55fr_1fr]">
-          <div className="rounded-[10px] border border-[var(--color-border)] bg-white overflow-hidden">
+          <div className="overflow-hidden rounded-[10px] border border-[var(--color-border)] bg-white">
             <div className="flex items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-surface)] px-5 py-3">
               <h2 className="text-[14px] font-bold text-[var(--color-text-primary)]">
                 ცოცხალი რუკა
@@ -68,23 +109,14 @@ export default async function DashboardPage() {
             <DashboardLiveMap locations={locations} />
           </div>
 
-          <div className="rounded-[10px] border border-[var(--color-border)] bg-white">
+          <div className="overflow-hidden rounded-[10px] border border-[var(--color-border)] bg-white">
             <div className="flex items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-surface)] px-5 py-3">
               <h2 className="text-[14px] font-bold text-[var(--color-text-primary)]">
                 აქტიური მომხმარებლები
               </h2>
               <p className="text-[11px] text-[var(--color-text-tertiary)]">0 / 0</p>
             </div>
-            <div className="h-[360px] grid place-items-center text-center px-6">
-              <div>
-                <p className="text-[13px] text-[var(--color-text-secondary)]">
-                  ჯერ ცვლები არ არის.
-                </p>
-                <p className="mt-1 text-[12px] text-[var(--color-text-tertiary)]">
-                  Phase 3 — mobile app ცვლების დაწყების შემდეგ აქ გამოჩნდება.
-                </p>
-              </div>
-            </div>
+            <LiveShiftsCard tenantId={tenant?.id ?? ''} initialShifts={initialShifts} />
           </div>
         </div>
       </main>
