@@ -28,6 +28,7 @@ import { createClient } from 'jsr:@supabase/supabase-js@2'
 interface EventPayload {
   location_id: string
   event_type: 'enter' | 'exit'
+  zone?: 'trigger' | 'boundary' // omitted → trigger (back-compat with v1 clients)
   latitude: number
   longitude: number
   accuracy_m: number | null
@@ -112,6 +113,7 @@ Deno.serve(async (req) => {
   }
 
   const wktPoint = `SRID=4326;POINT(${payload.longitude} ${payload.latitude})`
+  const zone: 'trigger' | 'boundary' = payload.zone === 'boundary' ? 'boundary' : 'trigger'
 
   // 5) Insert the raw event. coords is a geography column; supabase-js types
   //    it as `unknown`, so we cast at the boundary.
@@ -120,6 +122,7 @@ Deno.serve(async (req) => {
     user_id: user.id,
     location_id: location.id,
     event_type: payload.event_type,
+    zone,
     coords: wktPoint as unknown as never,
     accuracy_m: payload.accuracy_m ?? null,
     occurred_at: payload.occurred_at,
@@ -150,16 +153,50 @@ Deno.serve(async (req) => {
     })
   }
 
-  // 8) Auto-open / auto-close the shift.
+  // 8) Boundary-zone events don't move shift state — they only notify.
+  if (zone === 'boundary') {
+    if (payload.event_type === 'enter') {
+      await notifyUser(supabase, user.id, {
+        title: 'ახლოს ხართ',
+        body: location.name
+          ? `${location.name} — სამუშაო ზონაში შემოხვედით`
+          : 'სამუშაო ზონაში შემოხვედით',
+        data: { kind: 'approaching', location_id: location.id },
+      })
+    } else {
+      await notifyTenantAdmins(supabase, location.tenant_id, {
+        title: 'სამუშაო ზონიდან გასვლა',
+        body: `${user.email ?? 'employee'} — ${location.name ?? 'ლოკაცია'}`,
+        data: { kind: 'out_of_zone', user_id: user.id, location_id: location.id },
+      })
+    }
+    return new Response(JSON.stringify({ ok: true, zone }), {
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+
+  // 9) Trigger-zone events: drain any shifts whose 60-second exit timer
+  //    has elapsed before we make new decisions. This is the "drain" step
+  //    that lets the server commit closes without pg_cron.
+  await supabase.rpc('finalize_pending_shifts')
+
+  // 10) Auto-open / cancel-pending-close / start-pending-close.
+  const EXIT_HYSTERESIS_MS = 60_000
+
   if (payload.event_type === 'enter') {
     const { data: openShift } = await supabase
       .from('shifts')
-      .select('id')
+      .select('id, pending_close_at')
       .eq('user_id', user.id)
       .eq('status', 'active')
       .maybeSingle()
 
-    if (!openShift) {
+    if (openShift) {
+      // Re-entry inside the 60s window — cancel the pending close.
+      if (openShift.pending_close_at) {
+        await supabase.from('shifts').update({ pending_close_at: null }).eq('id', openShift.id)
+      }
+    } else {
       const { data: newShift } = await supabase
         .from('shifts')
         .insert({
@@ -181,34 +218,29 @@ Deno.serve(async (req) => {
       }
     }
   } else {
-    // exit
+    // exit — schedule the close 60s out, don't commit yet
     const { data: openShift } = await supabase
       .from('shifts')
-      .select('id, started_at')
+      .select('id, pending_close_at')
       .eq('user_id', user.id)
       .eq('status', 'active')
       .maybeSingle()
 
-    if (openShift) {
+    if (openShift && !openShift.pending_close_at) {
+      const pendingCloseAt = new Date(
+        new Date(payload.occurred_at).getTime() + EXIT_HYSTERESIS_MS,
+      ).toISOString()
       await supabase
         .from('shifts')
         .update({
-          status: 'completed',
-          ended_at: payload.occurred_at,
+          pending_close_at: pendingCloseAt,
           end_location: wktPoint as unknown as never,
         })
         .eq('id', openShift.id)
-
-      const minutes = Math.round(
-        (new Date(payload.occurred_at).getTime() - new Date(openShift.started_at).getTime()) /
-          60000,
-      )
-      await notifyUser(supabase, user.id, {
-        title: 'ცვლა დასრულდა',
-        body: `${Math.floor(minutes / 60)}ს ${minutes % 60}წ`,
-        data: { kind: 'shift_ended', shift_id: openShift.id },
-      })
     }
+    // If openShift already has pending_close_at, we don't move the timer
+    // forward — the first EXIT wins. A re-ENTER cancels; otherwise the
+    // next finalize_pending_shifts call commits the close.
   }
 
   return new Response(JSON.stringify({ ok: true }), {

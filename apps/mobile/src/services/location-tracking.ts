@@ -15,6 +15,7 @@
 import Constants from 'expo-constants'
 import * as Location from 'expo-location'
 import * as TaskManager from 'expo-task-manager'
+import { type QueuedEvent, enqueueEvent, flushQueue } from './event-queue'
 import { supabase } from './supabase'
 
 export const GEOFENCE_TASK = 'trackpro.geofence.event'
@@ -41,16 +42,14 @@ if (!isExpoGo) {
 
     // identifier shape: <locationId>:<trigger|boundary>
     const identifier = data.region.identifier ?? ''
-    const [locationId, zone] = identifier.split(':')
+    const [locationId, rawZone] = identifier.split(':')
     if (!locationId) return
-
-    // For v1 we only act on the trigger zone (shift start/end).
-    // Boundary-zone events feed into alerts but don't change shift state.
-    if (zone !== 'trigger') return
+    const zone: 'trigger' | 'boundary' = rawZone === 'boundary' ? 'boundary' : 'trigger'
 
     await postEvent({
       location_id: locationId,
       event_type: eventType,
+      zone,
       latitude: data.region.latitude,
       longitude: data.region.longitude,
       accuracy_m: 'radius' in data.region ? (data.region.radius ?? null) : null,
@@ -59,21 +58,11 @@ if (!isExpoGo) {
   })
 }
 
-interface PostEventInput {
-  location_id: string
-  event_type: 'enter' | 'exit'
-  latitude: number
-  longitude: number
-  accuracy_m: number | null
-  occurred_at: string
-  is_mock?: boolean
-  battery_percent?: number
-  speed_mps?: number
-}
+type PostEventInput = QueuedEvent
 
-async function postEvent(input: PostEventInput) {
+async function sendEvent(event: QueuedEvent): Promise<boolean> {
   const url = process.env.EXPO_PUBLIC_SUPABASE_URL
-  if (!url) return
+  if (!url) return false
 
   // supabase-js hydrates the session from SecureStore on first call, which
   // works even from inside a TaskManager wake-up because SecureStore is a
@@ -81,21 +70,42 @@ async function postEvent(input: PostEventInput) {
   const {
     data: { session },
   } = await supabase.auth.getSession()
-  if (!session?.access_token) return
+  if (!session?.access_token) return false
 
   try {
-    await fetch(`${url}/functions/v1/geofence-event`, {
+    const res = await fetch(`${url}/functions/v1/geofence-event`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${session.access_token}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(input),
+      body: JSON.stringify(event),
     })
-  } catch (err) {
-    // OS will replay events when the device wakes; swallow transient errors.
-    console.error('[geofence-task] post failed', err)
+    // 5xx → retry later; 4xx → drop (likely bad payload from old client)
+    if (res.status >= 500) return false
+    return true
+  } catch {
+    return false
   }
+}
+
+async function postEvent(input: PostEventInput) {
+  // Drain any pending events first so the order on the server reflects
+  // the order they fired on the device.
+  await flushQueue(sendEvent)
+
+  const ok = await sendEvent(input)
+  if (!ok) {
+    enqueueEvent(input)
+  }
+}
+
+/**
+ * Public hook for app-level retries — call on app foreground.
+ * No-op when the queue is empty or storage is unavailable (Expo Go).
+ */
+export async function flushPendingEvents(): Promise<void> {
+  await flushQueue(sendEvent)
 }
 
 /** True when the OS-level region monitoring + background updates are available. */

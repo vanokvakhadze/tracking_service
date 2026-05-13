@@ -1,9 +1,14 @@
 import { syncTenantGeofences } from '@/src/services/geofence-sync'
-import { isTrackingAvailable, stopGeofencing } from '@/src/services/location-tracking'
+import {
+  flushPendingEvents,
+  isTrackingAvailable,
+  stopGeofencing,
+} from '@/src/services/location-tracking'
 import { registerPushToken } from '@/src/services/push-tokens'
 import { supabase } from '@/src/services/supabase'
 import * as Location from 'expo-location'
 import { useEffect } from 'react'
+import { AppState } from 'react-native'
 
 /**
  * One-shot bootstrap for Phase 3-Lite background tracking. Runs once after
@@ -38,6 +43,7 @@ export function useTrackingBootstrap(enabled: boolean) {
 
       await registerPushToken()
       await syncTenantGeofences()
+      await flushPendingEvents()
     })()
 
     const channel = supabase
@@ -47,9 +53,19 @@ export function useTrackingBootstrap(enabled: boolean) {
       })
       .subscribe()
 
+    // Drain the offline event queue whenever the user brings the app to the
+    // foreground (after being backgrounded for a while, network may now be
+    // available even though geofence events fired offline).
+    const appStateSub = AppState.addEventListener('change', (state) => {
+      if (state === 'active') {
+        void flushPendingEvents()
+      }
+    })
+
     return () => {
       alive = false
       void supabase.removeChannel(channel)
+      appStateSub.remove()
     }
   }, [enabled])
 

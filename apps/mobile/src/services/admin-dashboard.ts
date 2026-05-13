@@ -32,6 +32,12 @@ export async function fetchAdminSnapshot(): Promise<AdminSnapshot> {
   const tenantId = await resolveActiveTenantId()
   if (!tenantId) return { activeShifts: [], totalMembers: 0 }
 
+  // Drain any shifts whose 60s exit timer has elapsed without a re-entry.
+  // Cheap (touches only shifts with pending_close_at via partial index).
+  // RPC is added in migration 15 — drop the cast after `pnpm db:types`.
+  // biome-ignore lint/suspicious/noExplicitAny: see comment above
+  await (supabase.rpc as any)('finalize_pending_shifts')
+
   const [{ count }, { data: shiftRows }] = await Promise.all([
     supabase
       .from('tenant_memberships')
