@@ -1,9 +1,10 @@
-import { Feather } from '@expo/vector-icons'
-import { useEffect, useState } from 'react'
-import { FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
 import { useAdminSnapshot } from '@/src/hooks/use-admin-snapshot'
 import type { AdminShift } from '@/src/services/admin-dashboard'
+import { Feather } from '@expo/vector-icons'
+import { router } from 'expo-router'
+import { useEffect, useState } from 'react'
+import { FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 const KAYA = {
   bg: '#FFFFFF',
@@ -47,7 +48,17 @@ export default function AdminDashboard() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} />}
         ListHeaderComponent={
           <View style={styles.header}>
-            <Text style={styles.title}>დაშბორდი</Text>
+            <View style={styles.titleRow}>
+              <Text style={styles.title}>დაშბორდი</Text>
+              <TouchableOpacity
+                style={styles.addBtn}
+                onPress={() => router.push('/admin-create-location')}
+                activeOpacity={0.85}
+              >
+                <Feather name="plus" size={16} color="#FFF" />
+                <Text style={styles.addBtnText}>ლოკაცია</Text>
+              </TouchableOpacity>
+            </View>
             <View style={styles.hero}>
               <Text style={styles.heroLabel}>ცოცხალი სტატუსი</Text>
               <Text style={styles.heroValue}>
@@ -136,7 +147,18 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: KAYA.surface },
   list: { padding: 16, gap: 12, paddingBottom: 28 },
   header: { gap: 12 },
+  titleRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   title: { fontSize: 28, fontWeight: '700', color: KAYA.textPrimary },
+  addBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: KAYA.accent,
+    paddingHorizontal: 14,
+    paddingVertical: 9,
+    borderRadius: 10,
+  },
+  addBtnText: { color: '#FFF', fontWeight: '700', fontSize: 13 },
 
   hero: {
     backgroundColor: KAYA.accent,

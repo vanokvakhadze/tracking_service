@@ -26,6 +26,10 @@ export default function RootLayout() {
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
           <Stack.Screen name="mark" options={{ presentation: 'modal', title: 'მონიშვნა' }} />
+          <Stack.Screen
+            name="admin-create-location"
+            options={{ presentation: 'modal', title: 'ლოკაცია' }}
+          />
         </Stack.Protected>
         <Stack.Protected guard={authedNeedsOnboarding}>
           <Stack.Screen name="welcome" />
