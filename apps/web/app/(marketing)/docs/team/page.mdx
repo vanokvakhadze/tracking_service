@@ -1,0 +1,99 @@
+export const metadata = {
+  title: 'გუნდი + როლები — TrackPro Docs',
+}
+
+# გუნდი + როლები
+
+## როლები
+
+TrackPro-ში სამი role-ია:
+
+| Role | რას ხედავს | რა შეუძლია |
+|------|----------|----------|
+| **employee** | მხოლოდ თავის ცვლას | ცვლის ისტორია, profile, mobile-ში მუშაობს |
+| **tenant_admin** | მთელი კომპანიის მონაცემები | ლოკაცია CRUD, თანამშრომელთა invite, რეპორტი, ბილინგი |
+| **super_admin** | ყველა tenant (platform-wide) | მხოლოდ Sazeo platform-ისთვის. ჩვეულებრივ tenant-ში არ მინიჭდება |
+
+## თანამშრომლის invite
+
+**გუნდი** ნავიგაცია → **+ თანამშრომელი**:
+
+1. **ელფოსტა** — invite link მიდის აქ
+2. **Role** — employee / tenant_admin
+3. **Employee code** (optional) — შიდა ID, ბადჯი ნომერი
+4. **+ მოწვევა**
+
+Invite link 7 დღე გრძელდება. თუ ვადა გავიდა — **გადასაგზავნი** ღილაკი.
+
+## თანამშრომელი მიერთდება
+
+თანამშრომელი:
+
+1. იღებს ელფოსტას — "TrackPro-ში მოგიწვიეს"
+2. Click link → /accept-invite/[token] → შექმნის პაროლს
+3. Auto-login → onboarding flow → მობილური აპლიკაცია
+
+## Role-ის ცვლა
+
+**გუნდი** → ღილაკი მონაცემზე → **role** dropdown → ცვალე.
+
+> ⚠️ **ერთი admin-ი მაინც სჭირდება** — ბოლო admin-ის demotion-ი იბლოკება.
+
+## Deactivate / re-activate
+
+თანამშრომელი წავიდა? **გუნდი** → **deactivate**. რას ცვლის:
+
+- მისი mobile app-ი log-out-ხდება
+- Background tracking ჩერდება
+- ცვლის ისტორია რჩება (audit trail)
+- ხელახლა შემოყვანის შემთხვევაში — re-activate, ისტორია გაგრძელდება
+
+## Audit trail
+
+ყველა მნიშვნელოვანი action ფიქსირდება:
+
+- ლოკაციის შექმნა / რედაქტირება / წაშლა
+- Role-ის ცვლა
+- Provisional location-ის approve/reject
+- Mock GPS attempt-ი
+
+ეს ხილვადია **Audit log** გვერდზე (tenant-level) ან super_admin-ის Platform Audit Log-ში.
+
+## Employee permissions (mobile)
+
+თანამშრომელი **ვერ** ქმნის ლოკაციას admin-ის approval-ის გარეშე. შეუძლია მხოლოდ:
+
+- ნახოს მის მიერ assigned ლოკაცია რუკაზე
+- დაიწყოს / დაასრულოს ცვლა (auto-tracking-ით)
+- "მონიშნე ლოკაცია" გადააგზავნოს ფოტოთი admin-ის approval-ისთვის
+- profile + ისტორია
+
+## Admin permissions (mobile)
+
+Mobile admin-ი იღებს ცალკე tab-bar:
+
+- **დაშბორდი** — ცოცხალი ცვლები + ლოკაციის შექმნის CTA
+- **გუნდი** — თანამშრომელთა live map ან list
+- **ალერტი** — Mock GPS, ბატარეის low, out-of-zone notifications
+- **+ ლოკაცია** — admin location create (instant active)
+- **მოლოდინში** — provisional location-ის approve/reject
+
+## Tenant-ის შეცვლა
+
+ერთი თანამშრომელი შეიძლება იყოს რამდენიმე tenant-ის წევრი (consultant-ი მაგ. ხშირად). თუმცა **ერთ დროს მხოლოდ ერთი** tenant-ი არის "active" — ეს გადასატანი ფსიქოლოგია mobile app-ში TopBar-დან.
+
+## Super admin role
+
+Sazeo platform-ის admin-ი (sazeo.io). Cross-tenant წვდომა:
+
+- ხედავს ყველა tenant-ს
+- ცვლის billing manually
+- Impersonate-ი ნებისმიერი employee-ის (audit log-ი ფიქსირდება!)
+- Mock GPS pattern-ის ანალიზი მთელ პლატფორმაზე
+
+Tenant-ის admin **ვერ ხედავს** super_admin functionality-ს — ცალკე `(super-admin)/platform/` route group-ში არის.
+
+## შემდეგი ნაბიჯები
+
+- [ბილინგი](/docs/billing) — plan-ის ცვლა + invoice
+- [FAQ](/docs/faq) — ხშირი troubleshooting

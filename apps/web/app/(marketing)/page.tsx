@@ -345,6 +345,7 @@ function Footer() {
         <FooterCol
           title="დახმარება"
           links={[
+            ['დოკუმენტაცია', '/docs'],
             ['შესვლა', '/login'],
             ['რეგისტრაცია', '/signup'],
           ]}

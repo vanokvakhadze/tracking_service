@@ -21,6 +21,12 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
             ფასები
           </Link>
           <Link
+            href="/docs"
+            className="text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
+          >
+            დოკუმენტაცია
+          </Link>
+          <Link
             href="/login"
             className="text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
           >
