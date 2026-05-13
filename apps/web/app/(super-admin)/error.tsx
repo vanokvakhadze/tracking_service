@@ -1,5 +1,6 @@
 'use client'
 
+import * as Sentry from '@sentry/nextjs'
 import { AlertTriangle, RefreshCw } from 'lucide-react'
 import { useEffect } from 'react'
 
@@ -11,6 +12,7 @@ export default function SuperAdminError({
   reset: () => void
 }) {
   useEffect(() => {
+    Sentry.captureException(error)
     console.error('[SuperAdminError]', error)
   }, [error])
 

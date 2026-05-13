@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048" role="img" aria-label="TrackPro splash">
+  <!-- Splash background matches app.json splash backgroundColor: white. -->
+  <rect x="0" y="0" width="2048" height="2048" fill="#FFFFFF" />
+
+  <!-- Centred icon at 40% of canvas. -->
+  <g transform="translate(512 512) scale(1)">
+    <rect x="0" y="0" width="1024" height="1024" rx="224" ry="224" fill="#1565C0" />
+    <g fill="#FFFFFF">
+      <path d="
+        M 512 220
+        C 364 220 248 336 248 484
+        C 248 632 392 760 480 836
+        C 498 853 526 853 544 836
+        C 632 760 776 632 776 484
+        C 776 336 660 220 512 220
+        Z
+      " />
+      <circle cx="512" cy="478" r="92" fill="#1565C0" />
+    </g>
+  </g>
+</svg>

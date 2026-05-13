@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="TrackPro">
+  <!-- Background: rounded blue square. Corner radius matches iOS/Android adaptive icon mask. -->
+  <rect x="0" y="0" width="1024" height="1024" rx="224" ry="224" fill="#1565C0" />
+
+  <!-- Pin glyph centred at (512, 478). Stroke-less white silhouette so the
+       Android monochrome mask and iOS render both look identical. -->
+  <g fill="#FFFFFF">
+    <!-- Pin teardrop -->
+    <path d="
+      M 512 220
+      C 364 220 248 336 248 484
+      C 248 632 392 760 480 836
+      C 498 853 526 853 544 836
+      C 632 760 776 632 776 484
+      C 776 336 660 220 512 220
+      Z
+    " />
+    <!-- Inner cutout for the dot — uses fill-rule:evenodd via separate circle in body -->
+    <circle cx="512" cy="478" r="92" fill="#1565C0" />
+  </g>
+</svg>
