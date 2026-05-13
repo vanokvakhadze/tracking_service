@@ -4,7 +4,6 @@ import { clsx } from 'clsx'
 import {
   BarChart3,
   Bell,
-  CreditCard,
   Inbox,
   LayoutDashboard,
   MapIcon,
@@ -31,7 +30,9 @@ function getNavItems(pendingLocationsCount: number): NavItem[] {
     { href: '/users', label: 'მომხმარებლები', icon: Users },
     { href: '/reports', label: 'რეპორტები', icon: BarChart3 },
     { href: '/alerts', label: 'ალერტი', icon: Bell, badge: 3 },
-    { href: '/billing', label: 'გადახდები', icon: CreditCard },
+    // Billing is intentionally hidden until task.045 wires up Stripe. The
+    // /billing route still renders a "coming soon" page if linked directly.
+    // { href: '/billing', label: 'გადახდები', icon: CreditCard },
     { href: '/settings', label: 'პარამეტრები', icon: Settings },
   ]
 }

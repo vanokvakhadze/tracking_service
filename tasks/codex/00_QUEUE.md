@@ -82,11 +82,20 @@ Phase 3 mobile (SDK-free) was executed by Claude (onboarding · home · map · h
 
 ---
 
-## Phase 5+ tasks
+## Phase 5 — Billing (Stripe)
+
+Code already in repo (commits 42b2930, 54f54ec, 33565dc, 41d8f40). UI ships in **preview-only** mode for v1 — `/billing` shows plan info but checkout buttons are disabled. Task below activates the live flow.
+
+| # | Task | Type | Status | Depends on |
+|---|------|------|--------|-----------|
+| 045 | Activate Stripe billing (sidebar + live /billing + Stripe setup) | 🤖 + 👤 | ☐ | Stripe account |
+
+---
+
+## Phase 6+ tasks
 
 Briefs not yet written. Phases:
 
-- Phase 5 (Billing — Stripe + subscriptions) — see `tasks/06_PHASE_BILLING.md`
 - Phase 6 (Super Admin) — see `tasks/07_PHASE_SUPER_ADMIN.md`
 - Phase 7 (Polish + Launch — Vercel deploy + Sentry + CI gates) — see `tasks/08_PHASE_POLISH.md`
 - Phase 3 SDK-required (transistorsoft license, geofence Edge Function, push, navigation, mock GPS, offline) — see `tasks/04_PHASE_MOBILE_EMPLOYEE.md` tasks 3.2–3.5, 3.9, 3.10, 3.12, 3.13. **Blocked on $580 license.**
