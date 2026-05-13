@@ -38,6 +38,11 @@ export default function RootLayout() {
             name="work-zone/[id]"
             options={{ presentation: 'modal', title: 'სამუშაო ზონა' }}
           />
+          <Stack.Screen
+            name="approve-location/index"
+            options={{ presentation: 'modal', title: 'მოლოდინში' }}
+          />
+          <Stack.Screen name="approve-location/[id]" options={{ title: 'მოთხოვნის განხილვა' }} />
         </Stack.Protected>
         <Stack.Protected guard={authedNeedsOnboarding}>
           <Stack.Screen name="welcome" />

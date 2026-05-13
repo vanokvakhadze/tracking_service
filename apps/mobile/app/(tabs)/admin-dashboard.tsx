@@ -1,5 +1,6 @@
 import { useAdminSnapshot } from '@/src/hooks/use-admin-snapshot'
 import type { AdminShift } from '@/src/services/admin-dashboard'
+import { fetchPendingSubmissions } from '@/src/services/provisional-admin'
 import { Feather } from '@expo/vector-icons'
 import { router } from 'expo-router'
 import { useEffect, useState } from 'react'
@@ -29,6 +30,7 @@ const AVATAR_TONES = [
 export default function AdminDashboard() {
   const { snapshot, loading, refreshing, refresh } = useAdminSnapshot()
   const [tick, setTick] = useState(0)
+  const [pendingCount, setPendingCount] = useState(0)
   const activeShifts = snapshot?.activeShifts ?? []
   const totalMembers = snapshot?.totalMembers ?? 0
 
@@ -36,6 +38,11 @@ export default function AdminDashboard() {
     const interval = setInterval(() => setTick((value) => value + 1), 30000)
     return () => clearInterval(interval)
   }, [])
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: refetch count when admin pulls to refresh
+  useEffect(() => {
+    fetchPendingSubmissions().then((rows) => setPendingCount(rows.length))
+  }, [refreshing])
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -66,6 +73,24 @@ export default function AdminDashboard() {
               </Text>
               <Text style={styles.heroSub}>{todayLabel()}</Text>
             </View>
+            {pendingCount > 0 && (
+              <TouchableOpacity
+                style={styles.pendingBanner}
+                onPress={() => router.push('/approve-location')}
+                activeOpacity={0.85}
+              >
+                <View style={styles.pendingIcon}>
+                  <Feather name="inbox" size={18} color="#A16207" />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.pendingTitle}>
+                    {pendingCount} მოლოდინი {pendingCount === 1 ? 'მოთხოვნა' : 'მოთხოვნა'}
+                  </Text>
+                  <Text style={styles.pendingSubtitle}>თანამშრომელთა მონიშნული ლოკაციები</Text>
+                </View>
+                <Feather name="chevron-right" size={18} color="#A16207" />
+              </TouchableOpacity>
+            )}
             <Text style={styles.sectionTitle}>ცოცხალი ცვლა</Text>
           </View>
         }
@@ -159,6 +184,28 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   addBtnText: { color: '#FFF', fontWeight: '700', fontSize: 13 },
+
+  pendingBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: '#FEFCE8',
+    borderColor: '#FDE68A',
+    borderWidth: 1,
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+  },
+  pendingIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: '#FEF3C7',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pendingTitle: { fontSize: 14, fontWeight: '700', color: '#92400E' },
+  pendingSubtitle: { fontSize: 12, color: '#A16207', marginTop: 2 },
 
   hero: {
     backgroundColor: KAYA.accent,
