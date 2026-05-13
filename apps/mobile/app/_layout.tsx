@@ -34,6 +34,10 @@ export default function RootLayout() {
             name="admin-location-form"
             options={{ presentation: 'modal', title: 'ლოკაცია — დეტალები' }}
           />
+          <Stack.Screen
+            name="work-zone/[id]"
+            options={{ presentation: 'modal', title: 'სამუშაო ზონა' }}
+          />
         </Stack.Protected>
         <Stack.Protected guard={authedNeedsOnboarding}>
           <Stack.Screen name="welcome" />
