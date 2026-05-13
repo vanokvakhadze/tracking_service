@@ -1,6 +1,8 @@
 import { redirect } from 'next/navigation'
 import { SubHeader } from '@/components/layout/SubHeader'
+import { BillingPortalCard } from '@/components/billing/BillingPortalCard'
 import { CurrentPlanCard } from '@/components/billing/CurrentPlanCard'
+import { TrialBanner } from '@/components/billing/TrialBanner'
 import { getCurrentUser } from '@/lib/auth/actions'
 import { createClient } from '@/lib/supabase/server'
 
@@ -98,15 +100,8 @@ export default async function BillingPage({ searchParams }: BillingPageProps) {
           trialEndsAt={tenant.trial_ends_at}
         />
 
-        <div className="rounded-[10px] border border-[var(--color-border)] bg-white p-6">
-          <h2 className="text-[14px] font-bold text-[var(--color-text-primary)]">
-            ანგარიშები + Stripe portal
-          </h2>
-          <p className="mt-1 text-[13px] text-[var(--color-text-secondary)]">
-            გადახდის მეთოდის ცვლილება, ანგარიშების ნახვა, სუბსკრიფციის გაუქმება — Stripe-ის
-            self-service პორტალში. ჩაერთვება ჩანქ 3-ში.
-          </p>
-        </div>
+        <BillingPortalCard />
+        <TrialBanner status={tenant.subscription_status} trialEndsAt={tenant.trial_ends_at} />
       </main>
     </>
   )
