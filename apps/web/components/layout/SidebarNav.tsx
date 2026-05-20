@@ -1,15 +1,7 @@
 'use client'
 
 import { clsx } from 'clsx'
-import {
-  BarChart3,
-  Bell,
-  LayoutDashboard,
-  MapIcon,
-  MapPin,
-  Settings,
-  Users,
-} from 'lucide-react'
+import { BarChart3, Bell, LayoutDashboard, MapIcon, MapPin, Settings, Users } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 

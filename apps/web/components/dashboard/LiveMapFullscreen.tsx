@@ -99,18 +99,16 @@ export function LiveMapFullscreen({ tenantId, locations, initialShifts }: Props)
 
       <aside className="border-l border-[var(--color-border)] bg-white overflow-y-auto">
         <div className="border-b border-[var(--color-border)] bg-[var(--color-surface)] px-5 py-3">
-          <h2 className="text-[13px] font-bold text-[var(--color-text-primary)]">
-            აქტიური ცვლები
-          </h2>
-          <p className="text-[11px] text-[var(--color-text-tertiary)]">{shifts.length} თანამშრომელი</p>
+          <h2 className="text-[13px] font-bold text-[var(--color-text-primary)]">აქტიური ცვლები</h2>
+          <p className="text-[11px] text-[var(--color-text-tertiary)]">
+            {shifts.length} თანამშრომელი
+          </p>
         </div>
 
         {shifts.length === 0 ? (
           <div className="grid place-items-center p-10 text-center">
             <div>
-              <p className="text-[13px] text-[var(--color-text-secondary)]">
-                ჯერ ცვლები არ არის.
-              </p>
+              <p className="text-[13px] text-[var(--color-text-secondary)]">ჯერ ცვლები არ არის.</p>
               <p className="mt-1 text-[12px] text-[var(--color-text-tertiary)]">
                 მობილური აპლიკაციით ცვლის დაწყების შემდეგ აქ ცოცხლად გამოჩნდება.
               </p>
