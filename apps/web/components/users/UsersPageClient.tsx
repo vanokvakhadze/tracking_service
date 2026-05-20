@@ -1,26 +1,29 @@
 'use client'
 
-import { Plus, Search } from 'lucide-react'
+import { FileUp, Plus, Search } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { SubHeader } from '@/components/layout/SubHeader'
 import { Button } from '@/components/ui/Button'
-import type { MembershipRow } from './types'
+import { BulkInviteDialog } from './BulkInviteDialog'
 import { InviteUserDialog } from './InviteUserDialog'
+import type { MembershipRow } from './types'
 import { UsersTable } from './UsersTable'
 
 type StatusFilter = 'all' | 'active' | 'suspended' | 'pending'
 
 interface UsersPageClientProps {
   initialRows: MembershipRow[]
+  canBulkInvite?: boolean
 }
 
-export function UsersPageClient({ initialRows }: UsersPageClientProps) {
+export function UsersPageClient({ initialRows, canBulkInvite = false }: UsersPageClientProps) {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
   const [search, setSearch] = useState('')
   const [inviteOpen, setInviteOpen] = useState(false)
+  const [bulkOpen, setBulkOpen] = useState(false)
 
   const filtered = useMemo(() => {
-    if (statusFilter === 'pending') return [] // pending invites tracked separately, surfaced in v2
+    if (statusFilter === 'pending') return []
     const q = search.trim().toLowerCase()
     return initialRows.filter((row) => {
       const active = row.is_active === true
@@ -41,7 +44,7 @@ export function UsersPageClient({ initialRows }: UsersPageClientProps) {
       all: initialRows.length,
       active: initialRows.filter((r) => r.is_active === true).length,
       suspended: initialRows.filter((r) => r.is_active !== true).length,
-      pending: 0, // hook up to invitations table count in a follow-up
+      pending: 0,
     }),
     [initialRows],
   )
@@ -52,10 +55,18 @@ export function UsersPageClient({ initialRows }: UsersPageClientProps) {
         title="მომხმარებლები"
         subtitle={`${counts.active} აქტიური · ${counts.suspended} გათიშული · ${counts.pending} მოლოდინში`}
         actions={
-          <Button onClick={() => setInviteOpen(true)} size="md">
-            <Plus className="h-4 w-4" />
-            მოწვევა
-          </Button>
+          <>
+            {canBulkInvite && (
+              <Button onClick={() => setBulkOpen(true)} size="md" variant="secondary">
+                <FileUp className="h-4 w-4" />
+                CSV იმპორტი
+              </Button>
+            )}
+            <Button onClick={() => setInviteOpen(true)} size="md">
+              <Plus className="h-4 w-4" />
+              მოწვევა
+            </Button>
+          </>
         }
       />
 
@@ -94,7 +105,7 @@ export function UsersPageClient({ initialRows }: UsersPageClientProps) {
               type="search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="ძებნა სახელით ან ემაილით..."
+              placeholder="ძებნა სახელით ან იმეილით..."
               className="h-8 w-full rounded-[6px] border border-[var(--color-border)] bg-white pl-9 pr-3 text-[13px] focus:border-[var(--color-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/10"
             />
           </div>
@@ -104,6 +115,7 @@ export function UsersPageClient({ initialRows }: UsersPageClientProps) {
       </div>
 
       <InviteUserDialog open={inviteOpen} onClose={() => setInviteOpen(false)} />
+      {canBulkInvite && <BulkInviteDialog open={bulkOpen} onClose={() => setBulkOpen(false)} />}
     </>
   )
 }

@@ -1,7 +1,7 @@
-import { redirect } from 'next/navigation'
 import { UsersPageClient } from '@/components/users/UsersPageClient'
 import { getCurrentUser } from '@/lib/auth/actions'
 import { createClient } from '@/lib/supabase/server'
+import { redirect } from 'next/navigation'
 
 export const dynamic = 'force-dynamic'
 
@@ -34,5 +34,5 @@ export default async function UsersPage() {
     .eq('tenant_id', myActive.tenant?.id ?? '')
     .order('created_at', { ascending: false })
 
-  return <UsersPageClient initialRows={rows ?? []} />
+  return <UsersPageClient initialRows={rows ?? []} canBulkInvite />
 }
