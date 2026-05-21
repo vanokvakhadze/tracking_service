@@ -354,9 +354,7 @@ function buildDonut(shifts: ShiftRow[]): DonutSegment[] {
   const transit = Math.max(0, active - dwell)
   return [
     { label: 'ლოკაციაზე', value: dwell, color: 'var(--color-accent)' },
-    { label: 'გზაში', value: transit, color: 'var(--color-success)' },
-    { label: 'შესვენება', value: Math.round(active * 0.08), color: 'var(--color-warning)' },
-    { label: 'ზონის გარეთ', value: 0, color: 'var(--color-error)' },
+    { label: 'გადაადგილება', value: transit, color: 'var(--color-success)' },
   ]
 }
 
