@@ -19,19 +19,25 @@ interface ShiftRow {
 interface ShiftsTableProps {
   tenantId: string
   canAnnotate: boolean
+  fromIso?: string
+  toIso?: string
 }
 
-export async function ShiftsTable({ tenantId, canAnnotate }: ShiftsTableProps) {
-  const fromIso = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
+export async function ShiftsTable({ tenantId, canAnnotate, fromIso, toIso }: ShiftsTableProps) {
+  const defaultFromIso = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
   const supabase = await createClient()
 
-  const { data } = await supabase
+  let query = supabase
     .from('shifts')
     .select('id, started_at, ended_at, status, notes, user:users(first_name, last_name, email)')
     .eq('tenant_id', tenantId)
-    .gte('started_at', fromIso)
     .order('started_at', { ascending: false })
     .limit(200)
+
+  query = query.gte('started_at', fromIso ?? defaultFromIso)
+  if (toIso) query = query.lte('started_at', toIso)
+
+  const { data } = await query
 
   const rows = (data as ShiftRow[] | null | undefined) ?? []
 
@@ -109,10 +115,7 @@ export async function ShiftsTable({ tenantId, canAnnotate }: ShiftsTableProps) {
 function Th({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
     <th
-      className={
-        'px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-[0.04em] text-[var(--color-text-secondary)] ' +
-        (className ?? '')
-      }
+      className={`px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-[0.04em] text-[var(--color-text-secondary)] ${className ?? ''}`}
     >
       {children}
     </th>
@@ -121,7 +124,7 @@ function Th({ children, className }: { children: React.ReactNode; className?: st
 
 function Td({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
-    <td className={'px-4 py-3 text-[13px] text-[var(--color-text-primary)] ' + (className ?? '')}>
+    <td className={`px-4 py-3 text-[13px] text-[var(--color-text-primary)] ${className ?? ''}`}>
       {children}
     </td>
   )
