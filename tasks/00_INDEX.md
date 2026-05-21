@@ -21,6 +21,9 @@ tasks/
 ├── 06_PHASE_BILLING.md          ← Phase 5: Stripe + Billing
 ├── 07_PHASE_SUPER_ADMIN.md      ← Phase 6: Super Admin
 ├── 08_PHASE_POLISH.md           ← Phase 7: Polish + Launch
+├── codex/                       ← Codex briefs — atomic tasks `.001–.061+`
+│   ├── 00_QUEUE.md              ← per-phase task queue
+│   └── task.NNN.md              ← one brief per task
 └── reference/
     ├── DESIGN_RULES.md          ← KAYA visual system
     ├── GEOFENCE_DESIGN_RULES.md ← Geofence logic
@@ -34,16 +37,17 @@ tasks/
 
 **არ ისკარდე ფაზებიდან.** ყოველი Phase-ი დაასრულე ბოლომდე, შემდეგ შემდეგი.
 
-| ფაზა | სტატუსი | Estimated | Real |
-|------|--------|-----------|------|
-| 0. Setup | ☐ | 1 კვირა | __ |
-| 1. Auth + Tenancy | ☐ | 2 კვირა | __ |
-| 2. Web Admin | ☐ | 3 კვირა | __ |
-| 3. Mobile Employee | ☐ | 4 კვირა | __ |
-| 4. Mobile Admin | ☐ | 1 კვირა | __ |
-| 5. Billing | ☐ | 1 კვირა | __ |
-| 6. Super Admin | ☐ | 1 კვირა | __ |
-| 7. Polish + Launch | ☐ | 1 კვირა | __ |
+| ფაზა | სტატუსი | შენიშვნა |
+|------|--------|----------|
+| 0. Setup | ✅ done | Turborepo + Supabase + Vercel + Sentry wired |
+| 1. Auth + Tenancy | ✅ done | signup / login / invitations / RLS |
+| 2. Web Admin | ✅ done | dashboard / locations / users / reports / settings |
+| 3. Mobile Employee | ✅ Phase 3-Lite | SDK-free shipped; transistorsoft ($580) deferred — see `04_PHASE_MOBILE_EMPLOYEE.md` |
+| 4. Mobile Admin | ✅ done | tabs / dashboard / team map / alerts / location flow |
+| 5. Billing | ✅ code · ⏳ Stripe activation | code ready; live Stripe pending user action (`STRIPE_ACTIVATION.md`) |
+| 6. Super Admin | ✅ done | tenants / audit / impersonate |
+| 7. Polish + Launch | 🔄 in progress | Vercel + Sentry done; App Store / Play / DNS pending |
+| 8. Post-MVP polish | 🔄 in progress | v2 redesigns + hygiene tasks `.049–.061` — see `codex/00_QUEUE.md` |
 
 ---
 
