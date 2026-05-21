@@ -20,9 +20,16 @@ export function HeroChart({ series, labels }: HeroChartProps) {
 
   function toggle(name: string) {
     setVisible((current) => {
+      if (current.has(name)) {
+        if (current.size > 1) {
+          const next = new Set(current)
+          next.delete(name)
+          return next
+        }
+        return new Set(series.map((item) => item.name))
+      }
       const next = new Set(current)
-      if (next.has(name) && next.size > 1) next.delete(name)
-      else next.add(name)
+      next.add(name)
       return next
     })
   }

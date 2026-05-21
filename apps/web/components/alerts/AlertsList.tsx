@@ -151,14 +151,10 @@ function AlertSection({
 
   return (
     <section>
-      <div className="mb-3 flex items-center gap-2">
-        <h2 className="text-[11px] font-bold uppercase tracking-[0.06em] text-[var(--color-text-tertiary)]">
-          {title}
-        </h2>
-        <span className="rounded-full border border-[var(--color-border)] bg-white px-2 py-0.5 text-[11px] font-semibold text-[var(--color-text-secondary)]">
-          {alerts.length}
-        </span>
-      </div>
+      <h2 className="mb-3 text-[11px] font-bold uppercase tracking-[0.06em] text-[var(--color-text-tertiary)]">
+        {title}
+        <span className="ml-1.5 text-[var(--color-text-secondary)]">· {alerts.length}</span>
+      </h2>
       <ul className="space-y-3">
         {alerts.map((alert) => (
           <AlertCard
