@@ -15,7 +15,7 @@ export function InviteBanner({ onCsv, onInvite }: InviteBannerProps) {
         <div>
           <h2 className="text-[18px] font-bold leading-tight">გააფართოვე გუნდი</h2>
           <p className="mt-1 text-[12px] text-white/85">
-            1 თვის უფასო trial · 5 invite-ი ერთად - CSV-ით
+            1 თვის უფასო trial · 200-მდე მოწვევა ერთად — CSV-ით
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -25,7 +25,7 @@ export function InviteBanner({ onCsv, onInvite }: InviteBannerProps) {
             variant="secondary"
           >
             <Download className="h-3.5 w-3.5" />
-            გადახედე ნიმუშს
+            CSV-ის ბათჩი
           </Button>
           <Button
             className="bg-white text-[var(--color-accent)] hover:bg-white/90"

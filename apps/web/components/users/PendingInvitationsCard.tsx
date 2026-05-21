@@ -1,5 +1,4 @@
-import { Button } from '@/components/ui/Button'
-import { Clock, Mail, RotateCw, X } from 'lucide-react'
+import { Clock, Mail } from 'lucide-react'
 import type { PendingInvitationRow } from './types'
 
 interface PendingInvitationsCardProps {
@@ -26,9 +25,6 @@ export function PendingInvitationsCard({ invitations }: PendingInvitationsCardPr
             {active.length} აქტიური · {expired.length} ვადაგასული
           </p>
         </div>
-        <Button size="sm" variant="secondary">
-          ყველა მოწვევა
-        </Button>
       </div>
 
       {invitations.length === 0 ? (
@@ -62,16 +58,6 @@ export function PendingInvitationsCard({ invitations }: PendingInvitationsCardPr
                   <Clock className="h-3 w-3" />
                   {isExpired ? 'ვადაგასული' : 'მოლოდინში'}
                 </span>
-                <Button size="sm" variant="secondary">
-                  <RotateCw className="h-3.5 w-3.5" />
-                  Resend
-                </Button>
-                {!isExpired && (
-                  <Button size="sm" variant="ghost">
-                    <X className="h-3.5 w-3.5" />
-                    Cancel
-                  </Button>
-                )}
               </div>
             )
           })}

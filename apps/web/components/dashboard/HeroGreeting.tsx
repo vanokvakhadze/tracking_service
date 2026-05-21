@@ -24,7 +24,7 @@ export function HeroGreeting({
           </p>
         </div>
         <div className="grid grid-cols-3 gap-4 border-white/20 lg:border-l lg:pl-6">
-          <HeroStat label="ცოცხალია now" value={`${activeNow}/${totalUsers}`} />
+          <HeroStat label="ცოცხალია ახლა" value={`${activeNow}/${totalUsers}`} />
           <HeroStat label="მანძილი დღეს" value={`${distanceTodayKm.toFixed(1)} კმ`} />
           <HeroStat label="ვიზიტი" value={String(visitsToday)} />
         </div>

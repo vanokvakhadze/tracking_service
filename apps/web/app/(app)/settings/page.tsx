@@ -128,7 +128,7 @@ export default async function SettingsPage() {
           <Section
             icon={Bell}
             title="შეტყობინებები"
-            subtitle="თითო ალერტი ცალკე — Push (mobile admin app) + Email"
+            subtitle="თითო ალერტი ცალკე — Push (მობილური აპლიკაცია) + Email"
           >
             <AlertSettingsForm tenantId={tenant.id} initial={initialAlertSettings} />
           </Section>

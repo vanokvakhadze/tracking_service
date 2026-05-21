@@ -41,7 +41,7 @@ export function TasksCard({ tasks }: TasksCardProps) {
                 დავალებები ჯერ არ არის
               </p>
               <p className="mt-1 text-[12px] text-[var(--color-text-tertiary)]">
-                დაიწყე ცვლა მობილური აპლიკაციით
+                მოიწვიე გუნდი — ცვლის გახსნისთანავე დავალებები აქ გამოჩნდება
               </p>
             </div>
           </div>

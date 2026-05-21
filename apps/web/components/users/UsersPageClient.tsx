@@ -2,7 +2,7 @@
 
 import { SubHeader } from '@/components/layout/SubHeader'
 import { Button } from '@/components/ui/Button'
-import { FileUp, ListFilter, Plus, Search, UsersRound } from 'lucide-react'
+import { FileUp, Plus, Search } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { BulkActionBar } from './BulkActionBar'
 import { BulkInviteDialog } from './BulkInviteDialog'
@@ -159,14 +159,6 @@ export function UsersPageClient({
                 value={search}
               />
             </div>
-            <Button size="md" variant="secondary">
-              <ListFilter className="h-4 w-4" />
-              ფილტრი
-            </Button>
-            <Button size="md" variant="secondary">
-              <UsersRound className="h-4 w-4" />
-              დაჯგუფება
-            </Button>
           </div>
         </div>
 
