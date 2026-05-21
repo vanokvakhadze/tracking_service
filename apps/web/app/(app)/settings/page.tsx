@@ -76,9 +76,7 @@ export default async function SettingsPage() {
       .overrideTypes<DeviceRow[], { merge: false }>(),
   ])
 
-  const alertSettingsByKind = new Map(
-    (alertSettingsRows ?? []).map((row) => [row.alert_kind, row]),
-  )
+  const alertSettingsByKind = new Map((alertSettingsRows ?? []).map((row) => [row.alert_kind, row]))
   const initialAlertSettings: AlertSettingRow[] = DEFAULT_ALERT_KINDS.map((kind) => {
     const row = alertSettingsByKind.get(kind)
     return {
@@ -204,9 +202,7 @@ function DevicesList({ devices }: { devices: DeviceRow[] }) {
   if (devices.length === 0) {
     return (
       <div className="rounded-md border border-dashed border-[var(--color-border)] bg-[var(--color-surface)] p-6 text-center">
-        <p className="text-[13px] text-[var(--color-text-secondary)]">
-          ჯერ ერთიც არ არის
-        </p>
+        <p className="text-[13px] text-[var(--color-text-secondary)]">ჯერ ერთიც არ არის</p>
         <p className="mt-1 text-[11px] text-[var(--color-text-tertiary)]">
           მობილური აპლიკაციით login-ის შემდეგ device-ი აქ გამოჩნდება.
         </p>

@@ -69,50 +69,50 @@ export function HeroChart({ series, labels }: HeroChartProps) {
             </div>
           </div>
         ) : (
-        <svg className="h-[280px] w-full" role="img" viewBox="0 0 720 280">
-          <title>Reports trend chart</title>
-          {[0, 1, 2, 3].map((line) => (
-            <line
-              key={line}
-              stroke="var(--color-border)"
-              strokeDasharray="4 6"
-              x1="36"
-              x2="700"
-              y1={32 + line * 56}
-              y2={32 + line * 56}
-            />
-          ))}
-          {chart.map((item) => (
-            <g key={item.name}>
-              <path d={item.area} fill={item.color} opacity="0.1" />
-              <path
-                d={item.path}
-                fill="none"
-                pathLength={100}
-                stroke={item.color}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2.5"
-                className="animate-[dash_900ms_ease-out]"
+          <svg className="h-[280px] w-full" role="img" viewBox="0 0 720 280">
+            <title>Reports trend chart</title>
+            {[0, 1, 2, 3].map((line) => (
+              <line
+                key={line}
+                stroke="var(--color-border)"
+                strokeDasharray="4 6"
+                x1="36"
+                x2="700"
+                y1={32 + line * 56}
+                y2={32 + line * 56}
               />
-            </g>
-          ))}
-          {labels.map((label, index) => {
-            const step = labels.length > 1 ? 664 / (labels.length - 1) : 664
-            return (
-              <text
-                fill="var(--color-text-tertiary)"
-                fontSize="10"
-                key={`label-${label}`}
-                textAnchor="middle"
-                x={36 + index * step}
-                y="266"
-              >
-                {label}
-              </text>
-            )
-          })}
-        </svg>
+            ))}
+            {chart.map((item) => (
+              <g key={item.name}>
+                <path d={item.area} fill={item.color} opacity="0.1" />
+                <path
+                  d={item.path}
+                  fill="none"
+                  pathLength={100}
+                  stroke={item.color}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2.5"
+                  className="animate-[dash_900ms_ease-out]"
+                />
+              </g>
+            ))}
+            {labels.map((label, index) => {
+              const step = labels.length > 1 ? 664 / (labels.length - 1) : 664
+              return (
+                <text
+                  fill="var(--color-text-tertiary)"
+                  fontSize="10"
+                  key={`label-${label}`}
+                  textAnchor="middle"
+                  x={36 + index * step}
+                  y="266"
+                >
+                  {label}
+                </text>
+              )
+            })}
+          </svg>
         )}
       </div>
     </section>

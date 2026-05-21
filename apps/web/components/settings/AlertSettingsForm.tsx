@@ -57,9 +57,7 @@ export function AlertSettingsForm({ tenantId, initial }: Props) {
         },
     ),
   )
-  const [recipientInput, setRecipientInput] = useState(
-    initial[0]?.emailRecipients.join(', ') ?? '',
-  )
+  const [recipientInput, setRecipientInput] = useState(initial[0]?.emailRecipients.join(', ') ?? '')
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -128,7 +126,10 @@ export function AlertSettingsForm({ tenantId, initial }: Props) {
               const meta = KIND_META[row.alertKind]
               const Icon = meta.icon
               return (
-                <tr key={row.alertKind} className="border-b border-[var(--color-border)] last:border-b-0">
+                <tr
+                  key={row.alertKind}
+                  className="border-b border-[var(--color-border)] last:border-b-0"
+                >
                   <td className="px-4 py-3">
                     <div className="flex items-start gap-2.5">
                       <span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-[6px] bg-[var(--color-surface)] text-[var(--color-text-secondary)]">
@@ -177,8 +178,8 @@ export function AlertSettingsForm({ tenantId, initial }: Props) {
           className="block w-full rounded-[6px] border border-[var(--color-border)] bg-white px-3 py-2 text-[13px] focus:border-[var(--color-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/10"
         />
         <p className="text-[11px] text-[var(--color-text-tertiary)]">
-          მძიმეთი გამოყავი მისამართები. Push შეტყობინებები მიდის ცვლის mobile app-ში
-          დარეგისტრირებულ ცარა admin-ის device-ზე.
+          მძიმეთი გამოყავი მისამართები. Push შეტყობინებები მიდის ცვლის mobile app-ში დარეგისტრირებულ
+          ცარა admin-ის device-ზე.
         </p>
       </div>
 

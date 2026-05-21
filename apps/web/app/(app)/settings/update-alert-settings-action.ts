@@ -23,9 +23,7 @@ export interface UpdateAlertSettingsResult {
   error?: string
 }
 
-export async function updateAlertSettings(
-  payload: unknown,
-): Promise<UpdateAlertSettingsResult> {
+export async function updateAlertSettings(payload: unknown): Promise<UpdateAlertSettingsResult> {
   const parsed = PayloadSchema.safeParse(payload)
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? 'არასწორი მონაცემები' }
