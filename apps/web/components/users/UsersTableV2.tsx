@@ -34,18 +34,6 @@ function displayName(first: string | null, last: string | null, email: string) {
   return full || email
 }
 
-function formatRelative(iso: string | null) {
-  if (!iso) return '-'
-  const date = new Date(iso)
-  const diffMs = Date.now() - date.getTime()
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
-  if (diffDays < 1) return 'დღეს'
-  if (diffDays === 1) return 'გუშინ'
-  if (diffDays < 7) return `${diffDays} დღის წინ`
-  if (diffDays < 30) return `${Math.floor(diffDays / 7)} კვირის წინ`
-  return date.toLocaleDateString('ka-GE', { day: 'numeric', month: 'short', year: 'numeric' })
-}
-
 function scoreTone(score: number) {
   if (score < 50) return 'bg-[var(--color-error)]'
   if (score < 75) return 'bg-[var(--color-warning)]'
@@ -202,12 +190,7 @@ export function UsersTableV2({
                   </div>
                 </td>
                 <td className="px-4 py-3">
-                  <div className="flex items-center gap-3">
-                    <Sparkline points={row.activity_trend ?? []} width={88} />
-                    <span className="text-[11px] text-[var(--color-text-tertiary)]">
-                      {formatRelative(user.last_login_at)}
-                    </span>
-                  </div>
+                  <Sparkline points={row.activity_trend ?? []} width={88} />
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex justify-end gap-1 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
