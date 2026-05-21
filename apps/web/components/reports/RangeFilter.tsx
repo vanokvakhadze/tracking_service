@@ -1,6 +1,8 @@
 'use client'
 
+import { Loader2 } from 'lucide-react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { useTransition } from 'react'
 
 export type ReportRange = 'today' | '7d' | '30d' | '90d'
 export type ReportTeam = 'all' | 'tbilisi' | 'batumi' | 'kutaisi'
@@ -28,47 +30,67 @@ export function RangeFilter({ range, team }: RangeFilterProps) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
+  const [pending, startTransition] = useTransition()
 
   function update(next: Partial<{ range: ReportRange; team: ReportTeam }>) {
     const params = new URLSearchParams(searchParams.toString())
     if (next.range) params.set('range', next.range)
     if (next.team) params.set('team', next.team)
-    router.push(`${pathname}?${params.toString()}`)
+    startTransition(() => {
+      router.push(`${pathname}?${params.toString()}`)
+    })
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      <div className="inline-flex rounded-[8px] bg-[var(--color-surface-2)] p-1">
-        {ranges.map((item) => (
-          <button
-            className={
-              item.key === range
-                ? 'h-7 rounded-[6px] bg-white px-3 text-[12px] font-semibold text-[var(--color-text-primary)]'
-                : 'h-7 rounded-[6px] px-3 text-[12px] font-semibold text-[var(--color-text-secondary)] hover:bg-white/70'
-            }
-            key={item.key}
-            onClick={() => update({ range: item.key })}
-            type="button"
-          >
-            {item.label}
-          </button>
-        ))}
+    <div
+      aria-busy={pending}
+      className={`flex flex-wrap items-center gap-2 transition-opacity ${
+        pending ? 'opacity-60' : ''
+      }`}
+    >
+      <div className="inline-flex rounded-[8px] border border-[var(--color-border)] bg-[var(--color-surface-2)] p-1">
+        {ranges.map((item) => {
+          const active = item.key === range
+          return (
+            <button
+              aria-pressed={active}
+              className={
+                active
+                  ? 'inline-flex h-7 items-center gap-1.5 rounded-[6px] bg-white px-3 text-[12px] font-semibold text-[var(--color-text-primary)] shadow-sm'
+                  : 'inline-flex h-7 items-center gap-1.5 rounded-[6px] px-3 text-[12px] font-medium text-[var(--color-text-secondary)] transition-colors hover:bg-white/70'
+              }
+              disabled={pending}
+              key={item.key}
+              onClick={() => update({ range: item.key })}
+              type="button"
+            >
+              {active && pending ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
+              {item.label}
+            </button>
+          )
+        })}
       </div>
-      <div className="flex flex-wrap gap-1">
-        {teams.map((item) => (
-          <button
-            className={
-              item.key === team
-                ? 'inline-flex h-7 items-center rounded-full bg-[var(--color-accent)] px-3 text-[12px] font-semibold text-white'
-                : 'inline-flex h-7 items-center rounded-full border border-[var(--color-border)] bg-white px-3 text-[12px] font-medium text-[var(--color-text-secondary)] hover:bg-[var(--color-surface)]'
-            }
-            key={item.key}
-            onClick={() => update({ team: item.key })}
-            type="button"
-          >
-            {item.label}
-          </button>
-        ))}
+      <div className="flex flex-wrap gap-1.5">
+        {teams.map((item) => {
+          const active = item.key === team
+          return (
+            <button
+              aria-pressed={active}
+              className={
+                active
+                  ? 'inline-flex h-7 items-center gap-1.5 rounded-full bg-[var(--color-accent)] px-3 text-[12px] font-semibold text-white shadow-sm'
+                  : 'inline-flex h-7 items-center rounded-full border border-[var(--color-border)] bg-white px-3 text-[12px] font-medium text-[var(--color-text-secondary)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]'
+              }
+              disabled={pending}
+              key={item.key}
+              onClick={() => update({ team: item.key })}
+              type="button"
+            >
+              {active && pending ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
+              {item.label}
+            </button>
+          )
+        })}
       </div>
     </div>
   )

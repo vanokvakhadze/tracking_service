@@ -33,6 +33,41 @@ const toneColors: Record<
   error: { bg: 'var(--color-error-bg)', fg: 'var(--color-error-text)', line: 'var(--color-error)' },
 }
 
+function renderDelta({
+  deltaPct,
+  delta,
+  valueIsZero,
+}: {
+  deltaPct: number | undefined
+  delta: string | undefined
+  valueIsZero: boolean
+}) {
+  // When the metric is zero and we have no manual delta string, hide the
+  // delta entirely — "↑0%" is noise, and "↑100%" (from 0→0 edge cases) is
+  // worse. Once data starts flowing the delta will render normally.
+  if (valueIsZero && !delta) {
+    return <p className="text-[11px] text-[var(--color-text-tertiary)]">მონაცემები მზადება</p>
+  }
+  if (typeof deltaPct === 'number') {
+    if (deltaPct === 0) {
+      return <p className="text-[11px] text-[var(--color-text-tertiary)]">უცვლელია</p>
+    }
+    return (
+      <p
+        className={
+          deltaPct >= 0
+            ? 'text-[11px] font-semibold text-[var(--color-success-text)]'
+            : 'text-[11px] font-semibold text-[var(--color-error-text)]'
+        }
+      >
+        {deltaPct >= 0 ? '↑' : '↓'}
+        {Math.abs(deltaPct)}%
+      </p>
+    )
+  }
+  return <p className="text-[11px] text-[var(--color-text-tertiary)]">{delta}</p>
+}
+
 export function MetricCard({
   label,
   value,
@@ -60,21 +95,10 @@ export function MetricCard({
         {value}
       </p>
       <div className="mt-2 flex items-end justify-between gap-3">
-        {typeof deltaPct === 'number' ? (
-          <p
-            className={
-              deltaPct >= 0
-                ? 'text-[11px] font-semibold text-[var(--color-success-text)]'
-                : 'text-[11px] font-semibold text-[var(--color-error-text)]'
-            }
-          >
-            {deltaPct >= 0 ? '↑' : '↓'}
-            {Math.abs(deltaPct)}%
-          </p>
-        ) : (
-          <p className="text-[11px] text-[var(--color-text-tertiary)]">{delta}</p>
-        )}
-        {trend && <Sparkline color={colors.line} points={trend} />}
+        {renderDelta({ deltaPct, delta, valueIsZero: value === '0' || value === '0.0 კმ' })}
+        {trend && trend.some((point) => point > 0) ? (
+          <Sparkline color={colors.line} points={trend} />
+        ) : null}
       </div>
     </div>
   )

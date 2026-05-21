@@ -16,6 +16,7 @@ interface HeroChartProps {
 export function HeroChart({ series, labels }: HeroChartProps) {
   const [visible, setVisible] = useState(() => new Set(series.map((item) => item.name)))
   const chart = useMemo(() => buildChart(series, visible), [series, visible])
+  const hasData = series.some((item) => item.points.some((point) => point > 0))
 
   function toggle(name: string) {
     setVisible((current) => {
@@ -56,50 +57,63 @@ export function HeroChart({ series, labels }: HeroChartProps) {
         </div>
       </div>
       <div className="p-5">
-        <svg className="h-[280px] w-full" role="img" viewBox="0 0 720 280">
-          <title>Reports trend chart</title>
-          {[0, 1, 2, 3].map((line) => (
-            <line
-              key={line}
-              stroke="var(--color-border)"
-              strokeDasharray="4 6"
-              x1="36"
-              x2="700"
-              y1={32 + line * 56}
-              y2={32 + line * 56}
-            />
-          ))}
-          {chart.map((item) => (
-            <g key={item.name}>
-              <path d={item.area} fill={item.color} opacity="0.1" />
-              <path
-                d={item.path}
-                fill="none"
-                pathLength={100}
-                stroke={item.color}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2.5"
-                className="animate-[dash_900ms_ease-out]"
+        {!hasData ? (
+          <div className="grid h-[280px] place-items-center text-center">
+            <div>
+              <p className="text-[13px] font-semibold text-[var(--color-text-primary)]">
+                მონაცემები ჯერ არ შემოვიდა
+              </p>
+              <p className="mt-1 text-[12px] text-[var(--color-text-secondary)]">
+                მობილური აპლიკაციით ცვლის დაწყების შემდეგ ტრენდი აქ გამოჩნდება.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <svg className="h-[280px] w-full" role="img" viewBox="0 0 720 280">
+            <title>Reports trend chart</title>
+            {[0, 1, 2, 3].map((line) => (
+              <line
+                key={line}
+                stroke="var(--color-border)"
+                strokeDasharray="4 6"
+                x1="36"
+                x2="700"
+                y1={32 + line * 56}
+                y2={32 + line * 56}
               />
-            </g>
-          ))}
-          {labels.map((label, index) => {
-            const step = labels.length > 1 ? 664 / (labels.length - 1) : 664
-            return (
-              <text
-                fill="var(--color-text-tertiary)"
-                fontSize="10"
-                key={`label-${label}`}
-                textAnchor="middle"
-                x={36 + index * step}
-                y="266"
-              >
-                {label}
-              </text>
-            )
-          })}
-        </svg>
+            ))}
+            {chart.map((item) => (
+              <g key={item.name}>
+                <path d={item.area} fill={item.color} opacity="0.1" />
+                <path
+                  d={item.path}
+                  fill="none"
+                  pathLength={100}
+                  stroke={item.color}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2.5"
+                  className="animate-[dash_900ms_ease-out]"
+                />
+              </g>
+            ))}
+            {labels.map((label, index) => {
+              const step = labels.length > 1 ? 664 / (labels.length - 1) : 664
+              return (
+                <text
+                  fill="var(--color-text-tertiary)"
+                  fontSize="10"
+                  key={`label-${label}`}
+                  textAnchor="middle"
+                  x={36 + index * step}
+                  y="266"
+                >
+                  {label}
+                </text>
+              )
+            })}
+          </svg>
+        )}
       </div>
     </section>
   )

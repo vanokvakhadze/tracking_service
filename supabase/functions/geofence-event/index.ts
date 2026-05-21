@@ -143,7 +143,7 @@ Deno.serve(async (req) => {
   // 7) Mock-GPS guard. The client also gates, but the server has the last
   //    word — we do not open a shift from a spoofed ping.
   if (payload.is_mock) {
-    await notifyTenantAdmins(supabase, location.tenant_id, {
+    await dispatchAlert(supabase, location.tenant_id, 'mock_gps', {
       title: 'Mock GPS გამოვლენილია',
       body: `${user.email ?? 'employee'} — ${location.name ?? 'unknown location'}`,
       data: { user_id: user.id, location_id: location.id, kind: 'mock_gps' },
@@ -164,7 +164,7 @@ Deno.serve(async (req) => {
         data: { kind: 'approaching', location_id: location.id },
       })
     } else {
-      await notifyTenantAdmins(supabase, location.tenant_id, {
+      await dispatchAlert(supabase, location.tenant_id, 'out_of_zone', {
         title: 'სამუშაო ზონიდან გასვლა',
         body: `${user.email ?? 'employee'} — ${location.name ?? 'ლოკაცია'}`,
         data: { kind: 'out_of_zone', user_id: user.id, location_id: location.id },
@@ -252,6 +252,81 @@ interface PushPayload {
   title: string
   body: string
   data?: Record<string, unknown>
+}
+
+type AlertKind = 'mock_gps' | 'location_disabled' | 'low_battery' | 'out_of_zone'
+
+interface AlertSetting {
+  push_enabled: boolean
+  email_enabled: boolean
+  email_recipients: string[]
+}
+
+async function getAlertSetting(
+  supabase: ReturnType<typeof createClient>,
+  tenantId: string,
+  alertKind: AlertKind,
+): Promise<AlertSetting> {
+  const { data } = await supabase
+    .from('tenant_alert_settings')
+    .select('push_enabled, email_enabled, email_recipients')
+    .eq('tenant_id', tenantId)
+    .eq('alert_kind', alertKind)
+    .maybeSingle()
+  return (
+    (data as AlertSetting | null) ?? {
+      push_enabled: true,
+      email_enabled: false,
+      email_recipients: [],
+    }
+  )
+}
+
+async function dispatchAlert(
+  supabase: ReturnType<typeof createClient>,
+  tenantId: string,
+  alertKind: AlertKind,
+  payload: PushPayload,
+) {
+  const setting = await getAlertSetting(supabase, tenantId, alertKind)
+
+  if (setting.push_enabled) {
+    await notifyTenantAdmins(supabase, tenantId, payload)
+  }
+
+  if (setting.email_enabled && setting.email_recipients.length > 0) {
+    await sendAlertEmail(setting.email_recipients, payload)
+  }
+}
+
+async function sendAlertEmail(recipients: string[], payload: PushPayload): Promise<void> {
+  // Resend integration is wired here when RESEND_API_KEY is configured.
+  // For now we log and return -- the setting is persisted so the day we
+  // flip the key on, no further code changes are required.
+  const apiKey = Deno.env.get('RESEND_API_KEY')
+  if (!apiKey) {
+    console.log(
+      `[geofence-event] email skipped (RESEND_API_KEY not set) recipients=${recipients.length} title=${payload.title}`,
+    )
+    return
+  }
+  try {
+    await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'TrackPro <alerts@trackpro.ge>',
+        to: recipients,
+        subject: payload.title,
+        text: payload.body,
+      }),
+    })
+  } catch (err) {
+    console.error('[geofence-event] email send failed', err)
+  }
 }
 
 async function notifyUser(
