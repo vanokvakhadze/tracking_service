@@ -9,22 +9,22 @@
 
 ### რა ვაძლევთ
 - **2 თვე უფასო** Pro plan (15 user-მდე, ულიმიტო ლოკაცია)
-- **24/7 prioritized support** — გიო-ს პერსონალური WhatsApp/Telegram
+- **24/7 prioritized support** — გიოს პერსონალური WhatsApp/Telegram
 - **დანერგვის დახმარება** — 1 hour onboarding call + ლოკაციების setup
-- **Feature requests fast-track** — beta period-ის დროს მათი თხოვნა პრიორიტეტი
+- **Feature requests fast-track** — beta period-ის განმავლობაში მათი მოთხოვნა პრიორიტეტი
 - **Custom branding** — Enterprise tier-ისთვის თვის ბოლომდე
 
 ### რას მოვითხოვთ
-- Weekly check-in (15 min, კოპირებული თარიღი)
+- Weekly check-in (15 min, წინასწარ შეთანხმებული თარიღი)
 - Bugs/UX feedback log (WhatsApp group ან Slack)
-- **Pre-billing commitment**: trial დასრულების შემდეგ paid გადასვლა იყოს default (cancel ანატომი ნებისმიერ დროს)
+- **Pre-billing commitment**: trial-ის დასრულების შემდეგ paid გადასვლა default — cancel შესაძლებელია ნებისმიერ დროს
 - Public testimonial თუ პრობლემები არ აქვს (text + logo permission)
 
 ### Success criteria (beta customer "passed" — Stripe-ისთვის ready)
 - 3+ აქტიური თანამშრომელი daily
 - 2+ ლოკაცია setup
 - ცვლის ჩატარების სტაბილური workflow (3 დღე ზედიზედ)
-- 1+ bug fix/feature successfully ჩამოგზავნილი
+- 1+ bug fix/feature successfully shipped
 
 ---
 
@@ -33,8 +33,8 @@
 ### Vertical 1 — Delivery / Logistics (პრიორიტეტი #1)
 **ვინ:** Glovo-ს competitors, courier services, last-mile delivery
 **Pain points:** Courier-ების real-time tracking, missed deliveries, ფიქტიური workhour-ები
-**Examples:** Wolt-სა competitor-ები, food delivery startups, რეგიონული courier ფირმები
-**Hook:** "Courier-ი 8 საათი მოგვცა, რეალურად 4 საათი იყო ცოცხალი — ცაბრერი არგუმენტი არ აქვს"
+**Examples:** Wolt-ის competitor-ები, food delivery startups, რეგიონული courier ფირმები
+**Hook:** "Courier-მა 8 საათი ცვლა მოგვცა, რეალურად 4 საათი იყო აქტიური — და კონტრარგუმენტი არ აქვს"
 **Quick wins:** Two-zone geofencing (warehouse pickup + delivery dropoff), mock-GPS blocking
 **Decision maker:** Operations Manager / Co-founder
 **Budget:** 200-500 GEL/თვე realistic
@@ -43,7 +43,7 @@
 **ვინ:** Construction firms, project-based contractor management
 **Pain points:** Site attendance fraud, multi-site teams, regulatory compliance
 **Examples:** დიდი + საშუალო რეგიონული ფირმები (Imereti, Kakheti)
-**Hook:** "ცვლის სიდიდე გაუყიდი 30 თანამშრომელს და ფანის ფიქტიური საათები"
+**Hook:** "30 თანამშრომელი 5 ობიექტზე — ვინ სად იყო და რეალურად რამდენი საათი იმუშავა?"
 **Quick wins:** Provisional location (employee submits new site), shift annotations
 **Decision maker:** HR Director ან Site Manager
 **Budget:** 300-800 GEL/თვე (15-50 employees)
@@ -51,8 +51,8 @@
 ### Vertical 3 — Security Services
 **ვინ:** Private security, mall security, event security
 **Pain points:** Guard patrol verification, missed rounds, time-sheet disputes
-**Examples:** Securpol, ProSec, ცარა small security firms
-**Hook:** "Guard-ი night shift-ში დაიკარგა — როცა event-ი მოხდა, ცარა იყო?"
+**Examples:** Securpol, ProSec, რეგიონული small security firms
+**Hook:** "Guard-ი night shift-ში დაიკარგა — როცა incident მოხდა, სად იყო ნამდვილად?"
 **Quick wins:** Boundary zone alerts (out-of-zone), low-battery alerts, mock-GPS detection
 **Decision maker:** Security Operations Manager
 **Budget:** 250-600 GEL/თვე
@@ -60,8 +60,8 @@
 ### Vertical 4 — FMCG Distribution
 **ვინ:** Sales reps visiting client sites, merchandisers, route planners
 **Pain points:** Visit fraud, route optimization, territory coverage
-**Examples:** ცარა distributor-ები (PepsiCo, Mondelez, local distributors)
-**Hook:** "Sales rep-ი 12 store-ი ცარა ვიზიტი, რეალურად 4-ში იყო — როცა client churn-ი მოხდა, ცარა"
+**Examples:** მსხვილი distributor-ები (PepsiCo, Mondelez, local distributors)
+**Hook:** "Sales rep-მა 12 store-ის ვიზიტი დაუფიქსირდა, რეალურად 4-ში იყო — როცა client churn მოხდა, არ ვიცოდით სად ჩავარდა"
 **Quick wins:** Visit count per location, dwell time analytics
 **Decision maker:** Sales Director / Regional Manager
 **Budget:** 400-1000 GEL/თვე (territory-by-territory)
@@ -70,32 +70,35 @@
 
 ## 📧 Cold outreach templates
 
+> ⚠️ ⚠️ ⚠️ **Founder review required** ⚠️ ⚠️ ⚠️
+> ეს templates draft-ია. გადახედე და ხელით გადააფერადე ისე როგორც შენ ლაპარაკობ — sales tone-ი პერსონალური უნდა იყოს. რომელიმე ფრაზა თუ ცუდად ჟღერს, ან-ან rewrite-ი ჯიოს ხელით ან გადააქცი English-ად.
+
 ### Template 1 — Email intro (vertical-agnostic)
 
-**Subject:** TrackPro — თანამშრომელთა GPS ტრექინგი ქართულ ბიზნესისთვის
+**Subject:** TrackPro — თანამშრომელთა GPS ტრექინგი ქართული ბიზნესისთვის
 
 ```
-ჰელო {FirstName},
+გამარჯობა {FirstName},
 
-ვარ გიო, TrackPro-ს cofounder. ვაშენებთ GPS-ის თანამშრომელთა ტრექინგ
-საკი ქართულ ბიზნესისთვის — Glovo-ს, ცარა delivery + construction ფირმების
-პრობლემა-ცარა.
+ვარ გიო, TrackPro-ის co-founder. ვაშენებთ GPS-ის თანამშრომელთა
+ტრექინგ პროდუქტს ქართული ბიზნესისთვის — delivery, construction,
+security და distribution ფირმებზე ფოკუსით.
 
-TrackPro-ის ფეიქად:
-• Background tracking — ცვლები ცარელ ცარელ automatic-ი
-• Two-zone geofencing — entry/exit alerts, false positive-ცა
-• Mock-GPS blocking — "ცარა location" cheat-ი არ მუშავდე
-• Mobile + web admin dashboard — ცოცხლად ცარა გუნდი
-• ცარა Georgian — interface + support
+TrackPro რას აკეთებს:
+- Background tracking — ცვლები ავტომატურად ფიქსირდება
+- Two-zone geofencing — entry/exit alerts, false positive-ის გარეშე
+- Mock-GPS blocking — "fake location" cheat-ი არ მუშაობს
+- Mobile + web admin dashboard — გუნდი real-time
+- სრულად ქართული — interface + support
 
-{Company}-ი {vertical}-ში არის — ცარა შესაბამის pain points:
-• {Pain 1}
-• {Pain 2}
+{Company}-ი {vertical}-ში მუშაობს — შესაბამისი pain points:
+- {Pain 1}
+- {Pain 2}
 
-ბრმოვალ ცარა Beta program-ში — 2 თვე უფასო Pro plan + personal onboarding.
-ცარა 15 წუთიანი demo call-ი ვცადო?
+ვიწვევთ Beta program-ში — 2 თვე უფასო Pro plan + personal
+onboarding. 15-წუთიანი demo call-ი მოვაწყოთ?
 
-ცად,
+პატივისცემით,
 გიო კვახაძე
 TrackPro / Sazeo
 +995 5XX XX XX XX
@@ -105,42 +108,47 @@ https://tracking-service-web.vercel.app
 ### Template 2 — LinkedIn DM (short)
 
 ```
-ჰელო {FirstName}, ცარა {Company}-ში {RoleHint}-ი ხართ. ცარა TrackPro — 
-GPS employee tracking ცარა Glovo/construction/security firms-ისთვის. Beta-ში 
-ცარა 5 ფირმისთვის უფასო 2 თვე. ცადო 15 წთ demo? https://tracking-service-web.vercel.app
+გამარჯობა {FirstName}, ვხედავ რომ {Company}-ში {RoleHint} ხართ.
+ვშენებთ TrackPro-ს — GPS employee tracking
+delivery/construction/security firms-ისთვის. Beta-ში
+პირველი 5 ფირმისთვის უფასოა 2 თვე. 15 წთ demo
+გნებავთ? https://tracking-service-web.vercel.app
 ```
 
 ### Template 3 — WhatsApp / Telegram (warm intro)
 
 ```
-{FirstName}, გამარჯობა! ვარ გიო Sazeo-დან. ცარა გადახედე ცარა GPS tracking 
-სოლუშნი — TrackPro. ცარა {SharedContact}-მ რეკომენდაცია მოგვცა.
+{FirstName}, გამარჯობა! გიო ვარ Sazeo-დან. გადახედე ჩვენს
+GPS tracking solution-ს — TrackPro. {SharedContact}-მა
+თქვენი რეკომენდაცია მოგვცა.
 
-ცარა {Company}-ის {vertical} workflow ცარა fit — ცადო 15 წთ Loom video 
-გავუშვა? ან ცადო შეხვედრა ცარა?
+{Company}-ის {vertical} workflow-ისთვის კარგი fit-ი ვფიქრობ
+იქნება. 15 წთ Loom video მოგწერო, თუ პირდაპირ შეხვედრა
+უფრო კომფორტული იქნება?
 ```
 
 ### Template 4 — Phone script (15 sec elevator)
 
 ```
-"გამარჯობა, [name]? გიო ვარ Sazeo-დან. ცარა TrackPro-ი ვაშენებთ — GPS 
-tracking ცარა თქვენისთანა {vertical} ფირმებისთვის. Beta-ში პირველი 5 ფირმისთვის 
-2 თვე უფასოა. 15 წუთიანი demo ცადო ცარა week-ში?"
+"გამარჯობა, [name]? გიო ვარ Sazeo-დან. ვშენებთ TrackPro-ს —
+GPS tracking თქვენისთანა {vertical} ფირმებისთვის. Beta-ში
+პირველი 5 ფირმისთვის 2 თვე უფასოა. 15-წუთიანი demo ამ
+კვირაში მოვაწყოთ?"
 ```
 
 ---
 
 ## 🔁 Follow-up sequence
 
-ცარა lead-ი → 2-კვირიანი 5-touchpoint sequence:
+თითო lead-ი → 2-კვირიანი 5-touchpoint sequence:
 
 | დღე | Touch | Channel | Goal |
 |---|---|---|---|
 | 0 | Cold email | Email | Intro + demo request |
-| 3 | Follow-up "ცარა ხედავ?" | Email | Bump to top of inbox |
+| 3 | Follow-up "ხედავ ხომ?" | Email | Bump to top of inbox |
 | 6 | LinkedIn add + DM | LinkedIn | Social proof |
 | 10 | Voice memo / WhatsApp | Phone | Personal touch |
-| 14 | "Last touch" — ცარა next quarter-ში? | Email | Soft close, recycle later |
+| 14 | "Last touch" — გადავდოთ next quarter-ში? | Email | Soft close, recycle later |
 
 Tracker spreadsheet (Google Sheets):
 - Name | Company | Role | Vertical | Email | Phone | LinkedIn | Status (cold/warm/hot/declined/scheduled/closed) | Last touch date | Next touch date | Notes
@@ -150,16 +158,16 @@ Tracker spreadsheet (Google Sheets):
 ## 🎬 Demo strategies
 
 ### Strategy A — Async Loom video (90s) ← scalable
-Pre-recorded ცარა 4 vertical-ისთვის (4 versions). Email-ში embed-ი. ცარა customers-ი ცადო watch + book if interested.
+Pre-recorded თითო vertical-ისთვის (4 versions). Email-ში embed-ი. Customers თვითონ ნახავენ + book if interested.
 
 ### Strategy B — Live 15-minute call ← higher conversion
-Calendly link / "ცადო ცარა next 3 days?" → screen share + interactive demo via demo seeder tenant (review@trackpro.ge / ReviewMe2026!).
+Calendly link / "next 3 days-ში გნებავთ?" → screen share + interactive demo via demo seeder tenant (review@trackpro.ge / ReviewMe2026!).
 
 Demo flow:
-1. **0:00–2:00** — Pain point recap ("რა გადახდი ცარა {vertical}-ში?")
+1. **0:00–2:00** — Pain point recap ("რა მთავარი ტკივილია {vertical}-ში?")
 2. **2:00–8:00** — Live walkthrough: /dashboard → live map → /reports CSV
 3. **8:00–12:00** — Mobile demo (Expo Go QR scan ან Loom recording)
-4. **12:00–15:00** — Beta offer + Q&A + ცარა next step
+4. **12:00–15:00** — Beta offer + Q&A + next step
 
 ### Strategy C — On-site visit ← biggest deals
 Construction + Security verticals — drive to their office for in-person demo. Higher conversion, smaller pipeline.
@@ -209,28 +217,32 @@ Construction + Security verticals — drive to their office for in-person demo. 
 
 ## 📄 Beta Agreement Letter Template
 
+> ⚠️ ⚠️ ⚠️ **Legal review required** ⚠️ ⚠️ ⚠️
+> ეს draft-ი არ არის lawyer-ი-მიერ verified. Beta period-ისთვის უმოკლესი მინიმუმია — production-ისთვის properly drafted DPA + ToS-ი საჭიროა.
+
 ```
 TRACKPRO BETA PROGRAM AGREEMENT
 
-ბრმოვალ ცარა {Customer Company} ("Customer") და Sazeo LLC ("Vendor") შორის.
+ხელშეკრულება ფორმდება {Customer Company} ("Customer") და Sazeo LLC ("Vendor")
+შორის.
 
 1. SCOPE
-ვენდორი ცარა Customer-ს უფასოდ ცარა TrackPro-ის Pro plan-ის წვდომა
+Vendor ანიჭებს Customer-ს უფასოდ TrackPro-ის Pro plan-ის წვდომას
 2026-{StartMonth}-{StartDay}-დან 2026-{EndMonth}-{EndDay}-მდე (2 თვე).
 
 2. CUSTOMER COMMITMENTS
-- Trial-ის ცარა Customer ცადო 5 თანამშრომელი მინიმუმ
+- Trial-ის განმავლობაში Customer იყენებს მინიმუმ 5 თანამშრომელს
 - Weekly check-in (15 min)
 - Bug/UX feedback logging
-- Testimonial permission (logo + 2-sentence quote) თუ pricing-ი approved
+- Testimonial permission (logo + 2-sentence quote) თუ pricing approved
 
 3. POST-TRIAL
-Trial-ის შემდეგ Customer ცადო Pro plan-ით ($15/user/month) automatic
-ცადო — cancel ცარა 7-day notice-ით.
+Trial-ის შემდეგ Customer გადადის Pro plan-ზე ($15/user/month) ავტომატურად —
+cancel შესაძლებელია 7-day notice-ით.
 
 4. DATA OWNERSHIP
-Customer owns all data. Vendor უფლება ცადო anonymized usage metrics
-product improvement-ისთვის.
+Customer owns all data. Vendor უფლებამოსილია გამოიყენოს anonymized usage
+metrics product improvement-ისთვის.
 
 5. SLA
 Beta program — best effort. Production SLA (99.5% uptime) Stripe activation-ის
@@ -257,7 +269,7 @@ Date:                      Date:
 | Beta agreement signed | 5 | 83% |
 | **Activated** | **5** | **target** |
 
-ცარა goal: **5 active beta customers by 2026-06-30**.
+მთავარი goal: **5 active beta customers by 2026-06-30**.
 
 ---
 
@@ -284,4 +296,4 @@ Date:                      Date:
 
 ---
 
-ფაილი დასრულდა. Update-ცა როცა pipeline-ი ცარა.
+ფაილი დასრულდა. Update-ი როცა pipeline-ი იცვლება.
