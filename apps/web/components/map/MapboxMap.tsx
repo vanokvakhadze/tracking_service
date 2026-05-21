@@ -76,6 +76,14 @@ export function MapboxMap({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // Re-centre when the `center` prop changes (e.g. user selects a different
+  // location card). flyTo is gentler than setCenter and matches user intent.
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map || !center) return
+    map.flyTo({ center: [center.lng, center.lat], zoom, duration: 600 })
+  }, [center?.lat, center?.lng, zoom])
+
   // Sync static markers
   useEffect(() => {
     const map = mapRef.current
