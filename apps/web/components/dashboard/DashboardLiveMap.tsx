@@ -1,7 +1,7 @@
 'use client'
 
-import { MapboxMap, type MarkerSpec } from '@/components/map/MapboxMap'
 import type { LocationRow } from '@/components/locations/types'
+import { MapboxMap, type MarkerSpec } from '@/components/map/MapboxMap'
 
 interface DashboardLiveMapProps {
   locations: LocationRow[]
@@ -17,7 +17,7 @@ export function DashboardLiveMap({ locations }: DashboardLiveMapProps) {
       id: l.id,
       lat: l.latitude,
       lng: l.longitude,
-      color: l.is_active ? '#1565C0' : '#94A3B8',
+      color: l.is_active ? 'var(--color-accent)' : 'var(--color-text-tertiary)',
     }))
 
   const center = markers.length > 0 ? { lat: markers[0]!.lat, lng: markers[0]!.lng } : undefined

@@ -1,24 +1,50 @@
+import { Sparkline } from '@/components/dashboard/Sparkline'
 import type { LucideIcon } from 'lucide-react'
 
 interface MetricCardProps {
   label: string
   value: string
   delta?: string
+  deltaPct?: number
+  trend?: number[]
   icon: LucideIcon
   tone?: 'accent' | 'success' | 'warning' | 'error'
 }
 
-const toneColors: Record<NonNullable<MetricCardProps['tone']>, { bg: string; fg: string }> = {
-  accent: { bg: 'var(--color-accent-tint)', fg: 'var(--color-accent)' },
-  success: { bg: 'var(--color-success-bg)', fg: 'var(--color-success-text)' },
-  warning: { bg: 'var(--color-warning-bg)', fg: 'var(--color-warning-text)' },
-  error: { bg: 'var(--color-error-bg)', fg: 'var(--color-error-text)' },
+const toneColors: Record<
+  NonNullable<MetricCardProps['tone']>,
+  { bg: string; fg: string; line: string }
+> = {
+  accent: {
+    bg: 'var(--color-accent-tint)',
+    fg: 'var(--color-accent)',
+    line: 'var(--color-accent)',
+  },
+  success: {
+    bg: 'var(--color-success-bg)',
+    fg: 'var(--color-success-text)',
+    line: 'var(--color-success)',
+  },
+  warning: {
+    bg: 'var(--color-warning-bg)',
+    fg: 'var(--color-warning-text)',
+    line: 'var(--color-warning)',
+  },
+  error: { bg: 'var(--color-error-bg)', fg: 'var(--color-error-text)', line: 'var(--color-error)' },
 }
 
-export function MetricCard({ label, value, delta, icon: Icon, tone = 'accent' }: MetricCardProps) {
+export function MetricCard({
+  label,
+  value,
+  delta,
+  deltaPct,
+  trend,
+  icon: Icon,
+  tone = 'accent',
+}: MetricCardProps) {
   const colors = toneColors[tone]
   return (
-    <div className="rounded-lg border border-[var(--color-border)] bg-white p-5">
+    <div className="rounded-[8px] border border-[var(--color-border)] bg-white p-5">
       <div className="flex items-center justify-between">
         <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">
           {label}
@@ -33,7 +59,23 @@ export function MetricCard({ label, value, delta, icon: Icon, tone = 'accent' }:
       <p className="mt-3 text-[24px] font-semibold leading-tight tabular-nums text-[var(--color-text-primary)]">
         {value}
       </p>
-      {delta && <p className="mt-0.5 text-[11px] text-[var(--color-text-tertiary)]">{delta}</p>}
+      <div className="mt-2 flex items-end justify-between gap-3">
+        {typeof deltaPct === 'number' ? (
+          <p
+            className={
+              deltaPct >= 0
+                ? 'text-[11px] font-semibold text-[var(--color-success-text)]'
+                : 'text-[11px] font-semibold text-[var(--color-error-text)]'
+            }
+          >
+            {deltaPct >= 0 ? '↑' : '↓'}
+            {Math.abs(deltaPct)}%
+          </p>
+        ) : (
+          <p className="text-[11px] text-[var(--color-text-tertiary)]">{delta}</p>
+        )}
+        {trend && <Sparkline color={colors.line} points={trend} />}
+      </div>
     </div>
   )
 }
