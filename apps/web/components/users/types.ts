@@ -13,7 +13,27 @@ export interface MembershipRow {
   is_active: boolean | null
   employee_code: string | null
   created_at: string | null
+  team_name?: string | null
+  visits_7d?: number
+  productivity_score?: number
+  activity_trend?: number[]
   user: MembershipUser | MembershipUser[] | null
+}
+
+export interface UsersStats {
+  total: number
+  active: number
+  averageProductivity: number
+  pendingInvites: number
+}
+
+export interface PendingInvitationRow {
+  id: string
+  email: string
+  role: string
+  created_at: string | null
+  expires_at: string
+  status: string | null
 }
 
 export const roleLabels: Record<string, string> = {

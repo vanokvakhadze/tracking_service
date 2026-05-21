@@ -1,10 +1,10 @@
 'use client'
 
-import { useState } from 'react'
 import { inviteUser } from '@/app/(app)/users/invite-action'
 import { Button } from '@/components/ui/Button'
 import { Dialog } from '@/components/ui/Dialog'
 import { Input } from '@/components/ui/Input'
+import { useState } from 'react'
 
 interface InviteUserDialogProps {
   open: boolean

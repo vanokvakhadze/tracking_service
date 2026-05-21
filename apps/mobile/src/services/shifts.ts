@@ -17,10 +17,7 @@ export async function fetchCurrentShift(): Promise<CurrentShift | null> {
   } = await supabase.auth.getUser()
   if (!user) return null
 
-  // Drain any shift whose 60s exit timer has elapsed before we read state.
-  // RPC is added in migration 15 — drop the cast after `pnpm db:types`.
-  // biome-ignore lint/suspicious/noExplicitAny: see comment above
-  await (supabase.rpc as any)('finalize_pending_shifts')
+  await supabase.rpc('finalize_pending_shifts')
 
   const { data, error } = await supabase
     .from('shifts')
