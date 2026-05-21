@@ -99,14 +99,6 @@ function InactiveView() {
           ცვლა ავტომატურად დაიწყება როცა სამუშაო ლოკაციაზე მიხვალთ.
         </Text>
       </View>
-
-      <View style={styles.noticeCard}>
-        <Text style={styles.noticeTitle}>📋 ჯერ ფონური ტრეკინგი ჩართული არ არის</Text>
-        <Text style={styles.noticeText}>
-          Phase 3 SDK (react-native-background-geolocation) აქ ჩაერთვის. ცვლები ხელით უნდა შეიქმნას
-          ადმინისგან ან Edge Function-დან.
-        </Text>
-      </View>
     </>
   )
 }
@@ -198,14 +190,6 @@ const styles = StyleSheet.create({
     marginTop: 6,
     lineHeight: 19,
   },
-
-  noticeCard: {
-    backgroundColor: KAYA.warningBg,
-    borderRadius: 10,
-    padding: 14,
-  },
-  noticeTitle: { fontSize: 13, fontWeight: '600', color: KAYA.warningText },
-  noticeText: { fontSize: 12, color: KAYA.warningText, marginTop: 4, lineHeight: 17, opacity: 0.8 },
 
   fab: {
     position: 'absolute',
