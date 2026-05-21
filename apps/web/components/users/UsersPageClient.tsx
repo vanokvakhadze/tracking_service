@@ -6,6 +6,7 @@ import { FileUp, Plus, Search } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { BulkActionBar } from './BulkActionBar'
 import { BulkInviteDialog } from './BulkInviteDialog'
+import { MobileAppCard } from '@/components/onboarding/MobileAppCard'
 import { InviteBanner } from './InviteBanner'
 import { InviteUserDialog } from './InviteUserDialog'
 import { PendingInvitationsCard } from './PendingInvitationsCard'
@@ -144,6 +145,7 @@ export function UsersPageClient({
       <main className="space-y-6 p-6">
         <UserStatStrip stats={stats} />
         <InviteBanner onCsv={openBulkDialog} onInvite={openInviteDialog} />
+        <MobileAppCard variant="compact" />
 
         <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
           <StatusChips counts={counts} onChange={setStatusFilter} value={statusFilter} />

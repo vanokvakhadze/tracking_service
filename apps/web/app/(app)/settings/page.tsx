@@ -7,6 +7,7 @@ import {
   type AlertKind,
   type AlertSettingRow,
 } from '@/components/settings/AlertSettingsForm'
+import { MobileAppCard } from '@/components/onboarding/MobileAppCard'
 import { CompanyProfileForm } from '@/components/settings/CompanyProfileForm'
 import { getCurrentUser } from '@/lib/auth/actions'
 import { createClient } from '@/lib/supabase/server'
@@ -138,7 +139,10 @@ export default async function SettingsPage() {
             title="ჩემი მოწყობილობები"
             subtitle={`${devices.length} რეგისტრირებული მოწყობილობა`}
           >
-            <DevicesList devices={devices} />
+            <div className="space-y-4">
+              <MobileAppCard variant="compact" />
+              <DevicesList devices={devices} />
+            </div>
           </Section>
 
           <Section
@@ -147,7 +151,7 @@ export default async function SettingsPage() {
             subtitle={
               subscriptionActive
                 ? `აქტიური გეგმა: ${tenant.plan_code ?? '—'}`
-                : 'სუბსკრიფცია ჯერ არ არის გააქტიურებული'
+                : 'ბეტა-ფაზაში უფასოა — Stripe activation მოლოდინშია'
             }
           >
             <Link
@@ -156,10 +160,11 @@ export default async function SettingsPage() {
             >
               <div>
                 <p className="text-[13px] font-semibold text-[var(--color-text-primary)]">
-                  გადახდების მართვა
+                  ფასების გეგმები
                 </p>
                 <p className="mt-0.5 text-[11px] text-[var(--color-text-tertiary)]">
-                  Stripe Checkout + Billing Portal · გეგმის შეცვლა, invoice-ები
+                  Stripe ჩართვის შემდეგ აქედან მართავ subscription-ს · გადახდის ისტორია ·
+                  invoice-ები
                 </p>
               </div>
               <ArrowRight className="h-4 w-4 text-[var(--color-text-tertiary)]" />
