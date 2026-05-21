@@ -22,8 +22,8 @@ export function TeamPerformanceCard({ rows, average, attendance }: TeamPerforman
       </div>
       <div className="p-5">
         <div className="mb-4 grid grid-cols-2 gap-3">
-          <Summary label="საშუალო" value={`${average}%`} />
-          <Summary label="დასწრება" value={`${attendance}%`} />
+          <Summary label="საშუალო" value={rows.length === 0 ? '—' : `${average}%`} />
+          <Summary label="დასწრება" value={rows.length === 0 ? '—' : `${attendance}%`} />
         </div>
         {rows.length === 0 ? (
           <div className="grid min-h-[170px] place-items-center text-center text-[13px] text-[var(--color-text-secondary)]">

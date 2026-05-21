@@ -63,7 +63,7 @@ export function MetricCardV2({
 
 function Delta({ deltaPct }: { deltaPct?: number }) {
   if (typeof deltaPct !== 'number') {
-    return <p className="text-[11px] font-semibold text-[var(--color-text-tertiary)]">stable</p>
+    return <p className="text-[11px] font-semibold text-[var(--color-text-tertiary)]">—</p>
   }
   const up = deltaPct >= 0
   return (

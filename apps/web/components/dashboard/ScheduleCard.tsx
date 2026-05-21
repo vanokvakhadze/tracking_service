@@ -19,7 +19,13 @@ export function ScheduleCard({ shifts }: ScheduleCardProps) {
         <h2 className="text-[14px] font-bold text-[var(--color-text-primary)]">
           დღევანდელი ცვლები
         </h2>
-        <p className="mt-0.5 text-[11px] text-[var(--color-text-tertiary)]">4 ადამიანის timeline</p>
+        <p className="mt-0.5 text-[11px] text-[var(--color-text-tertiary)]">
+          {shifts.length === 0
+            ? 'ცვლები არ არის'
+            : shifts.length === 1
+              ? '1 ცვლა'
+              : `${shifts.length} ცვლა`}
+        </p>
       </div>
       <div className="p-5">
         {shifts.length === 0 ? (

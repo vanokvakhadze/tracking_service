@@ -100,9 +100,7 @@ export function TeamStatusCard({ tenantId, initialMembers }: TeamStatusCardProps
     <section className="rounded-[8px] border border-[var(--color-border)] bg-white">
       <div className="border-b border-[var(--color-border)] px-5 py-3">
         <h2 className="text-[14px] font-bold text-[var(--color-text-primary)]">გუნდის სტატუსი</h2>
-        <p className="mt-0.5 text-[11px] text-[var(--color-text-tertiary)]">
-          Realtime shift updates
-        </p>
+        <p className="mt-0.5 text-[11px] text-[var(--color-text-tertiary)]">ცოცხალი განახლება</p>
       </div>
       <div className="p-5">
         {members.length === 0 ? (
@@ -160,7 +158,7 @@ function StatusPill({ status }: { status: TeamMemberVM['status'] }) {
         : 'border-[var(--color-border)] bg-[var(--color-surface-2)] text-[var(--color-text-secondary)]'
   return (
     <span className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${className}`}>
-      {status === 'active' ? 'active' : status === 'idle' ? 'idle' : 'off'}
+      {status === 'active' ? 'აქტიური' : status === 'idle' ? 'სტოპშია' : 'ოფლაინ'}
     </span>
   )
 }
@@ -178,7 +176,7 @@ function initials(name: string, email: string) {
 function formatRelative(iso: string | null) {
   if (!iso) return '-'
   const minutes = Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 60000))
-  if (minutes < 1) return 'now'
+  if (minutes < 1) return 'ახლა'
   if (minutes < 60) return `${minutes}წ`
   return `${Math.floor(minutes / 60)}ს`
 }

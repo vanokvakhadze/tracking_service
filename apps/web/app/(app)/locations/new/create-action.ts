@@ -16,7 +16,7 @@ const CreateLocationSchema = z
     boundaryRadiusM: z.coerce.number().int().min(100).max(5000),
   })
   .refine((value) => value.triggerRadiusM <= value.boundaryRadiusM, {
-    message: 'Trigger radius must be less than or equal to Boundary radius',
+    message: 'შიდა რადიუსი (trigger) გარე რადიუსზე (boundary) მცირე ან ტოლი უნდა იყოს',
     path: ['triggerRadiusM'],
   })
 
