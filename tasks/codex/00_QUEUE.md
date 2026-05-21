@@ -92,12 +92,35 @@ Code already in repo (commits 42b2930, 54f54ec, 33565dc, 41d8f40). UI ships in *
 
 ---
 
-## Phase 6+ tasks
+## Phase 8 — Post-MVP polish (design alignment + hygiene)
 
-Briefs not yet written. Phases:
+> Phase 7 (Polish + Launch) ships the product. Phase 8 brings the design-system v2 redesigns and the operational hygiene tasks that turn a working app into a beta-quality one. Each brief is atomic and independent unless a `Depends on` cell says otherwise.
 
-- Phase 6 (Super Admin) — see `tasks/07_PHASE_SUPER_ADMIN.md`
-- Phase 7 (Polish + Launch — Vercel deploy + Sentry + CI gates) — see `tasks/08_PHASE_POLISH.md`
+| # | Task | Type | Status | Depends on |
+|---|------|------|--------|-----------|
+| 046 | Push notification deep linking (mobile) | 🤖 | ✅ | — |
+| 047 | Web dashboard live shifts (Realtime) | 🤖 | ✅ | — |
+| 048 | Reports CSV export | 🤖 | ✅ | — |
+| 049 | Bulk user import via CSV | 🤖 | ✅ | — |
+| 050 | Shift annotations (admin notes) | 🤖 | ✅ | — |
+| 051 | Health check + Vercel Analytics | 🤖 | ✅ | — |
+| 052 | `/live-map` v2 redesign | 🤖 | ✅ | — |
+| 053 | `/alerts` v2 redesign | 🤖 | ✅ | — |
+| 054 | Dashboard v2 rebuild | 🤖 | ✅ | — |
+| 055 | Reports v2 rebuild | 🤖 | ✅ | — |
+| 056 | Locations v2 polish | 🤖 | ☐ | — |
+| 057 | Users v2 rebuild | 🤖 | ✅ | — |
+| 058 | Self-serve "delete my account" | 🤖 | 🔄 PR `codex/account-delete-and-quality-sweep` | — |
+| 059 | Code quality sweep (`as any`, imports) | 🤖 | 🔄 PR `codex/account-delete-and-quality-sweep` | — |
+| 060 | Docs staleness pass | 🤖 | 🔄 PR `codex/docs-staleness-pass` | — |
+| 061 | Zero-data hero panels (dashboard + reports) | 🤖 | ☐ | — |
+
+---
+
+## Phase 6+ tasks (briefs not yet written)
+
+- Phase 6 (Super Admin) — already implemented by Claude directly; no briefs needed. See `tasks/07_PHASE_SUPER_ADMIN.md`.
+- Phase 7 (Polish + Launch — Vercel deploy + Sentry + CI gates) — see `tasks/08_PHASE_POLISH.md`.
 - Phase 3 SDK-required (transistorsoft license, geofence Edge Function, push, navigation, mock GPS, offline) — see `tasks/04_PHASE_MOBILE_EMPLOYEE.md` tasks 3.2–3.5, 3.9, 3.10, 3.12, 3.13. **Blocked on $580 license.**
 
 ---
