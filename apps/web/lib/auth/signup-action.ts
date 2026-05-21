@@ -70,5 +70,5 @@ export async function signupCompany(formData: FormData) {
     }
   }
 
-  redirect('/dashboard')
+  redirect('/onboarding')
 }
