@@ -751,6 +751,41 @@ export type Database = {
         }
         Relationships: []
       }
+      tenant_alert_settings: {
+        Row: {
+          alert_kind: string
+          email_enabled: boolean
+          email_recipients: string[]
+          push_enabled: boolean
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          alert_kind: string
+          email_enabled?: boolean
+          email_recipients?: string[]
+          push_enabled?: boolean
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          alert_kind?: string
+          email_enabled?: boolean
+          email_recipients?: string[]
+          push_enabled?: boolean
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenant_alert_settings_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tenant_memberships: {
         Row: {
           created_at: string | null

@@ -38,10 +38,7 @@ export async function updateAlertSettings(payload: unknown): Promise<UpdateAlert
     email_recipients: row.emailRecipients,
   }))
 
-  // Table added in migration 20260521000001. Drop the cast after the
-  // migration is applied and `pnpm db:types` is re-run.
-  // biome-ignore lint/suspicious/noExplicitAny: see comment above
-  const { error } = await (supabase as any)
+  const { error } = await supabase
     .from('tenant_alert_settings')
     .upsert(rows, { onConflict: 'tenant_id,alert_kind' })
 

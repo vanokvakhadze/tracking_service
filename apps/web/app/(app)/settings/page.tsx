@@ -61,13 +61,11 @@ export default async function SettingsPage() {
       )
       .eq('id', tenantId)
       .single(),
-    // Table added in migration 20260521000001. Drop the cast after the
-    // migration is applied and `pnpm db:types` is re-run.
-    // biome-ignore lint/suspicious/noExplicitAny: see comment above
-    (supabase as any)
+    supabase
       .from('tenant_alert_settings')
       .select('alert_kind, push_enabled, email_enabled, email_recipients')
-      .eq('tenant_id', tenantId) as Promise<{ data: AlertSettingDbRow[] | null }>,
+      .eq('tenant_id', tenantId)
+      .overrideTypes<AlertSettingDbRow[], { merge: false }>(),
     supabase
       .from('user_devices')
       .select('id, platform, app_version, last_seen_at')
