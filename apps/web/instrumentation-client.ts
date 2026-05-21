@@ -1,5 +1,6 @@
-// Runs on the client. See https://docs.sentry.io/platforms/javascript/guides/nextjs/
-// Activated only when NEXT_PUBLIC_SENTRY_DSN is set so local/dev builds stay quiet.
+// Runs on the client. Sentry v8+ / Next.js 16 (Turbopack) picks up this file
+// instead of the legacy `sentry.client.config.ts`. Activated only when
+// NEXT_PUBLIC_SENTRY_DSN is set so local/dev builds stay quiet.
 
 import * as Sentry from '@sentry/nextjs'
 
