@@ -4,6 +4,7 @@ import { randomBytes } from 'node:crypto'
 import { z } from 'zod'
 import { getCurrentUser } from '@/lib/auth/actions'
 import { sendInviteEmail } from '@/lib/email/send-invite-email'
+import { reportServerActionError } from '@/lib/observability/report-error'
 import { createClient } from '@/lib/supabase/server'
 
 const RowSchema = z.object({
@@ -86,6 +87,12 @@ export async function bulkInviteFromCsv(csv: string): Promise<BulkResult> {
       if (error.code === '23505') {
         result.skipped += 1
       } else {
+        reportServerActionError(error, {
+          action: 'bulk-invite-row',
+          tenantId,
+          userId: authUser?.id ?? null,
+          extra: { email: parsed.data.email, role: parsed.data.role, row: index + 2 },
+        })
         result.errors.push({ row: index + 2, email: parsed.data.email, reason: error.message })
       }
       continue

@@ -2,6 +2,7 @@
 
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
+import { reportServerActionError } from '@/lib/observability/report-error'
 import { createClient } from '@/lib/supabase/server'
 
 const CreateLocationSchema = z
@@ -49,6 +50,11 @@ export async function createLocation(formData: FormData) {
   })
 
   if (error) {
+    reportServerActionError(error, {
+      action: 'create-location',
+      tenantId: parsed.data.tenantId,
+      extra: { name: parsed.data.name, category: parsed.data.category },
+    })
     return { error: error.message }
   }
 

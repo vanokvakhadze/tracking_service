@@ -2,6 +2,7 @@
 
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
+import { reportServerActionError } from '@/lib/observability/report-error'
 import { createClient } from '@/lib/supabase/server'
 
 const AcceptSchema = z.object({
@@ -41,6 +42,10 @@ export async function acceptInviteAction(formData: FormData) {
   })
 
   if (authError || !authData.user) {
+    reportServerActionError(authError ?? new Error('auth.signUp returned no user'), {
+      action: 'accept-invite-signup',
+      extra: { email: invitation.email },
+    })
     return { error: authError?.message ?? 'რეგისტრაცია ვერ მოხერხდა' }
   }
 
@@ -53,6 +58,11 @@ export async function acceptInviteAction(formData: FormData) {
   })
 
   if (rpcError) {
+    reportServerActionError(rpcError, {
+      action: 'accept-invite-rpc',
+      userId: authData.user.id,
+      extra: { email: invitation.email },
+    })
     return { error: 'მოწვევის გააქტიურება ვერ მოხერხდა — სცადე ხელახლა' }
   }
 

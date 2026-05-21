@@ -40,12 +40,83 @@ interface EventPayload {
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')
 const SERVICE_ROLE = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+const SENTRY_DSN = Deno.env.get('SENTRY_DSN')
 
 if (!SUPABASE_URL || !SERVICE_ROLE) {
   console.error('[geofence-event] missing SUPABASE_URL or SERVICE_ROLE_KEY')
 }
 
+// Minimal Sentry capture via direct fetch to the envelope endpoint. Avoids
+// pulling in the full @sentry/deno SDK (cold start cost) and only fires when
+// SENTRY_DSN is set, so local invokes stay quiet.
+function parseDsn(dsn: string) {
+  // https://<key>@<host>/<project_id>
+  const match = dsn.match(/^https:\/\/([^@]+)@([^/]+)\/(\d+)$/)
+  if (!match) return null
+  return { publicKey: match[1], host: match[2], projectId: match[3] }
+}
+
+async function captureSentryException(
+  err: unknown,
+  context: { tag: string; extra?: Record<string, unknown> },
+): Promise<void> {
+  if (!SENTRY_DSN) return
+  const parsed = parseDsn(SENTRY_DSN)
+  if (!parsed) return
+
+  const error = err instanceof Error ? err : new Error(String(err))
+  const event = {
+    event_id: crypto.randomUUID().replace(/-/g, ''),
+    timestamp: Math.floor(Date.now() / 1000),
+    platform: 'javascript',
+    level: 'error',
+    logger: 'geofence-event',
+    environment: Deno.env.get('SENTRY_ENVIRONMENT') ?? 'production',
+    tags: { edge_function: 'geofence-event', surface: context.tag },
+    extra: context.extra ?? {},
+    exception: {
+      values: [
+        {
+          type: error.name,
+          value: error.message,
+          stacktrace: error.stack ? { frames: parseStack(error.stack) } : undefined,
+        },
+      ],
+    },
+  }
+
+  try {
+    await fetch(`https://${parsed.host}/api/${parsed.projectId}/store/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Sentry-Auth': `Sentry sentry_version=7, sentry_key=${parsed.publicKey}, sentry_client=trackpro-edge/1.0`,
+      },
+      body: JSON.stringify(event),
+    })
+  } catch (sentryErr) {
+    console.error('[geofence-event] sentry capture failed', sentryErr)
+  }
+}
+
+function parseStack(stack: string) {
+  return stack
+    .split('\n')
+    .slice(1, 11)
+    .map((line) => ({ function: line.trim(), in_app: true }))
+}
+
 Deno.serve(async (req) => {
+  try {
+    return await handleRequest(req)
+  } catch (err) {
+    console.error('[geofence-event] unhandled error', err)
+    await captureSentryException(err, { tag: 'unhandled', extra: { url: req.url } })
+    return new Response('Internal error', { status: 500 })
+  }
+})
+
+async function handleRequest(req: Request): Promise<Response> {
   if (req.method !== 'POST') {
     return new Response('Method not allowed', { status: 405 })
   }
@@ -246,7 +317,7 @@ Deno.serve(async (req) => {
   return new Response(JSON.stringify({ ok: true }), {
     headers: { 'Content-Type': 'application/json' },
   })
-})
+}
 
 interface PushPayload {
   title: string
@@ -326,6 +397,10 @@ async function sendAlertEmail(recipients: string[], payload: PushPayload): Promi
     })
   } catch (err) {
     console.error('[geofence-event] email send failed', err)
+    void captureSentryException(err, {
+      tag: 'email-send',
+      extra: { recipients: recipients.length, title: payload.title },
+    })
   }
 }
 
@@ -387,5 +462,6 @@ async function sendExpoPush(
     })
   } catch (err) {
     console.error('[geofence-event] push send failed', err)
+    void captureSentryException(err, { tag: 'push-send', extra: { deviceCount: devices.length } })
   }
 }

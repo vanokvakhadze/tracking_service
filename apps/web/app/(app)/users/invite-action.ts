@@ -3,6 +3,7 @@
 import { randomBytes } from 'node:crypto'
 import { z } from 'zod'
 import { sendInviteEmail } from '@/lib/email/send-invite-email'
+import { reportServerActionError } from '@/lib/observability/report-error'
 import { createClient } from '@/lib/supabase/server'
 
 const InviteSchema = z.object({
@@ -57,6 +58,12 @@ export async function inviteUser(formData: FormData) {
   })
 
   if (insertError) {
+    reportServerActionError(insertError, {
+      action: 'invite-user',
+      tenantId: membership.tenant_id,
+      userId: authUser.id,
+      extra: { email: parsed.data.email, role: parsed.data.role },
+    })
     return { error: 'მოწვევა ვერ შეიქმნა' }
   }
 

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
+import { reportServerActionError } from '@/lib/observability/report-error'
 import { createClient } from '@/lib/supabase/server'
 
 const ALERT_KINDS = ['mock_gps', 'location_disabled', 'low_battery', 'out_of_zone'] as const
@@ -46,6 +47,10 @@ export async function updateAlertSettings(payload: unknown): Promise<UpdateAlert
     .upsert(rows, { onConflict: 'tenant_id,alert_kind' })
 
   if (error) {
+    reportServerActionError(error, {
+      action: 'update-alert-settings',
+      tenantId: parsed.data.tenantId,
+    })
     return { error: `შენახვა ვერ მოხერხდა: ${error.message}` }
   }
 

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
+import { reportServerActionError } from '@/lib/observability/report-error'
 import { createClient } from '@/lib/supabase/server'
 
 const UpdateTenantSchema = z.object({
@@ -36,7 +37,13 @@ export async function updateTenant(formData: FormData) {
     })
     .eq('id', parsed.data.tenantId)
 
-  if (error) return { error: 'შენახვა ვერ მოხერხდა' }
+  if (error) {
+    reportServerActionError(error, {
+      action: 'update-tenant',
+      tenantId: parsed.data.tenantId,
+    })
+    return { error: 'შენახვა ვერ მოხერხდა' }
+  }
 
   revalidatePath('/settings')
   revalidatePath('/dashboard')

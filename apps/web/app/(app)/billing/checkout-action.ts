@@ -2,6 +2,7 @@
 
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
+import { reportServerActionError } from '@/lib/observability/report-error'
 import { type PlanCode, priceIdForPlan, stripe } from '@/lib/stripe/server'
 import { createClient } from '@/lib/supabase/server'
 
@@ -65,23 +66,40 @@ export async function createCheckoutSession(formData: FormData) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
   const plan = parsed.data.plan as PlanCode
 
-  const session = await stripe.checkout.sessions.create({
-    customer: customerId,
-    mode: 'subscription',
-    line_items: [{ price: priceIdForPlan(plan), quantity }],
-    success_url: `${appUrl}/billing?success=true`,
-    cancel_url: `${appUrl}/billing?canceled=true`,
-    automatic_tax: { enabled: true },
-    allow_promotion_codes: true,
-    subscription_data: {
-      metadata: {
-        tenant_id: tenant.id,
-        plan_code: plan,
+  let session
+  try {
+    session = await stripe.checkout.sessions.create({
+      customer: customerId,
+      mode: 'subscription',
+      line_items: [{ price: priceIdForPlan(plan), quantity }],
+      success_url: `${appUrl}/billing?success=true`,
+      cancel_url: `${appUrl}/billing?canceled=true`,
+      automatic_tax: { enabled: true },
+      allow_promotion_codes: true,
+      subscription_data: {
+        metadata: {
+          tenant_id: tenant.id,
+          plan_code: plan,
+        },
       },
-    },
-  })
+    })
+  } catch (stripeError) {
+    reportServerActionError(stripeError, {
+      action: 'stripe-create-checkout',
+      tenantId: tenant.id,
+      userId: user.id,
+      extra: { plan, quantity },
+    })
+    return { error: 'Stripe Checkout-ი ვერ შეიქმნა — სცადე მოგვიანებით' }
+  }
 
   if (!session.url) {
+    reportServerActionError(new Error('Stripe checkout session missing url'), {
+      action: 'stripe-create-checkout',
+      tenantId: tenant.id,
+      userId: user.id,
+      extra: { sessionId: session.id, plan },
+    })
     return { error: 'Checkout URL ვერ მოვიდა Stripe-დან' }
   }
 

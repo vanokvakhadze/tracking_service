@@ -2,6 +2,7 @@
 
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
+import { reportServerActionError } from '@/lib/observability/report-error'
 import { createClient } from '@/lib/supabase/server'
 
 const SignupSchema = z.object({
@@ -46,6 +47,10 @@ export async function signupCompany(formData: FormData) {
   })
 
   if (authError || !authData.user) {
+    reportServerActionError(authError ?? new Error('auth.signUp returned no user'), {
+      action: 'signup',
+      extra: { email: parsed.data.email },
+    })
     return { error: authError?.message ?? 'რეგისტრაცია ვერ მოხერხდა' }
   }
 
@@ -63,6 +68,13 @@ export async function signupCompany(formData: FormData) {
   if (rpcError) {
     const isSubdomainConflict =
       rpcError.code === '23505' || rpcError.message?.toLowerCase().includes('subdomain')
+    if (!isSubdomainConflict) {
+      reportServerActionError(rpcError, {
+        action: 'create-tenant-with-admin',
+        userId: authData.user.id,
+        extra: { subdomain: parsed.data.subdomain, companyName: parsed.data.companyName },
+      })
+    }
     return {
       error: isSubdomainConflict
         ? 'subdomain უკვე გამოყენებულია'
