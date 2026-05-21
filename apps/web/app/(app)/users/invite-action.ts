@@ -2,6 +2,7 @@
 
 import { randomBytes } from 'node:crypto'
 import { z } from 'zod'
+import { sendInviteEmail } from '@/lib/email/send-invite-email'
 import { createClient } from '@/lib/supabase/server'
 
 const InviteSchema = z.object({
@@ -59,9 +60,25 @@ export async function inviteUser(formData: FormData) {
     return { error: 'მოწვევა ვერ შეიქმნა' }
   }
 
-  // No Resend yet — return the link so the admin can hand it over manually.
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
   const inviteUrl = `${appUrl}/accept-invite/${token}`
 
-  return { success: true, inviteUrl }
+  const [{ data: tenant }, { data: inviter }] = await Promise.all([
+    supabase.from('tenants').select('name').eq('id', membership.tenant_id).single(),
+    supabase.from('users').select('first_name, last_name').eq('id', authUser.id).single(),
+  ])
+
+  const inviterName =
+    [inviter?.first_name, inviter?.last_name].filter(Boolean).join(' ').trim() || null
+
+  const emailResult = await sendInviteEmail({
+    to: parsed.data.email,
+    inviteUrl,
+    companyName: tenant?.name ?? 'TrackPro',
+    inviterName,
+    role: parsed.data.role,
+    expiresAt,
+  })
+
+  return { success: true, inviteUrl, emailSent: emailResult.sent }
 }

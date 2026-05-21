@@ -3,6 +3,7 @@
 import { randomBytes } from 'node:crypto'
 import { z } from 'zod'
 import { getCurrentUser } from '@/lib/auth/actions'
+import { sendInviteEmail } from '@/lib/email/send-invite-email'
 import { createClient } from '@/lib/supabase/server'
 
 const RowSchema = z.object({
@@ -42,10 +43,15 @@ export async function bulkInviteFromCsv(csv: string): Promise<BulkResult> {
   const supabase = await createClient()
   const result: BulkResult = { ok: 0, skipped: 0, errors: [] }
 
-  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+  const expiresAtMs = Date.now() + 7 * 24 * 60 * 60 * 1000
+  const expiresAt = new Date(expiresAtMs).toISOString()
   const {
     data: { user: authUser },
   } = await supabase.auth.getUser()
+
+  const companyName = membership.tenant?.name ?? 'TrackPro'
+  const inviterName = [me?.first_name, me?.last_name].filter(Boolean).join(' ').trim() || null
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
 
   for (let index = 0; index < rows.length; index++) {
     const raw = rows[index]
@@ -66,11 +72,12 @@ export async function bulkInviteFromCsv(csv: string): Promise<BulkResult> {
       continue
     }
 
+    const token = generateToken()
     const { error } = await supabase.from('invitations').insert({
       tenant_id: tenantId,
       email: parsed.data.email,
       role: parsed.data.role,
-      token: generateToken(),
+      token,
       expires_at: expiresAt,
       invited_by_user_id: authUser?.id ?? null,
     })
@@ -83,6 +90,15 @@ export async function bulkInviteFromCsv(csv: string): Promise<BulkResult> {
       }
       continue
     }
+
+    await sendInviteEmail({
+      to: parsed.data.email,
+      inviteUrl: `${appUrl}/accept-invite/${token}`,
+      companyName,
+      inviterName,
+      role: parsed.data.role,
+      expiresAt: new Date(expiresAtMs),
+    })
 
     result.ok += 1
   }
