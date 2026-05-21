@@ -53,6 +53,11 @@ interface EventRow {
   location: { name: string | null } | { name: string | null }[] | null
 }
 
+interface PingRow {
+  user_id: string
+  recorded_at: string
+}
+
 interface AdminAlertRow {
   id: string
   severity: string
@@ -84,6 +89,7 @@ export default async function DashboardPage() {
   sevenDaysAgo.setDate(todayStart.getDate() - 6)
 
   let yesterdayShifts: ShiftRow[] = []
+  let recentPings: PingRow[] = []
 
   if (tenant?.id) {
     const [
@@ -93,6 +99,7 @@ export default async function DashboardPage() {
       yesterdayResult,
       membersResult,
       eventsResult,
+      pingsResult,
       alertsResult,
     ] = await Promise.all([
       supabase
@@ -138,6 +145,12 @@ export default async function DashboardPage() {
         .order('occurred_at', { ascending: false })
         .limit(500),
       supabase
+        .from('location_pings')
+        .select('user_id, recorded_at')
+        .eq('tenant_id', tenant.id)
+        .gte('recorded_at', new Date(Date.now() - 30 * 60 * 1000).toISOString())
+        .order('recorded_at', { ascending: false }),
+      supabase
         .rpc('get_admin_alerts', { p_tenant_id: tenant.id })
         .overrideTypes<AdminAlertRow[], { merge: false }>(),
     ])
@@ -148,6 +161,7 @@ export default async function DashboardPage() {
     yesterdayShifts = (yesterdayResult.data ?? []) as ShiftRow[]
     members = (membersResult.data ?? []) as MembershipRow[]
     events = (eventsResult.data ?? []) as EventRow[]
+    recentPings = (pingsResult.data ?? []) as PingRow[]
     alerts = (alertsResult.data ?? []).filter(isValidAlert).map((alert) => ({
       id: alert.id,
       severity: alert.severity,
@@ -177,7 +191,7 @@ export default async function DashboardPage() {
   })
   const initialShifts = activeShifts.map(toLiveShift)
   const schedule = todayShifts.map(toSchedule)
-  const teamMembers = buildTeamMembers(members, activeShifts)
+  const teamMembers = buildTeamMembers(members, activeShifts, recentPings)
   const performanceRows = buildPerformanceRows(events)
   const productivity = scoreFromShifts(todayShifts)
   const attendance =
@@ -284,19 +298,40 @@ function toSchedule(row: ShiftRow): ScheduleVM {
   }
 }
 
-function buildTeamMembers(members: MembershipRow[], activeShifts: ShiftRow[]): TeamMemberVM[] {
+function buildTeamMembers(
+  members: MembershipRow[],
+  activeShifts: ShiftRow[],
+  recentPings: PingRow[],
+): TeamMemberVM[] {
   const activeByUser = new Map(activeShifts.map((shift) => [shift.user_id, shift]))
+  const latestPingByUser = new Map<string, number>()
+  for (const ping of recentPings) {
+    const t = new Date(ping.recorded_at).getTime()
+    const existing = latestPingByUser.get(ping.user_id)
+    if (existing === undefined || t > existing) latestPingByUser.set(ping.user_id, t)
+  }
+  const idleThresholdMs = 10 * 60 * 1000
+  const now = Date.now()
   return members.slice(0, 8).map((member) => {
     const user = pickUser(member.user)
     const activeShift = activeByUser.get(member.user_id)
+    const lastPing = latestPingByUser.get(member.user_id)
+    const status: TeamMemberVM['status'] = activeShift
+      ? lastPing !== undefined && now - lastPing <= idleThresholdMs
+        ? 'active'
+        : 'idle'
+      : 'off'
+    const lastSeenAt = lastPing
+      ? new Date(lastPing).toISOString()
+      : (activeShift?.started_at ?? null)
     return {
       id: member.id,
       user_id: member.user_id,
       user_name: displayName(user),
       email: user?.email ?? '',
       location_name: null,
-      status: activeShift ? 'active' : 'off',
-      last_seen_at: activeShift?.started_at ?? null,
+      status,
+      last_seen_at: lastSeenAt,
     }
   })
 }

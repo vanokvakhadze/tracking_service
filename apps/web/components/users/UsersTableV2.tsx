@@ -1,8 +1,8 @@
 'use client'
 
 import { Avatar } from '@/components/ui/Avatar'
+import { Sparkline } from '@/components/dashboard/Sparkline'
 import { MoreHorizontal, Pencil, Phone, Search } from 'lucide-react'
-import { Sparkline } from './Sparkline'
 import { type MembershipRow, roleLabels } from './types'
 
 type SortKey = 'visits' | 'productivity' | 'activity'
@@ -203,7 +203,7 @@ export function UsersTableV2({
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-3">
-                    <Sparkline points={row.activity_trend ?? []} />
+                    <Sparkline points={row.activity_trend ?? []} width={88} />
                     <span className="text-[11px] text-[var(--color-text-tertiary)]">
                       {formatRelative(user.last_login_at)}
                     </span>

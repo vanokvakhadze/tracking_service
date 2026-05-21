@@ -39,6 +39,17 @@ export function Heatmap({ matrix }: HeatmapProps) {
             />
           ))}
         </div>
+        <div className="mt-4 flex items-center justify-end gap-2 text-[10px] text-[var(--color-text-tertiary)]">
+          <span>ნაკლები</span>
+          <div
+            className="h-2 w-32 rounded-full border border-[var(--color-border)]"
+            style={{
+              background:
+                'linear-gradient(to right, color-mix(in srgb, var(--color-accent) 8%, transparent), var(--color-accent))',
+            }}
+          />
+          <span className="tabular-nums">მეტი · {max}</span>
+        </div>
       </div>
     </section>
   )
