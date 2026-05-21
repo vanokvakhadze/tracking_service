@@ -3,7 +3,8 @@
 import { SubHeader } from '@/components/layout/SubHeader'
 import { MapboxMap, type MarkerSpec } from '@/components/map/MapboxMap'
 import { Button } from '@/components/ui/Button'
-import { Download, Plus, Search } from 'lucide-react'
+import { EmptyState } from '@/components/ui/EmptyState'
+import { Download, MapPin, Plus, Search } from 'lucide-react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { useMemo, useState } from 'react'
@@ -183,9 +184,20 @@ export function LocationsPageClient({
             ) : (
               <section className="grid grid-cols-1 gap-4 2xl:grid-cols-2">
                 {filtered.length === 0 ? (
-                  <div className="rounded-[8px] border border-[var(--color-border)] bg-white p-12 text-center text-[13px] text-[var(--color-text-secondary)]">
-                    ამ ფილტრებით ლოკაცია ვერ მოიძებნა.
-                  </div>
+                  initialRows.length === 0 ? (
+                    <div className="2xl:col-span-2">
+                      <EmptyState
+                        icon={<MapPin className="h-6 w-6" />}
+                        title="პირველი ლოკაცია ჯერ არ შექმნილა"
+                        description="ოფისი, საწყობი ან customer site — დაამატე ლოკაცია geofence radius-ით და თანამშრომელი ცვლის გახსნისთანავე აქ გამოჩნდება."
+                        action={{ label: 'დაამატე ლოკაცია', href: '/locations/new' }}
+                      />
+                    </div>
+                  ) : (
+                    <div className="rounded-[8px] border border-[var(--color-border)] bg-white p-12 text-center text-[13px] text-[var(--color-text-secondary)] 2xl:col-span-2">
+                      ამ ფილტრებით ლოკაცია ვერ მოიძებნა.
+                    </div>
+                  )
                 ) : (
                   filtered.map((location) => (
                     <LocationHeroCard

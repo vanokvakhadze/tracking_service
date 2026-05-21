@@ -3,8 +3,10 @@ import { SubHeader } from '@/components/layout/SubHeader'
 import { LiveMapView } from '@/components/live-map/LiveMapView'
 import type { LiveMapLocation, TrackerVM } from '@/components/live-map/types'
 import { elapsedLabel, initialsOf, pickAvatarColors } from '@/components/live-map/types'
+import { EmptyState } from '@/components/ui/EmptyState'
 import { getCurrentUser } from '@/lib/auth/actions'
 import { createClient } from '@/lib/supabase/server'
+import { MapIcon } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
@@ -184,6 +186,8 @@ export default async function LiveMapPage() {
     location: Array.isArray(event.location) ? (event.location[0] ?? null) : event.location,
   }))
 
+  const hasActivity = initialTrackers.length > 0 || initialEvents.length > 0
+
   return (
     <>
       <SubHeader
@@ -191,13 +195,36 @@ export default async function LiveMapPage() {
         subtitle={`${locations.filter((l) => l.is_active).length} ლოკაცია · ${initialTrackers.length} აქტიური ცვლა`}
         liveLabel="ცოცხალია"
       />
-      <LiveMapView
-        tenantId={tenant.id}
-        initialTrackers={initialTrackers}
-        initialEvents={initialEvents}
-        initialPings={initialPings}
-        locations={locations}
-      />
+      {hasActivity ? (
+        <LiveMapView
+          tenantId={tenant.id}
+          initialTrackers={initialTrackers}
+          initialEvents={initialEvents}
+          initialPings={initialPings}
+          locations={locations}
+        />
+      ) : (
+        <main className="mx-auto max-w-2xl p-6">
+          <EmptyState
+            icon={<MapIcon className="h-6 w-6" />}
+            title={
+              locations.length === 0
+                ? 'setup ჯერ არ დასრულდა'
+                : 'ცოცხალი მონაცემები ჯერ არ შემოვიდა'
+            }
+            description={
+              locations.length === 0
+                ? 'ცოცხალი რუკისთვის ჯერ ლოკაცია უნდა შექმნა, შემდეგ თანამშრომელი მობილური აპლიკაციით უნდა გახსნას ცვლა.'
+                : 'როცა თანამშრომელი მობილური აპლიკაციით ცვლას გახსნის, აქ real-time კოორდინატები გამოჩნდება.'
+            }
+            action={
+              locations.length === 0
+                ? { label: 'დააყენე setup', href: '/onboarding' }
+                : { label: 'მოიწვიე გუნდი', href: '/users' }
+            }
+          />
+        </main>
+      )}
     </>
   )
 }
