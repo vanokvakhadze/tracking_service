@@ -100,9 +100,20 @@ export function LiveFeed({ tenantId, initialEvents }: LiveFeedProps) {
       </div>
       <div className="max-h-[280px] overflow-auto p-5">
         {events.length === 0 ? (
-          <p className="py-10 text-center text-[13px] text-[var(--color-text-secondary)]">
-            მონაცემები მზადდება
-          </p>
+          <div className="grid place-items-center py-10 text-center">
+            <div>
+              <span className="relative inline-flex h-2.5 w-2.5">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--color-accent)] opacity-50" />
+                <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[var(--color-accent)]" />
+              </span>
+              <p className="mt-3 text-[13px] font-semibold text-[var(--color-text-primary)]">
+                მონაცემები მზადდება
+              </p>
+              <p className="mt-1 text-[11px] text-[var(--color-text-secondary)]">
+                ცვლის enter / exit events აქ ცოცხლად შემოვა.
+              </p>
+            </div>
+          </div>
         ) : (
           <ul className="space-y-3">
             {events.map((event) => (

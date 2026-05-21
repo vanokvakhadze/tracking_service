@@ -16,6 +16,7 @@ interface HeroChartProps {
 export function HeroChart({ series, labels }: HeroChartProps) {
   const [visible, setVisible] = useState(() => new Set(series.map((item) => item.name)))
   const chart = useMemo(() => buildChart(series, visible), [series, visible])
+  const hasData = series.some((item) => item.points.some((point) => point > 0))
 
   function toggle(name: string) {
     setVisible((current) => {
@@ -56,6 +57,18 @@ export function HeroChart({ series, labels }: HeroChartProps) {
         </div>
       </div>
       <div className="p-5">
+        {!hasData ? (
+          <div className="grid h-[280px] place-items-center text-center">
+            <div>
+              <p className="text-[13px] font-semibold text-[var(--color-text-primary)]">
+                მონაცემები ჯერ არ შემოვიდა
+              </p>
+              <p className="mt-1 text-[12px] text-[var(--color-text-secondary)]">
+                მობილური აპლიკაციით ცვლის დაწყების შემდეგ ტრენდი აქ გამოჩნდება.
+              </p>
+            </div>
+          </div>
+        ) : (
         <svg className="h-[280px] w-full" role="img" viewBox="0 0 720 280">
           <title>Reports trend chart</title>
           {[0, 1, 2, 3].map((line) => (
@@ -100,6 +113,7 @@ export function HeroChart({ series, labels }: HeroChartProps) {
             )
           })}
         </svg>
+        )}
       </div>
     </section>
   )
