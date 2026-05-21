@@ -1,4 +1,4 @@
-﻿export type Json =
+export type Json =
   | string
   | number
   | boolean
@@ -209,6 +209,7 @@ export type Database = {
           shift_id: string | null
           tenant_id: string
           user_id: string
+          zone: string
         }
         Insert: {
           accuracy_m?: number | null
@@ -221,6 +222,7 @@ export type Database = {
           shift_id?: string | null
           tenant_id: string
           user_id: string
+          zone?: string
         }
         Update: {
           accuracy_m?: number | null
@@ -233,6 +235,7 @@ export type Database = {
           shift_id?: string | null
           tenant_id?: string
           user_id?: string
+          zone?: string
         }
         Relationships: [
           {
@@ -624,6 +627,7 @@ export type Database = {
           id: string
           locations_visited: number | null
           notes: string | null
+          pending_close_at: string | null
           start_location: unknown
           started_at: string
           status: Database["public"]["Enums"]["shift_status"]
@@ -640,6 +644,7 @@ export type Database = {
           id?: string
           locations_visited?: number | null
           notes?: string | null
+          pending_close_at?: string | null
           start_location?: unknown
           started_at?: string
           status?: Database["public"]["Enums"]["shift_status"]
@@ -656,6 +661,7 @@ export type Database = {
           id?: string
           locations_visited?: number | null
           notes?: string | null
+          pending_close_at?: string | null
           start_location?: unknown
           started_at?: string
           status?: Database["public"]["Enums"]["shift_status"]
@@ -1218,6 +1224,7 @@ export type Database = {
         | { Args: { table_name: string }; Returns: string }
       enablelongtransactions: { Args: never; Returns: string }
       equals: { Args: { geom1: unknown; geom2: unknown }; Returns: boolean }
+      finalize_pending_shifts: { Args: never; Returns: number }
       geometry: { Args: { "": string }; Returns: unknown }
       geometry_above: {
         Args: { geom1: unknown; geom2: unknown }
