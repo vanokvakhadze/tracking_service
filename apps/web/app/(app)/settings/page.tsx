@@ -19,6 +19,16 @@ interface AlertSettingDbRow {
   email_recipients: string[]
 }
 
+interface AlertSettingsSelectQuery {
+  select: (columns: string) => {
+    eq: (column: 'tenant_id', value: string) => Promise<{ data: AlertSettingDbRow[] | null }>
+  }
+}
+
+interface AlertSettingsClient {
+  from: (table: 'tenant_alert_settings') => AlertSettingsSelectQuery
+}
+
 interface DeviceRow {
   id: string
   platform: string
@@ -94,6 +104,7 @@ export default async function SettingsPage() {
           .in('role', [...ADMIN_ROLES])
           .overrideTypes<AdminMembershipRow[], { merge: false }>()
       : Promise.resolve({ data: [] as AdminMembershipRow[], error: null })
+  const alertSettingsClient = supabase as unknown as AlertSettingsClient
 
   const [
     { data: tenant },
@@ -108,13 +119,10 @@ export default async function SettingsPage() {
       )
       .eq('id', tenantId)
       .single(),
-    // Table added in migration 20260521000001. Drop the cast after the
-    // migration is applied and `pnpm db:types` is re-run.
-    // biome-ignore lint/suspicious/noExplicitAny: see comment above
-    (supabase as any)
+    alertSettingsClient
       .from('tenant_alert_settings')
       .select('alert_kind, push_enabled, email_enabled, email_recipients')
-      .eq('tenant_id', tenantId) as Promise<{ data: AlertSettingDbRow[] | null }>,
+      .eq('tenant_id', tenantId),
     supabase
       .from('user_devices')
       .select('id, platform, app_version, last_seen_at')

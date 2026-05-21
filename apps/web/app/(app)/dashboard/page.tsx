@@ -14,7 +14,7 @@ import { SubHeader } from '@/components/layout/SubHeader'
 import type { LocationRow } from '@/components/locations/types'
 import { getCurrentUser } from '@/lib/auth/actions'
 import { createClient } from '@/lib/supabase/server'
-import { Activity, Bell, MapPin, Route, Users } from 'lucide-react'
+import { Activity, Bell, MapPin, Route } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 

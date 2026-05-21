@@ -1,8 +1,8 @@
 'use server'
 
+import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
-import { createClient } from '@/lib/supabase/server'
 
 const ALERT_KINDS = ['mock_gps', 'location_disabled', 'low_battery', 'out_of_zone'] as const
 
@@ -23,6 +23,23 @@ export interface UpdateAlertSettingsResult {
   error?: string
 }
 
+interface TenantAlertSettingsQuery {
+  upsert: (
+    rows: Array<{
+      tenant_id: string
+      alert_kind: (typeof ALERT_KINDS)[number]
+      push_enabled: boolean
+      email_enabled: boolean
+      email_recipients: string[]
+    }>,
+    options: { onConflict: string },
+  ) => Promise<{ error: { message: string } | null }>
+}
+
+interface TenantAlertSettingsClient {
+  from: (table: 'tenant_alert_settings') => TenantAlertSettingsQuery
+}
+
 export async function updateAlertSettings(payload: unknown): Promise<UpdateAlertSettingsResult> {
   const parsed = PayloadSchema.safeParse(payload)
   if (!parsed.success) {
@@ -38,10 +55,8 @@ export async function updateAlertSettings(payload: unknown): Promise<UpdateAlert
     email_recipients: row.emailRecipients,
   }))
 
-  // Table added in migration 20260521000001. Drop the cast after the
-  // migration is applied and `pnpm db:types` is re-run.
-  // biome-ignore lint/suspicious/noExplicitAny: see comment above
-  const { error } = await (supabase as any)
+  const alertSettingsClient = supabase as unknown as TenantAlertSettingsClient
+  const { error } = await alertSettingsClient
     .from('tenant_alert_settings')
     .upsert(rows, { onConflict: 'tenant_id,alert_kind' })
 
