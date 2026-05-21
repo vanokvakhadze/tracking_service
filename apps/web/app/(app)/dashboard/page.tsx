@@ -78,58 +78,74 @@ export default async function DashboardPage() {
 
   const todayStart = new Date()
   todayStart.setHours(0, 0, 0, 0)
+  const yesterdayStart = new Date(todayStart)
+  yesterdayStart.setDate(todayStart.getDate() - 1)
   const sevenDaysAgo = new Date(todayStart)
   sevenDaysAgo.setDate(todayStart.getDate() - 6)
 
+  let yesterdayShifts: ShiftRow[] = []
+
   if (tenant?.id) {
-    const [locationsResult, activeResult, todayResult, membersResult, eventsResult, alertsResult] =
-      await Promise.all([
-        supabase
-          .from('locations')
-          .select(
-            'id, name, category, address, latitude, longitude, radius_m, is_active, created_at',
-          )
-          .eq('tenant_id', tenant.id)
-          .is('deleted_at', null)
-          .order('created_at', { ascending: false })
-          .overrideTypes<LocationRow[], { merge: false }>(),
-        supabase
-          .from('shifts')
-          .select(
-            'id, user_id, started_at, ended_at, status, total_distance_m, total_dwell_minutes, locations_visited, user:users(first_name, last_name, email)',
-          )
-          .eq('tenant_id', tenant.id)
-          .eq('status', 'active')
-          .order('started_at', { ascending: false }),
-        supabase
-          .from('shifts')
-          .select(
-            'id, user_id, started_at, ended_at, status, total_distance_m, total_dwell_minutes, locations_visited, user:users(first_name, last_name, email)',
-          )
-          .eq('tenant_id', tenant.id)
-          .gte('started_at', todayStart.toISOString())
-          .order('started_at', { ascending: true }),
-        supabase
-          .from('tenant_memberships')
-          .select('id, user_id, is_active, user:users(first_name, last_name, email)')
-          .eq('tenant_id', tenant.id)
-          .eq('is_active', true)
-          .order('created_at', { ascending: false }),
-        supabase
-          .from('geofence_events')
-          .select('id, location_id, occurred_at, location:locations(name)')
-          .eq('tenant_id', tenant.id)
-          .gte('occurred_at', sevenDaysAgo.toISOString())
-          .order('occurred_at', { ascending: false })
-          .limit(500),
-        supabase
-          .rpc('get_admin_alerts', { p_tenant_id: tenant.id })
-          .overrideTypes<AdminAlertRow[], { merge: false }>(),
-      ])
+    const [
+      locationsResult,
+      activeResult,
+      todayResult,
+      yesterdayResult,
+      membersResult,
+      eventsResult,
+      alertsResult,
+    ] = await Promise.all([
+      supabase
+        .from('locations')
+        .select('id, name, category, address, latitude, longitude, radius_m, is_active, created_at')
+        .eq('tenant_id', tenant.id)
+        .is('deleted_at', null)
+        .order('created_at', { ascending: false })
+        .overrideTypes<LocationRow[], { merge: false }>(),
+      supabase
+        .from('shifts')
+        .select(
+          'id, user_id, started_at, ended_at, status, total_distance_m, total_dwell_minutes, locations_visited, user:users(first_name, last_name, email)',
+        )
+        .eq('tenant_id', tenant.id)
+        .eq('status', 'active')
+        .order('started_at', { ascending: false }),
+      supabase
+        .from('shifts')
+        .select(
+          'id, user_id, started_at, ended_at, status, total_distance_m, total_dwell_minutes, locations_visited, user:users(first_name, last_name, email)',
+        )
+        .eq('tenant_id', tenant.id)
+        .gte('started_at', todayStart.toISOString())
+        .order('started_at', { ascending: true }),
+      supabase
+        .from('shifts')
+        .select('id, user_id, started_at, ended_at, status, total_distance_m')
+        .eq('tenant_id', tenant.id)
+        .gte('started_at', yesterdayStart.toISOString())
+        .lt('started_at', todayStart.toISOString()),
+      supabase
+        .from('tenant_memberships')
+        .select('id, user_id, is_active, user:users(first_name, last_name, email)')
+        .eq('tenant_id', tenant.id)
+        .eq('is_active', true)
+        .order('created_at', { ascending: false }),
+      supabase
+        .from('geofence_events')
+        .select('id, location_id, occurred_at, location:locations(name)')
+        .eq('tenant_id', tenant.id)
+        .gte('occurred_at', sevenDaysAgo.toISOString())
+        .order('occurred_at', { ascending: false })
+        .limit(500),
+      supabase
+        .rpc('get_admin_alerts', { p_tenant_id: tenant.id })
+        .overrideTypes<AdminAlertRow[], { merge: false }>(),
+    ])
 
     locations = locationsResult.data ?? []
     activeShifts = (activeResult.data ?? []) as ShiftRow[]
     todayShifts = (todayResult.data ?? []) as ShiftRow[]
+    yesterdayShifts = (yesterdayResult.data ?? []) as ShiftRow[]
     members = (membersResult.data ?? []) as MembershipRow[]
     events = (eventsResult.data ?? []) as EventRow[]
     alerts = (alertsResult.data ?? []).filter(isValidAlert).map((alert) => ({
@@ -142,8 +158,17 @@ export default async function DashboardPage() {
   }
 
   const activeLocations = locations.filter((location) => location.is_active).length
-  const totalDistanceTodayKm =
-    todayShifts.reduce((sum, shift) => sum + (shift.total_distance_m ?? 0), 0) / 1000
+  const totalDistanceTodayM = todayShifts.reduce(
+    (sum, shift) => sum + (shift.total_distance_m ?? 0),
+    0,
+  )
+  const totalDistanceYesterdayM = yesterdayShifts.reduce(
+    (sum, shift) => sum + (shift.total_distance_m ?? 0),
+    0,
+  )
+  const totalDistanceTodayKm = totalDistanceTodayM / 1000
+  const shiftsDeltaPct = pctChange(todayShifts.length, yesterdayShifts.length)
+  const distanceDeltaPct = pctChange(totalDistanceTodayM, totalDistanceYesterdayM)
   const visitsToday = todayShifts.reduce((sum, shift) => sum + (shift.locations_visited ?? 0), 0)
   const userName = displayName({
     first_name: currentUser?.first_name ?? null,
@@ -173,7 +198,7 @@ export default async function DashboardPage() {
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <MetricCardV2
-            deltaPct={activeShifts.length > 0 ? 12 : 0}
+            deltaPct={shiftsDeltaPct}
             icon={Activity}
             label="აქტიური ცვლები"
             tone="accent"
@@ -181,7 +206,7 @@ export default async function DashboardPage() {
             value={`${activeShifts.length} / ${members.length}`}
           />
           <MetricCardV2
-            deltaPct={Math.round(totalDistanceTodayKm) > 0 ? 8 : 0}
+            deltaPct={distanceDeltaPct}
             icon={Route}
             label="დღევანდელი მანძილი"
             tone="success"
@@ -196,7 +221,6 @@ export default async function DashboardPage() {
             value={`${activeLocations}`}
           />
           <MetricCardV2
-            deltaPct={alerts.length > 0 ? -alerts.length : 0}
             icon={Bell}
             label="აქტიური ალერტი"
             tone={alerts.some((alert) => alert.severity === 'critical') ? 'error' : 'warning'}
@@ -333,6 +357,11 @@ function scoreFromShifts(shifts: ShiftRow[]) {
     return sum + Math.max(0, Math.round((end - new Date(shift.started_at).getTime()) / 60000))
   }, 0)
   return Math.min(100, Math.round((activeMinutes / (shifts.length * 8 * 60)) * 100))
+}
+
+function pctChange(current: number, previous: number): number | undefined {
+  if (previous <= 0) return undefined
+  return Math.round(((current - previous) / previous) * 100)
 }
 
 function buildSevenDayKeys() {
