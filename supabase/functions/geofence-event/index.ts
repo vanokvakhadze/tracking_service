@@ -295,38 +295,132 @@ async function dispatchAlert(
   }
 
   if (setting.email_enabled && setting.email_recipients.length > 0) {
-    await sendAlertEmail(setting.email_recipients, payload)
+    await sendAlertEmail(setting.email_recipients, alertKind, payload)
   }
 }
 
-async function sendAlertEmail(recipients: string[], payload: PushPayload): Promise<void> {
-  // Resend integration is wired here when RESEND_API_KEY is configured.
-  // For now we log and return -- the setting is persisted so the day we
-  // flip the key on, no further code changes are required.
+const SEVERITY_BY_KIND: Record<AlertKind, 'critical' | 'warning'> = {
+  mock_gps: 'critical',
+  location_disabled: 'critical',
+  low_battery: 'warning',
+  out_of_zone: 'warning',
+}
+
+const APP_URL = Deno.env.get('APP_URL') ?? 'https://tracking-service-web.vercel.app'
+
+async function sendAlertEmail(
+  recipients: string[],
+  alertKind: AlertKind,
+  payload: PushPayload,
+): Promise<void> {
   const apiKey = Deno.env.get('RESEND_API_KEY')
   if (!apiKey) {
     console.log(
-      `[geofence-event] email skipped (RESEND_API_KEY not set) recipients=${recipients.length} title=${payload.title}`,
+      `[geofence-event] email skipped (RESEND_API_KEY not set) recipients=${recipients.length} kind=${alertKind}`,
     )
     return
   }
+
+  // EMAIL_FROM should be a verified Resend identity. Until the customer
+  // verifies trackpro.ge in Resend, fall back to Resend's sandbox sender
+  // so test sends still arrive.
+  const from = Deno.env.get('EMAIL_FROM') ?? 'TrackPro <onboarding@resend.dev>'
+  const severity = SEVERITY_BY_KIND[alertKind]
+
   try {
-    await fetch('https://api.resend.com/emails', {
+    const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'TrackPro <alerts@trackpro.ge>',
+        from,
         to: recipients,
-        subject: payload.title,
-        text: payload.body,
+        subject: `[TrackPro] ${payload.title}`,
+        text: buildPlainText(payload, alertKind),
+        html: buildHtml(payload, alertKind, severity),
       }),
     })
+    if (!response.ok) {
+      console.error(
+        `[geofence-event] resend status=${response.status} body=${await response.text()}`,
+      )
+    }
   } catch (err) {
     console.error('[geofence-event] email send failed', err)
   }
+}
+
+function buildPlainText(payload: PushPayload, alertKind: AlertKind) {
+  return [
+    payload.title,
+    '',
+    payload.body,
+    '',
+    `კატეგორია: ${alertKind}`,
+    `ალერტების ცენტრი: ${APP_URL}/alerts`,
+    '',
+    '— TrackPro',
+  ].join('\n')
+}
+
+function buildHtml(payload: PushPayload, alertKind: AlertKind, severity: 'critical' | 'warning') {
+  const accent = severity === 'critical' ? '#DC2626' : '#CA8A04'
+  const bgAccent = severity === 'critical' ? '#FEF2F2' : '#FEFCE8'
+  return `<!doctype html>
+<html lang="ka">
+<head><meta charset="utf-8"></head>
+<body style="margin:0;padding:0;background:#F8FAFC;font-family:'Noto Sans Georgian','Helvetica Neue',Arial,sans-serif;color:#0F172A;">
+  <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background:#F8FAFC;padding:32px 16px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="560" style="max-width:560px;background:#FFFFFF;border:1px solid #E2E8F0;border-radius:8px;overflow:hidden;">
+          <tr>
+            <td style="padding:24px 24px 8px;border-bottom:1px solid #E2E8F0;">
+              <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#94A3B8;">TrackPro · შეტყობინება</div>
+              <div style="margin-top:6px;font-size:18px;font-weight:700;">${escapeHtml(payload.title)}</div>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:20px 24px;">
+              <div style="display:inline-block;padding:8px 12px;border-radius:6px;background:${bgAccent};color:${accent};font-size:12px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;">
+                ${severity === 'critical' ? 'კრიტიკული' : 'გაფრთხილება'}
+              </div>
+              <p style="margin:16px 0 0;font-size:14px;line-height:1.5;color:#0F172A;">
+                ${escapeHtml(payload.body)}
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:0 24px 24px;">
+              <a href="${APP_URL}/alerts" style="display:inline-block;padding:10px 16px;background:#1565C0;color:#FFFFFF;text-decoration:none;border-radius:4px;font-size:13px;font-weight:600;">
+                ალერტების ნახვა
+              </a>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:16px 24px;background:#F8FAFC;border-top:1px solid #E2E8F0;font-size:11px;color:#94A3B8;">
+              შენ ეს ემაილი მიიღე იმიტომ რომ TrackPro-ში admin ხარ. გადახედე
+              <a href="${APP_URL}/settings" style="color:#1565C0;text-decoration:none;">პარამეტრები → შეტყობინებები</a>
+              თუ გინდა შეცვალო ეს preferences.
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`
+}
+
+function escapeHtml(value: string) {
+  return value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;')
 }
 
 async function notifyUser(
