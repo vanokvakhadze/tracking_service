@@ -1,8 +1,27 @@
 import { redirect } from 'next/navigation'
 import { SubHeader } from '@/components/layout/SubHeader'
+import {
+  AlertSettingsForm,
+  type AlertKind,
+  type AlertSettingRow,
+} from '@/components/settings/AlertSettingsForm'
 import { CompanyProfileForm } from '@/components/settings/CompanyProfileForm'
 import { getCurrentUser } from '@/lib/auth/actions'
 import { createClient } from '@/lib/supabase/server'
+
+interface AlertSettingDbRow {
+  alert_kind: string
+  push_enabled: boolean
+  email_enabled: boolean
+  email_recipients: string[]
+}
+
+const DEFAULT_ALERT_KINDS: AlertKind[] = [
+  'mock_gps',
+  'location_disabled',
+  'low_battery',
+  'out_of_zone',
+]
 
 export const dynamic = 'force-dynamic'
 
@@ -23,11 +42,35 @@ export default async function SettingsPage() {
   }
 
   const supabase = await createClient()
-  const { data: tenant } = await supabase
-    .from('tenants')
-    .select('id, name, subdomain, timezone, default_language, default_geofence_radius_m')
-    .eq('id', myActive.tenant?.id ?? '')
-    .single()
+  const tenantId = myActive.tenant?.id ?? ''
+
+  const [{ data: tenant }, { data: alertSettingsRows }] = await Promise.all([
+    supabase
+      .from('tenants')
+      .select('id, name, subdomain, timezone, default_language, default_geofence_radius_m')
+      .eq('id', tenantId)
+      .single(),
+    // Table added in migration 20260521000001. Drop the cast after the
+    // migration is applied and `pnpm db:types` is re-run.
+    // biome-ignore lint/suspicious/noExplicitAny: see comment above
+    (supabase as any)
+      .from('tenant_alert_settings')
+      .select('alert_kind, push_enabled, email_enabled, email_recipients')
+      .eq('tenant_id', tenantId) as Promise<{ data: AlertSettingDbRow[] | null }>,
+  ])
+
+  const alertSettingsByKind = new Map(
+    (alertSettingsRows ?? []).map((row) => [row.alert_kind, row]),
+  )
+  const initialAlertSettings: AlertSettingRow[] = DEFAULT_ALERT_KINDS.map((kind) => {
+    const row = alertSettingsByKind.get(kind)
+    return {
+      alertKind: kind,
+      pushEnabled: row?.push_enabled ?? true,
+      emailEnabled: row?.email_enabled ?? false,
+      emailRecipients: row?.email_recipients ?? [],
+    }
+  })
 
   if (!tenant) {
     return (
@@ -68,9 +111,12 @@ export default async function SettingsPage() {
             <h2 className="text-[14px] font-semibold text-[var(--color-text-primary)]">
               შეტყობინებები
             </h2>
+            <p className="mt-0.5 text-[11px] text-[var(--color-text-tertiary)]">
+              თითო ალერტი ცალკე — Push (mobile admin app) + Email
+            </p>
           </div>
-          <div className="px-6 py-5 text-[13px] text-[var(--color-text-secondary)]">
-            Push და email შეტყობინებების მართვა — Phase 4-ში.
+          <div className="px-6 py-5">
+            <AlertSettingsForm tenantId={tenant.id} initial={initialAlertSettings} />
           </div>
         </div>
 
