@@ -1,15 +1,16 @@
+import { SubHeader } from '@/components/layout/SubHeader'
+import {
+  type AlertKind,
+  type AlertSettingRow,
+  AlertSettingsForm,
+} from '@/components/settings/AlertSettingsForm'
+import { CompanyProfileForm } from '@/components/settings/CompanyProfileForm'
+import { DangerZoneCard } from '@/components/settings/DangerZoneCard'
+import { getCurrentUser } from '@/lib/auth/actions'
+import { createClient } from '@/lib/supabase/server'
 import { ArrowRight, Bell, Building2, CreditCard, Smartphone } from 'lucide-react'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { SubHeader } from '@/components/layout/SubHeader'
-import {
-  AlertSettingsForm,
-  type AlertKind,
-  type AlertSettingRow,
-} from '@/components/settings/AlertSettingsForm'
-import { CompanyProfileForm } from '@/components/settings/CompanyProfileForm'
-import { getCurrentUser } from '@/lib/auth/actions'
-import { createClient } from '@/lib/supabase/server'
 
 interface AlertSettingDbRow {
   alert_kind: string
@@ -25,26 +26,52 @@ interface DeviceRow {
   last_seen_at: string
 }
 
+interface AdminMembershipRow {
+  tenant_id: string
+  user_id: string
+}
+
 const DEFAULT_ALERT_KINDS: AlertKind[] = [
   'mock_gps',
   'location_disabled',
   'low_battery',
   'out_of_zone',
 ]
+const ADMIN_ROLES = ['tenant_admin', 'super_admin'] as const
 
 export const dynamic = 'force-dynamic'
+
+function isAdminRole(role: string) {
+  return ADMIN_ROLES.includes(role as (typeof ADMIN_ROLES)[number])
+}
+
+function isSoleAdminForAnyTenant(
+  rows: AdminMembershipRow[],
+  userId: string,
+  adminTenantIds: string[],
+) {
+  return adminTenantIds.some((tenantId) => {
+    const tenantAdmins = rows.filter((row) => row.tenant_id === tenantId)
+    return tenantAdmins.length === 1 && tenantAdmins[0]?.user_id === userId
+  })
+}
 
 export default async function SettingsPage() {
   const me = await getCurrentUser()
   if (!me) redirect('/login')
 
-  const myActive = me.memberships?.find((m) => m.is_active)
-  if (!myActive || !['tenant_admin', 'super_admin'].includes(myActive.role)) {
+  const myActive = me.memberships?.find((membership) => membership.is_active)
+  if (!myActive || !isAdminRole(myActive.role)) {
     return (
       <>
         <SubHeader title="პარამეტრები" />
-        <main className="p-8 text-[13px] text-[var(--color-text-secondary)]">
-          ამ გვერდზე წვდომა მხოლოდ admin-ს აქვს.
+        <main className="p-6">
+          <div className="mx-auto max-w-4xl space-y-6">
+            <div className="rounded-lg border border-[var(--color-border)] bg-white p-6 text-[13px] text-[var(--color-text-secondary)]">
+              ამ გვერდზე წვდომა მხოლოდ admin-ს აქვს.
+            </div>
+            <DangerZoneCard email={me.email} isSoleAdmin={false} />
+          </div>
         </main>
       </>
     )
@@ -52,8 +79,28 @@ export default async function SettingsPage() {
 
   const supabase = await createClient()
   const tenantId = myActive.tenant?.id ?? ''
+  const activeAdminTenantIds = (me.memberships ?? [])
+    .filter((membership) => membership.is_active && isAdminRole(membership.role))
+    .map((membership) => membership.tenant?.id)
+    .filter((id): id is string => Boolean(id))
 
-  const [{ data: tenant }, { data: alertSettingsRows }, { data: deviceRows }] = await Promise.all([
+  const adminMembershipsPromise =
+    activeAdminTenantIds.length > 0
+      ? supabase
+          .from('tenant_memberships')
+          .select('tenant_id, user_id')
+          .in('tenant_id', activeAdminTenantIds)
+          .eq('is_active', true)
+          .in('role', [...ADMIN_ROLES])
+          .overrideTypes<AdminMembershipRow[], { merge: false }>()
+      : Promise.resolve({ data: [] as AdminMembershipRow[], error: null })
+
+  const [
+    { data: tenant },
+    { data: alertSettingsRows },
+    { data: deviceRows },
+    { data: adminMembershipRows, error: adminMembershipError },
+  ] = await Promise.all([
     supabase
       .from('tenants')
       .select(
@@ -74,6 +121,7 @@ export default async function SettingsPage() {
       .eq('user_id', me.id)
       .order('last_seen_at', { ascending: false })
       .overrideTypes<DeviceRow[], { merge: false }>(),
+    adminMembershipsPromise,
   ])
 
   const alertSettingsByKind = new Map((alertSettingsRows ?? []).map((row) => [row.alert_kind, row]))
@@ -100,6 +148,9 @@ export default async function SettingsPage() {
 
   const subscriptionActive = tenant.subscription_status === 'active'
   const devices = deviceRows ?? []
+  const isSoleAdmin =
+    Boolean(adminMembershipError) ||
+    isSoleAdminForAnyTenant(adminMembershipRows ?? [], me.id, activeAdminTenantIds)
 
   return (
     <>
@@ -113,7 +164,7 @@ export default async function SettingsPage() {
           <Section
             icon={Building2}
             title="კომპანიის პროფილი"
-            subtitle="სახელი, subdomain, დროის სარტყელი + ნაგულისხმევი რადიუსი"
+            subtitle="სახელი, subdomain, დროის სარტყელი და ნაგულისხმევი რადიუსი"
           >
             <CompanyProfileForm
               tenantId={tenant.id}
@@ -128,7 +179,7 @@ export default async function SettingsPage() {
           <Section
             icon={Bell}
             title="შეტყობინებები"
-            subtitle="თითო ალერტი ცალკე — Push (მობილური აპლიკაცია) + Email"
+            subtitle="თითოეული ალერტი ცალკე: Push მობილურზე და Email"
           >
             <AlertSettingsForm tenantId={tenant.id} initial={initialAlertSettings} />
           </Section>
@@ -165,6 +216,8 @@ export default async function SettingsPage() {
               <ArrowRight className="h-4 w-4 text-[var(--color-text-tertiary)]" />
             </Link>
           </Section>
+
+          <DangerZoneCard email={me.email} isSoleAdmin={isSoleAdmin} />
         </div>
       </main>
     </>
@@ -202,9 +255,9 @@ function DevicesList({ devices }: { devices: DeviceRow[] }) {
   if (devices.length === 0) {
     return (
       <div className="rounded-md border border-dashed border-[var(--color-border)] bg-[var(--color-surface)] p-6 text-center">
-        <p className="text-[13px] text-[var(--color-text-secondary)]">ჯერ ერთიც არ არის</p>
+        <p className="text-[13px] text-[var(--color-text-secondary)]">ჯერ არცერთი არ არის</p>
         <p className="mt-1 text-[11px] text-[var(--color-text-tertiary)]">
-          მობილური აპლიკაციით login-ის შემდეგ device-ი აქ გამოჩნდება.
+          მობილური აპლიკაციით login-ის შემდეგ device აქ გამოჩნდება.
         </p>
       </div>
     )
