@@ -23,6 +23,7 @@
 //   DEMO_TENANT_NAME    (default: "App Review Demo")
 //   DEMO_TENANT_SUBDOMAIN (default: "review")
 
+import { randomBytes } from 'node:crypto'
 import { createClient } from '@supabase/supabase-js'
 
 const SUPABASE_URL = process.env.SUPABASE_URL
@@ -133,6 +134,10 @@ async function deletePreviousDemo() {
     .eq('user_id', existing.id)
   const tenantIds = [...new Set((memberships ?? []).map((m) => m.tenant_id))]
   for (const tenantId of tenantIds) {
+    await supabase.from('location_pings').delete().eq('tenant_id', tenantId)
+    await supabase.from('geofence_events').delete().eq('tenant_id', tenantId)
+    await supabase.from('shifts').delete().eq('tenant_id', tenantId)
+    await supabase.from('invitations').delete().eq('tenant_id', tenantId)
     await supabase.from('locations').delete().eq('tenant_id', tenantId)
     await supabase.from('tenant_memberships').delete().eq('tenant_id', tenantId)
     await supabase.from('tenants').delete().eq('id', tenantId)
@@ -180,6 +185,8 @@ async function createLocation(tenantId, loc) {
     category: loc.category,
     address: loc.address,
     center: wkt(loc.latitude, loc.longitude),
+    latitude: loc.latitude,
+    longitude: loc.longitude,
     radius_m: loc.boundary_radius_m,
     trigger_radius_m: loc.trigger_radius_m,
     boundary_radius_m: loc.boundary_radius_m,
@@ -208,12 +215,198 @@ async function createEmployee(tenantId, emp) {
   return authUser
 }
 
+async function fetchTenantLocations(tenantId) {
+  const { data, error } = await supabase
+    .from('locations')
+    .select('id, latitude, longitude, boundary_radius_m')
+    .eq('tenant_id', tenantId)
+    .eq('status', 'active')
+  if (error) throw new Error(`fetch locations failed: ${error.message}`)
+  return data ?? []
+}
+
+function jitterCoord(value, jitterMeters) {
+  // ~111km per degree latitude -> 1m ≈ 1/111000 deg
+  const jitter = (Math.random() - 0.5) * 2 * (jitterMeters / 111000)
+  return value + jitter
+}
+
+function pickRandom(list) {
+  return list[Math.floor(Math.random() * list.length)]
+}
+
+async function createHistoricalShift(tenantId, userId, locations, daysAgo) {
+  // Shift between 08:30-17:30 give or take. Pick a starting hour 8-10.
+  const base = new Date()
+  base.setDate(base.getDate() - daysAgo)
+  base.setHours(8 + Math.floor(Math.random() * 2), Math.floor(Math.random() * 30), 0, 0)
+
+  const startedAt = new Date(base)
+  const visitCount = 3 + Math.floor(Math.random() * 3) // 3-5 visits
+  const shiftDurationMin = 360 + Math.floor(Math.random() * 180) // 6-9 hours
+  const endedAt = new Date(startedAt.getTime() + shiftDurationMin * 60 * 1000)
+
+  const startLoc = pickRandom(locations)
+  const endLoc = pickRandom(locations)
+  const totalDistanceM = 4000 + Math.floor(Math.random() * 11000) // 4-15km
+  const totalDwellMinutes = Math.floor(shiftDurationMin * (0.55 + Math.random() * 0.25)) // 55-80% dwell
+
+  const { data: shiftRow, error: shiftErr } = await supabase
+    .from('shifts')
+    .insert({
+      tenant_id: tenantId,
+      user_id: userId,
+      started_at: startedAt.toISOString(),
+      ended_at: endedAt.toISOString(),
+      status: 'completed',
+      start_location: wkt(jitterCoord(startLoc.latitude, 50), jitterCoord(startLoc.longitude, 50)),
+      end_location: wkt(jitterCoord(endLoc.latitude, 50), jitterCoord(endLoc.longitude, 50)),
+      total_distance_m: totalDistanceM,
+      total_dwell_minutes: totalDwellMinutes,
+      locations_visited: visitCount,
+    })
+    .select('id')
+    .single()
+  if (shiftErr) throw new Error(`historical shift failed: ${shiftErr.message}`)
+
+  // Generate enter/exit pairs spread across the shift duration.
+  const segmentMs = (shiftDurationMin * 60 * 1000) / visitCount
+  const events = []
+  for (let i = 0; i < visitCount; i++) {
+    const loc = pickRandom(locations)
+    const enterAt = new Date(startedAt.getTime() + i * segmentMs + Math.random() * 60_000)
+    const exitAt = new Date(
+      Math.min(endedAt.getTime(), enterAt.getTime() + (segmentMs * 0.7 + Math.random() * 600_000)),
+    )
+    const lat = jitterCoord(loc.latitude, 30)
+    const lng = jitterCoord(loc.longitude, 30)
+    events.push({
+      tenant_id: tenantId,
+      user_id: userId,
+      shift_id: shiftRow.id,
+      location_id: loc.id,
+      event_type: 'enter',
+      occurred_at: enterAt.toISOString(),
+      coords: wkt(lat, lng),
+      accuracy_m: 8 + Math.floor(Math.random() * 12),
+      zone: 'inside',
+    })
+    events.push({
+      tenant_id: tenantId,
+      user_id: userId,
+      shift_id: shiftRow.id,
+      location_id: loc.id,
+      event_type: 'exit',
+      occurred_at: exitAt.toISOString(),
+      coords: wkt(lat, lng),
+      accuracy_m: 8 + Math.floor(Math.random() * 12),
+      zone: 'outside',
+    })
+  }
+  const { error: eventsErr } = await supabase.from('geofence_events').insert(events)
+  if (eventsErr) throw new Error(`historical events failed: ${eventsErr.message}`)
+  return events.length
+}
+
+async function createActiveShift(tenantId, userId, locations, withMockPings) {
+  // Active shift started 1-3 hours ago
+  const hoursAgo = 1 + Math.random() * 2
+  const startedAt = new Date(Date.now() - hoursAgo * 60 * 60 * 1000)
+  const startLoc = pickRandom(locations)
+
+  const { data: shiftRow, error: shiftErr } = await supabase
+    .from('shifts')
+    .insert({
+      tenant_id: tenantId,
+      user_id: userId,
+      started_at: startedAt.toISOString(),
+      status: 'active',
+      start_location: wkt(jitterCoord(startLoc.latitude, 50), jitterCoord(startLoc.longitude, 50)),
+      total_distance_m: Math.floor(Math.random() * 4000),
+      total_dwell_minutes: Math.floor(hoursAgo * 60 * 0.7),
+      locations_visited: 1,
+    })
+    .select('id')
+    .single()
+  if (shiftErr) throw new Error(`active shift failed: ${shiftErr.message}`)
+
+  // One enter event at the start location
+  const enterAt = new Date(startedAt.getTime() + 5 * 60 * 1000)
+  await supabase.from('geofence_events').insert({
+    tenant_id: tenantId,
+    user_id: userId,
+    shift_id: shiftRow.id,
+    location_id: startLoc.id,
+    event_type: 'enter',
+    occurred_at: enterAt.toISOString(),
+    coords: wkt(jitterCoord(startLoc.latitude, 20), jitterCoord(startLoc.longitude, 20)),
+    accuracy_m: 10,
+    zone: 'inside',
+  })
+
+  // 10 location_pings across last hour, plus optionally 2 mock_gps pings
+  const pingCount = 10
+  const pings = []
+  for (let i = 0; i < pingCount; i++) {
+    const recordedAt = new Date(Date.now() - (pingCount - i) * (60_000 / 1.5))
+    pings.push({
+      tenant_id: tenantId,
+      user_id: userId,
+      shift_id: shiftRow.id,
+      recorded_at: recordedAt.toISOString(),
+      coords: wkt(jitterCoord(startLoc.latitude, 80), jitterCoord(startLoc.longitude, 80)),
+      accuracy_m: 6 + Math.floor(Math.random() * 8),
+      battery_percent: 70 + Math.floor(Math.random() * 25),
+      speed_mps: Math.random() * 2.5,
+      is_mock: false,
+    })
+  }
+
+  if (withMockPings) {
+    // Add 2 mock pings in the last 10 minutes -> trips mock_gps alert
+    for (let i = 0; i < 2; i++) {
+      const recordedAt = new Date(Date.now() - (3 + i * 2) * 60 * 1000)
+      pings.push({
+        tenant_id: tenantId,
+        user_id: userId,
+        shift_id: shiftRow.id,
+        recorded_at: recordedAt.toISOString(),
+        coords: wkt(jitterCoord(startLoc.latitude, 200), jitterCoord(startLoc.longitude, 200)),
+        accuracy_m: 5,
+        battery_percent: 35,
+        speed_mps: 0,
+        is_mock: true,
+      })
+    }
+  }
+
+  const { error: pingsErr } = await supabase.from('location_pings').insert(pings)
+  if (pingsErr) throw new Error(`active pings failed: ${pingsErr.message}`)
+  return { shiftId: shiftRow.id, pingsInserted: pings.length }
+}
+
+async function createPendingInvitation(tenantId, invitedByUserId) {
+  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+  const { error } = await supabase.from('invitations').insert({
+    tenant_id: tenantId,
+    email: 'demo.invite@trackpro.ge',
+    role: 'user',
+    token: randomBytes(32).toString('base64url'),
+    expires_at: expiresAt,
+    invited_by_user_id: invitedByUserId,
+    status: 'pending',
+  })
+  if (error) throw new Error(`pending invite failed: ${error.message}`)
+}
+
 async function createPendingLocation(tenantId, submitterId) {
   const { error } = await supabase.from('locations').insert({
     tenant_id: tenantId,
     name: PROVISIONAL.name,
     category: 'other',
     center: wkt(PROVISIONAL.latitude, PROVISIONAL.longitude),
+    latitude: PROVISIONAL.latitude,
+    longitude: PROVISIONAL.longitude,
     radius_m: 100,
     trigger_radius_m: 50,
     boundary_radius_m: 100,
@@ -253,6 +446,32 @@ async function main() {
   console.log('› creating 1 pending provisional location…')
   await createPendingLocation(tenantId, employees[0].id)
   console.log(`  ✓ ${PROVISIONAL.name}`)
+
+  console.log('› seeding operational data (shifts + events + pings + invite)…')
+  const tenantLocations = await fetchTenantLocations(tenantId)
+  if (tenantLocations.length === 0) {
+    throw new Error('no active locations found after seed — cannot generate shifts')
+  }
+
+  // 8 historical shifts across last 7 days, spread between the 2 employees.
+  let historicalEvents = 0
+  for (let i = 0; i < 8; i++) {
+    const daysAgo = 1 + (i % 7)
+    const employee = employees[i % employees.length]
+    historicalEvents += await createHistoricalShift(tenantId, employee.id, tenantLocations, daysAgo)
+  }
+  console.log(`  ✓ 8 historical shifts (${historicalEvents} geofence events)`)
+
+  // 2 active shifts — one with mock GPS to trip an alert.
+  const active1 = await createActiveShift(tenantId, employees[0].id, tenantLocations, true)
+  const active2 = await createActiveShift(tenantId, employees[1].id, tenantLocations, false)
+  console.log(
+    `  ✓ 2 active shifts (${active1.pingsInserted + active2.pingsInserted} pings, 2 mock_gps for alert)`,
+  )
+
+  // 1 pending invitation
+  await createPendingInvitation(tenantId, admin.id)
+  console.log('  ✓ 1 pending invitation (demo.invite@trackpro.ge)')
 
   console.log('')
   console.log('━'.repeat(60))
